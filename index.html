@@ -82,7 +82,7 @@ body.stock-body{background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:
       <button class="button green-button" style="width:100%" type="submit">LOGIN</button>
       <div id="loginError" class="error"></div>
     </form>
-    <div class="login-version">v1.0.0</div>
+    <div class="login-version">v1.0.1</div>
   </div>
 </div>
 
@@ -178,7 +178,7 @@ body.stock-body{background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:
             <div class="form-group"><label>Tanggal</label><input id="reportDate" type="date" required></div>
             <div class="form-group"><label>Keterangan</label><textarea id="reportDescription" required placeholder="Masukkan keterangan laporan..."></textarea></div>
             <div class="form-group"><label>Deadline</label><input id="reportDeadline" type="date"></div>
-            <div class="form-group"><label>Status</label><select id="reportStatus"><option value="Pending">Pending</option><option value="Progress">Progress</option><option value="Selesai">Selesai</option></select></div>
+            <div class="form-group"><label>Status</label><select id="reportStatus"><option value="Pending">Pending</option><option value="Progress">Progress</option><option value="Selesai">Selesai</option><option value="Complete">Complete</option></select></div>
             <div class="form-group"><label>File Bukti / Lampiran</label>
               <div id="dropzone" class="dropzone" tabindex="0">
                 <div class="dropzone-title">📎 Drag & Drop File di Sini</div>
@@ -478,10 +478,82 @@ function openMember(i){currentMember=members[i]||"";if(!currentMember)return;sho
 function openMemberLogbook(i){currentMember=members[i]||"";if(!currentMember)return;showPage("logbook")}
 
 function readLocalLogbook(){return getJSON(KEYS.logbook,[]).filter(x=>normalizeMember(x.nama||x.member)===currentMember)}
+
+// Semua variasi status selesai dianggap COMPLETE. Data tetap berada di logbook,
+// tetapi tidak lagi dianggap sebagai deadline aktif dan tidak ditampilkan di
+// kalender anggota.
+function isCompletedStatus(status){
+  const v=String(status||"").trim().toLowerCase().replace(/[\s_-]+/g,"");
+  return ["complete","completed","selesai","sudahselesai","done","finish","finished","complated","complate"].includes(v);
+}
+function getActiveDeadlineRows(rows){
+  return (Array.isArray(rows)?rows:[]).filter(r=>{
+    const status=r?.status??r?.Status??"";
+    const deadline=r?.deadline??r?.Deadline??"";
+    return Boolean(String(deadline).trim()) && !isCompletedStatus(status);
+  });
+}
+
+function activeDeadlineRows(rows){
+  return getActiveDeadlineRows(rows);
+}
+
 async function loadMemberCSV(name){const candidates=["data/"+encodeURIComponent(safeFilename(name))+".csv","data/"+safeFilename(name)+".csv"];for(const url of candidates){try{const r=await fetch(url,{cache:"no-store"});if(r.ok){const text=await r.text();return parseCSV(text)}}catch{}}return []}
 function parseCSV(text){const rows=[];let row=[],cell="",quote=false;for(let i=0;i<text.length;i++){const c=text[i],n=text[i+1];if(c==='"'&&quote&&n==='"'){cell+='"';i++;continue}if(c==='"'){quote=!quote;continue}if(c===','&&!quote){row.push(cell);cell="";continue}if((c==='\n'||c==='\r')&&!quote){if(c==='\r'&&n==='\n')i++;row.push(cell);if(row.some(v=>v!==""))rows.push(row);row=[];cell="";continue}cell+=c}if(cell||row.length){row.push(cell);rows.push(row)}if(!rows.length)return[];const h=rows[0].map(x=>x.trim());return rows.slice(1).map(r=>Object.fromEntries(h.map((k,i)=>[k,r[i]??""]))).filter(x=>Object.values(x).some(Boolean))}
 async function getLogbook(){let rows=readLocalLogbook();if(!rows.length){const csv=await loadMemberCSV(currentMember);if(csv.length){rows=csv.map((r,i)=>({id:"csv_"+i,nama:currentMember,No:r.No||String(i+1),tanggal:r.Tanggal||"",keterangan:r.Keterangan||"",deadline:r.Deadline||"",status:r.Status||"",file:r.File||""}))}}return rows}
-async function renderLogbook(){const body=$("logbookBody");$("logbookTitle").textContent="Logbook - "+currentMember;body.innerHTML='<tr><td colspan="7">Memuat...</td></tr>';const rows=await getLogbook();logbookRows=rows;body.innerHTML="";if(!rows.length){body.innerHTML='<tr><td colspan="7">Belum ada laporan.</td></tr>';return}rows.forEach((r,i)=>{const tr=document.createElement("tr");tr.innerHTML='<td>'+escapeHTML(r.No||i+1)+'</td><td>'+escapeHTML(r.tanggal||r.Tanggal||"")+'</td><td>'+escapeHTML(r.keterangan||r.Keterangan||"")+'</td><td>'+escapeHTML(r.deadline||r.Deadline||"")+'</td><td>'+escapeHTML(r.status||r.Status||"")+'</td><td>'+renderFileValue(r.file||r.File||"")+'</td><td><button class="button small-btn red-button" onclick="deleteReport('+i+')">Hapus</button></td>';body.appendChild(tr)})}
+async function renderLogbook(){const body=$("logbookBody");$("logbookTitle").textContent="Logbook - "+currentMember;body.innerHTML='<tr><td colspan="7">Memuat...</td></tr>';const rows=await getLogbook();logbookRows=rows;body.innerHTML="";if(!rows.length){body.innerHTML='<tr><td colspan="7">Belum ada laporan.</td></tr>';return}rows.forEach((r,i)=>{const tr=document.createElement("tr");const status=r.status||r.Status||"";tr.innerHTML='<td>'+escapeHTML(r.No||i+1)+'</td><td>'+escapeHTML(r.tanggal||r.Tanggal||"")+'</td><td>'+escapeHTML(r.keterangan||r.Keterangan||"")+'</td><td>'+escapeHTML(r.deadline||r.Deadline||"")+'</td><td><select class="logbook-status" data-report-index="'+i+'"><option value="Pending">Pending</option><option value="Progress">Progress</option><option value="Selesai">Selesai</option><option value="Complete">Complete</option></select></td><td>'+renderFileValue(r.file||r.File||"")+'</td><td><button class="button small-btn red-button" onclick="deleteReport('+i+')">Hapus</button></td>';const sel=tr.querySelector("select");sel.value=status;if(sel.value!==status)sel.value=isCompletedStatus(status)?"Complete":(status||"Pending");sel.addEventListener("change",()=>updateReportStatus(i,sel.value));body.appendChild(tr)})}
+
+function updateReportStatus(index,status){
+  const all=getJSON(KEYS.logbook,[]);
+  const memberRows=all.map((r,idx)=>({r,idx})).filter(x=>normalizeMember(x.r.nama||x.r.member)===currentMember);
+  const target=memberRows[index];
+  if(!target)return;
+
+  const previousStatus=String(target.r.status||target.r.Status||"").trim();
+  const wasComplete=isCompletedStatus(previousStatus);
+  const willComplete=isCompletedStatus(status);
+  const updated={...target.r,status};
+
+  // COMPLETE selalu berarti pekerjaan selesai. Karena itu pekerjaan tersebut
+  // tidak boleh lagi dianggap sebagai deadline aktif / event kalender.
+  // Selain mengubah status laporan asal, buat satu catatan laporan penyelesaian
+  // baru ketika transisi Pending/Progress -> Complete terjadi.
+  if(willComplete && !wasComplete && !target.r.completion_report_id){
+    const completionId="completion_"+Date.now()+"_"+Math.random().toString(36).slice(2,9);
+    updated.completion_report_id=completionId;
+    updated.completed_at=new Date().toISOString();
+    all[target.idx]=updated;
+
+    const memberCount=all.filter(x=>normalizeMember(x.nama||x.member)===currentMember).length;
+    const completionReport={
+      ...updated,
+      id:completionId,
+      No:memberCount+1,
+      status:"Complete",
+      completion_report:true,
+      completion_of_id:updated.id,
+      keterangan:(updated.keterangan||updated.Keterangan||"Laporan")+" — Penyelesaian",
+      tanggal:new Date().toISOString().slice(0,10),
+      deadline:""
+    };
+    all.push(completionReport);
+  }else{
+    all[target.idx]=updated;
+  }
+
+  // Rapikan nomor laporan per anggota setelah perubahan.
+  let nomor=1;
+  all.forEach(r=>{
+    if(normalizeMember(r.nama||r.member)===currentMember)r.No=nomor++;
+  });
+
+  setJSON(KEYS.logbook,all);
+
+  // Render ulang seluruh komponen yang bergantung pada deadline/logbook.
+  // activeDeadlineRows() akan otomatis membuang semua status COMPLETE.
+  renderDashboard();
+  renderLogbook();
+}
 function renderFileValue(v){if(!v)return"";return String(v).split("||").map(x=>x.trim()).filter(Boolean).map(x=>/^https?:\/\//i.test(x)?'<a href="'+escapeHTML(x)+'" target="_blank" rel="noopener noreferrer">Buka</a>':escapeHTML(x)).join(" | ")}
 async function deleteReport(i){if(!confirm("Hapus laporan ini?"))return;const rows=await getLogbook();rows.splice(i,1);const all=getJSON(KEYS.logbook,[]);const kept=all.filter(x=>normalizeMember(x.nama||x.member)!==currentMember);rows.forEach((r,j)=>kept.push({...r,nama:currentMember,No:j+1}));setJSON(KEYS.logbook,kept);await renderLogbook()}
 
@@ -497,7 +569,7 @@ async function uploadToGoogleDrive(file,nama,tanggal){if(!file||!allowedFile(fil
 $("reportForm").addEventListener("submit",async e=>{e.preventDefault();if(!currentMember){alert("Pilih anggota terlebih dahulu.");showPage("members");return}const tanggal=$("reportDate").value,keterangan=$("reportDescription").value.trim(),deadline=$("reportDeadline").value,status=$("reportStatus").value,files=selectedReportFiles.length?selectedReportFiles:[...$("reportFiles").files];let links=[];const notice=$("uploadStatus");notice.classList.remove("hidden");notice.textContent="Menyimpan laporan...";for(const f of files){try{if(!allowedFile(f.name))continue;notice.textContent="Mengupload "+f.name+"...";const r=await uploadToGoogleDrive(f,currentMember,tanggal);if(r?.fileUrl)links.push(r.fileUrl)}catch(err){console.warn(err)}}const all=getJSON(KEYS.logbook,[]);const current=all.filter(x=>normalizeMember(x.nama||x.member)===currentMember);const row={id:Date.now(),nama:currentMember,No:current.length+1,tanggal,keterangan,deadline,status,file:links.join("||")};all.push(row);setJSON(KEYS.logbook,all);notice.textContent=links.length?"Laporan tersimpan dan file berhasil diunggah.":"Laporan tersimpan. Tidak ada file yang berhasil diunggah.";e.target.reset();currentMember=row.nama;setTimeout(()=>showPage("logbook"),500)})
 
 function deadlineClass(d){const x=parseDateLocal(d);if(!x)return"";const diff=daysDiff(nowDateOnly(),new Date(x.getFullYear(),x.getMonth(),x.getDate()));if(diff<0)return"overdue";if(diff===0)return"today";if(diff<=3)return"soon";if(diff<=7)return"week";return""}
-async function renderDashboard(){$("dashboardMember").textContent=currentMember;const rows=await getLogbook();const upcoming=rows.filter(r=>r.deadline||r.Deadline).map(r=>({...r,_d:parseDateLocal(r.deadline||r.Deadline)})).filter(r=>r._d).sort((a,b)=>a._d-b._d);const alerts=$("deadline-alerts"),items=$("deadline-items");if(!upcoming.length){alerts.innerHTML='<div class="empty-alert">Tidak ada deadline yang mendekat dalam 7 hari ke depan.</div>';items.innerHTML='<div class="empty-alert">Tidak ada deadline aktif.</div>'}else{const near=upcoming.filter(r=>daysDiff(nowDateOnly(),new Date(r._d.getFullYear(),r._d.getMonth(),r._d.getDate()))<=7);alerts.innerHTML=near.length?near.slice(0,10).map(r=>{const cls=deadlineClass(r._d);return '<div class="announcement '+cls+'"><strong>'+escapeHTML(r.keterangan||r.Keterangan||"Laporan")+'</strong><br>Deadline: '+escapeHTML(formatDate(r._d))+'<br><span class="status">'+escapeHTML(r.status||r.Status||"")+'</span></div>'}).join(""):'<div class="empty-alert">Tidak ada deadline yang mendekat dalam 7 hari ke depan.</div>';items.innerHTML=upcoming.slice(0,30).map(r=>{const cls=deadlineClass(r._d);return '<div class="announcement '+cls+'"><strong>'+escapeHTML(r.keterangan||r.Keterangan||"Laporan")+'</strong><br>Deadline: '+escapeHTML(formatDate(r._d))+'<br><span class="status">'+escapeHTML(r.status||r.Status||"")+'</span></div>'}).join("")}renderDashboardCalendar(upcoming)}
+async function renderDashboard(){$("dashboardMember").textContent=currentMember;const rows=activeDeadlineRows(await getLogbook());const upcoming=rows.filter(r=>r.deadline||r.Deadline).map(r=>({...r,_d:parseDateLocal(r.deadline||r.Deadline)})).filter(r=>r._d).sort((a,b)=>a._d-b._d);const alerts=$("deadline-alerts"),items=$("deadline-items");if(!upcoming.length){alerts.innerHTML='<div class="empty-alert">Tidak ada deadline yang mendekat dalam 7 hari ke depan.</div>';items.innerHTML='<div class="empty-alert">Tidak ada deadline aktif.</div>'}else{const near=upcoming.filter(r=>daysDiff(nowDateOnly(),new Date(r._d.getFullYear(),r._d.getMonth(),r._d.getDate()))<=7);alerts.innerHTML=near.length?near.slice(0,10).map(r=>{const cls=deadlineClass(r._d);return '<div class="announcement '+cls+'"><strong>'+escapeHTML(r.keterangan||r.Keterangan||"Laporan")+'</strong><br>Deadline: '+escapeHTML(formatDate(r._d))+'<br><span class="status">'+escapeHTML(r.status||r.Status||"")+'</span></div>'}).join(""):'<div class="empty-alert">Tidak ada deadline yang mendekat dalam 7 hari ke depan.</div>';items.innerHTML=upcoming.slice(0,30).map(r=>{const cls=deadlineClass(r._d);return '<div class="announcement '+cls+'"><strong>'+escapeHTML(r.keterangan||r.Keterangan||"Laporan")+'</strong><br>Deadline: '+escapeHTML(formatDate(r._d))+'<br><span class="status">'+escapeHTML(r.status||r.Status||"")+'</span></div>'}).join("")}renderDashboardCalendar(upcoming)}
 function renderDashboardCalendar(rows){const root=$("dashboardCalendarBody");const y=calendarDate.getFullYear(),m=calendarDate.getMonth(),first=new Date(y,m,1),last=new Date(y,m+1,0),start=first.getDay(),total=last.getDate();let out='<div class="calendar-header"><button class="calendar-button" onclick="changeCalendarMonth(-1);renderDashboard()">‹</button><div class="calendar-title">'+escapeHTML(formatMonth(calendarDate))+'</div><button class="calendar-button" onclick="changeCalendarMonth(1);renderDashboard()">›</button></div><div class="calendar-week">'+["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"].map(x=>'<div>'+x+'</div>').join("")+'</div><div class="calendar-days">';for(let i=0;i<start;i++)out+='<div class="day other"></div>';for(let d=1;d<=total;d++){const date=new Date(y,m,d),today=sameDate(date,nowDateOnly());out+='<div class="day '+(today?"today":"")+'"><div class="day-number">'+d+'</div>';rows.filter(r=>sameDate(r._d,date)).forEach(r=>{out+='<div class="deadline '+deadlineClass(r._d)+'"><strong>'+escapeHTML(r.keterangan||r.Keterangan||"Laporan")+'</strong><br>'+escapeHTML(r.status||r.Status||"")+'</div>'});calendarBookings.filter(b=>bookingCoversDate(b,date)).forEach(b=>{out+='<div class="deadline booking '+bookingClass(b)+'" data-booking-id="'+escapeHTML(b.id)+'" role="button" tabindex="0"><div class="deadline-person">'+escapeHTML(b.nama||"Tanpa nama")+'</div><div class="deadline-detail">'+escapeHTML(b.alat||"")+'</div></div>'});out+='</div>'}out+='</div>';root.innerHTML=out}
 
 function stockStatus(q){q=Number(q)||0;return q<=0?"tidak":q<=5?"habis":"ada"}
