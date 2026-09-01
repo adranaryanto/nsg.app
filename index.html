@@ -7,7 +7,6 @@
 <title>NSG App - Logbook & Peminjaman</title>
 <style>
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;padding:20px;background:#b3b3b3;font-family:"Times New Roman",serif;color:#111}.hidden{display:none!important}.container{width:1100px;max-width:100%;margin:auto;background:#fff;border:1px solid #555}.header{background:#2f7d20;color:#fff;padding:15px 20px;display:flex;justify-content:space-between;align-items:center}.header-right{display:flex;align-items:center;gap:12px}.header-logo{width:72px;height:45px;object-fit:contain}.title{font-size:26px;font-weight:bold}.member-name{font-size:18px;font-weight:bold}.content{padding:20px}.section{border:1px solid #777;padding:15px;margin-bottom:20px;background:#fafafa;scroll-margin-top:15px}.section-title{font-size:21px;font-weight:bold;margin-bottom:12px}.menu-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:15px;margin-bottom:25px}.main-menu-grid{display:grid;grid-template-columns:1fr;gap:12px;margin:25px}.member-list{display:flex;flex-direction:column;gap:12px}.member-card{display:flex;align-items:center;justify-content:space-between;border:1px solid #777;background:#ddd;padding:16px 18px;font-size:18px;cursor:pointer;text-decoration:none;color:#111}.member-card:hover{background:#d2d2d2}.member-arrow{font-size:22px}.dropzone{border:2px dashed #777;background:#f2f2f2;padding:28px 18px;text-align:center;cursor:pointer;margin-bottom:15px}.dropzone.dragover{background:#e9f5e5;border-color:#2f7d20}.dropzone-title{font-size:18px;font-weight:bold;margin-bottom:8px}.dropzone-subtitle{font-size:14px;color:#666}.file-list{margin-top:10px;text-align:left;font-size:14px}.file-list div{padding:4px 0;border-bottom:1px solid #ddd}.menu{display:block;padding:20px;text-align:center;border:1px solid #555;background:#eee;color:#000;text-decoration:none;font-size:20px;font-weight:bold;cursor:pointer}.menu:hover{background:#d7d7d7}.menu.gdrive{background:#eef6ff}.announcement{border-left:6px solid #2f7d20;padding:12px;margin-bottom:8px;background:#fff}.announcement.today{border-left-color:#d00000;background:#fff0f0}.announcement.soon{border-left-color:#e67e00;background:#fff7ed}.announcement.week{border-left-color:#d6a600;background:#fffbea}.announcement.overdue{border-left-color:#8b0000;background:#ffe5e5}.empty-alert{color:#555;padding:5px 0}.calendar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.calendar-title{font-size:22px;font-weight:bold}.calendar-button,.button{border:1px solid #555;background:#eee;padding:7px 14px;cursor:pointer;font-family:"Times New Roman",serif;font-size:16px;text-decoration:none;color:#000}.calendar-button:hover,.button:hover{background:#ddd}.calendar-week,.calendar-days{display:grid;grid-template-columns:repeat(7,1fr)}.calendar-week{text-align:center;font-weight:bold;background:#ddd}.calendar-week div{padding:8px;border:1px solid #aaa}.day{min-height:100px;border:1px solid #aaa;padding:5px;position:relative;background:#fff}.day.other{background:#eee;color:#999}.day.today{background:#e9f5e5}.day-number{font-weight:bold;font-size:15px}.deadline{margin-top:5px;padding:4px;font-size:12px;border-radius:3px;background:#ffd966;overflow-wrap:anywhere;cursor:pointer}.deadline.today-deadline{background:#ff6666;color:#fff}.deadline.soon-deadline{background:#f6b26b}.deadline.week-deadline{background:#ffe599}.deadline.overdue-deadline{background:#d9a0a0;color:#4a0000}.deadline.booking{background:#ddf0d8;border-left:3px solid #2f7d20}.deadline.booking.today-deadline{background:#ff9999;border-left-color:#990000}.deadline.booking.soon-deadline{background:#ffe0a3;border-left-color:#d68a00}.deadline.booking.overdue-deadline{background:#ffdddd;border-left-color:#cc0000}.deadline-person{font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.deadline-detail{font-size:10px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.status{display:inline-block;margin-top:5px;padding:3px 8px;border:1px solid #999;background:#eee;font-size:13px}.deadline-action{margin-top:12px;padding-top:10px;border-top:1px solid #ccc}.deadline-action select{padding:7px;font-family:"Times New Roman",serif;border:1px solid #888;background:#fff}.deadline-action button{padding:7px 12px;margin-left:5px;border:1px solid #245d19;background:#2f7d20;color:#fff;cursor:pointer;font-family:"Times New Roman",serif}.deadline-action button:disabled{background:#888;border-color:#777;cursor:wait}.footer{margin-top:20px;padding-top:15px;border-top:1px solid #777;display:flex;justify-content:space-between}.logout{color:#a00000!important}.panel{width:650px;min-height:650px;margin:0 auto;background:#fff;border:1px solid #000}.login-panel{width:420px;min-height:auto}.login-content{padding:25px}.form-group{margin-bottom:18px}.form-group label{display:block;font-size:17px;font-weight:bold;margin-bottom:6px}.form-group input,.form-group textarea,.form-group select{width:100%;border:1px solid #555;background:#eee;padding:8px;font-family:"Times New Roman",serif;font-size:16px}.form-group input{height:36px}.form-group textarea{height:110px;resize:vertical}.form-group select{height:36px}.row{display:grid;grid-template-columns:1fr 1fr;gap:15px}.buttons{margin-top:25px;display:flex;justify-content:space-between;gap:10px}.green-button{background:#2f7d20;color:#fff;border-color:#245d19}.green-button:hover{background:#256619}.red-button{background:#c62828!important;color:#fff!important;border-color:#a51f1f!important}.blue-button{background:#eef6ff}.notice{background:#f0f4f8;border:1px solid #ccd3d8;padding:10px;margin-bottom:15px;font-size:13px;color:#555}.error{color:#a00000;margin:8px 0;font-weight:bold}.table-wrap{overflow:auto}.data-table{width:100%;border-collapse:collapse;background:#fff}.data-table th,.data-table td{border:1px solid #777;padding:8px;text-align:left;vertical-align:top}.data-table th{background:#ddd}.small-btn{padding:6px 10px;font-size:14px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}.file-menu-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}.file-menu{border:1px solid #555;border-radius:8px;background:#fafafa;text-decoration:none;color:#222;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 24px;min-height:220px}.file-menu:hover{background:#f3f3f3;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.12)}.file-icon{font-size:52px;margin-bottom:14px}.file-title{font-size:22px;font-weight:bold;margin-bottom:8px}.file-desc{font-size:15px;color:#666;line-height:1.45}.booking-box{width:750px;max-width:100%;margin:auto;background:#fff;padding:30px;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,.1)}.calendar-box{margin-top:30px;background:#fff;border:1px solid #555;padding:20px}.calendar-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}.calendar-toolbar button{width:auto;min-width:42px;padding:8px 14px;background:#2f7d20;color:#fff;border:1px solid #245d19;border-radius:0;cursor:pointer;font-size:18px}.calendar-toolbar button:hover{background:#256619}.calendar-table{width:100%;border-collapse:collapse;table-layout:fixed}.calendar-table th{background:#ddd;border:1px solid #555;padding:10px 5px;text-align:center;font-weight:bold}.calendar-table td{height:110px;border:1px solid #777;vertical-align:top;padding:6px;background:#fff;overflow:hidden}.calendar-table td.other-month{background:#eee;color:#999}.calendar-table td.today-cell{background:#fffdf0}.calendar-date{font-weight:bold;margin-bottom:5px;font-size:14px}.booking-deadline{background:#ddf0d8;border-left:3px solid #2f7d20;padding:3px 4px;margin-top:3px;font-size:10px;line-height:1.15;cursor:pointer;overflow:hidden;overflow-wrap:anywhere;border-radius:3px}.booking-deadline.today{background:#ff9999;border-left-color:#990000}.booking-deadline.soon{background:#ffe0a3;border-left-color:#d68a00}.booking-deadline.past{background:#ffdddd;border-left-color:#cc0000}.booking-person{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.booking-detail{font-size:9px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.booking-status{font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.calendar-empty{text-align:center;padding:20px;color:#777}.calendar-legend{margin-top:12px;font-size:12px;color:#555}.modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.45);align-items:center;justify-content:center;padding:20px}.modal.show{display:flex}.modal-card{width:min(600px,100%);background:#fff;border-radius:12px;padding:20px;box-shadow:0 15px 50px rgba(0,0,0,.25)}.modal-card h2{margin-top:0}.modal-content{background:#f5f5f5;border-radius:8px;padding:12px;white-space:pre-wrap;word-break:break-word;line-height:1.45}.logo{width:70px;height:45px;object-fit:contain}.file-note{margin-top:12px;text-align:right;font-size:13px;color:#555;font-style:italic}.source-info{font-size:12px;color:#666;margin-top:15px}.source-code{display:none}
-.dashboard-mode>.header{display:none}
 @media(max-width:700px){body{padding:8px}.header{flex-direction:column;align-items:flex-start;gap:5px}.menu-grid,.main-menu-grid{grid-template-columns:1fr}.row{grid-template-columns:1fr}.file-menu-grid{grid-template-columns:1fr}.day{min-height:70px;padding:3px}.deadline{font-size:10px}.booking-box{padding:18px}.calendar-box{padding:10px}.calendar-table th{font-size:11px;padding:7px 2px}.calendar-table td{height:90px;padding:4px}.booking-deadline{font-size:9px;padding:2px 3px}.calendar-date{font-size:12px}.panel{width:100%}.buttons{justify-content:stretch}.buttons>*{flex:1}.content{padding:12px}.title{font-size:22px}}
 
 /* ===== FINAL BUG FIXES: DASHBOARD / BACKGROUND / DELETE ===== */
@@ -179,7 +178,7 @@ body.stock-body{background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:
             <div class="form-group"><label>Tanggal</label><input id="reportDate" type="date" required></div>
             <div class="form-group"><label>Keterangan</label><textarea id="reportDescription" required placeholder="Masukkan keterangan laporan..."></textarea></div>
             <div class="form-group"><label>Deadline</label><input id="reportDeadline" type="date"></div>
-            <div class="form-group"><label>Status</label><select id="reportStatus"><option value="Pending">Pending</option><option value="Progress">Progress</option><option value="Complete">Complete</option></select></div>
+            <div class="form-group"><label>Status</label><select id="reportStatus"><option value="Pending">Pending</option><option value="Progress">Progress</option><option value="Selesai">Selesai</option><option value="Complete">Complete</option></select></div>
             <div class="form-group"><label>File Bukti / Lampiran</label>
               <div id="dropzone" class="dropzone" tabindex="0">
                 <div class="dropzone-title">📎 Drag & Drop File di Sini</div>
@@ -282,21 +281,18 @@ function bookingClass(b){const e=bookingEnd(b);if(!e)return"";const diff=daysDif
 function allowedFile(name){const p=String(name||"").toLowerCase().split(".");return p.length>1&&CONFIG.ALLOWED_EXTENSIONS.includes(p.pop())}
 
 async function loadInitialData(){
-  // V1.0.0 clean-start: kosongkan data anggota/stock/logbook SEKALI saja.
-  // Setelah itu seluruh input pengguna disimpan permanen di localStorage dan
-  // tidak di-reset ketika halaman direfresh.
+  // Versi baru dimulai dengan daftar Anggota dan Stock kosong, seperti web baru.
+  // Reset satu kali untuk menghapus data contoh/seed dari versi app.html sebelumnya.
   if(localStorage.getItem(KEYS.blankInit)!=="1"){
+    // Mulai ulang data Anggota dan Stock agar versi ini benar-benar kosong.
+    // Data deadline/logbook/booking tidak disentuh.
     localStorage.removeItem(KEYS.members);
     localStorage.removeItem(KEYS.stock);
-    localStorage.removeItem(KEYS.logbook);
     localStorage.removeItem(KEYS.sourceMembers);
-    localStorage.removeItem(KEYS.sourceLogbook);
     localStorage.setItem(KEYS.blankInit,"1");
   }
 
-  members=getJSON(KEYS.members,[]).map(normalizeMember).filter(Boolean);
-  // Jangan mengambil members.json otomatis. Anggota yang ditambahkan lewat
-  // aplikasi disimpan di localStorage dan akan tetap ada setelah refresh.
+  members=[];
   // Jangan mengambil members.json otomatis: halaman Anggota harus kosong pada instalasi baru.
 
   // Muat bookings.json hanya sebagai data awal. Setelah pengguna menghapus
@@ -483,19 +479,7 @@ function deleteMember(i){if(!confirm("Hapus anggota ini?"))return;members.splice
 function openMember(i){currentMember=members[i]||"";if(!currentMember)return;showPage("dashboard")}
 function openMemberLogbook(i){currentMember=members[i]||"";if(!currentMember)return;showPage("logbook")}
 
-function readLocalLogbook(){
-  const all=getJSON(KEYS.logbook,[]);
-  let changed=false;
-  const migrated=all.map(x=>{
-    const member=normalizeMember(x.nama||x.member);
-    if(member!==currentMember)return x;
-    const next=migrateReportStatus(x.status??x.Status??"Pending");
-    if(x.status!==next || x.Status!==undefined){changed=true;return {...x,status:next};}
-    return x;
-  });
-  if(changed)setJSON(KEYS.logbook,migrated);
-  return migrated.filter(x=>normalizeMember(x.nama||x.member)===currentMember);
-}
+function readLocalLogbook(){return getJSON(KEYS.logbook,[]).filter(x=>normalizeMember(x.nama||x.member)===currentMember)}
 
 // Semua variasi status selesai dianggap COMPLETE. Data tetap berada di logbook,
 // tetapi tidak lagi dianggap sebagai deadline aktif dan tidak ditampilkan di
@@ -504,25 +488,21 @@ function normalizeStatus(status){
   return String(status??"").trim().toLowerCase().replace(/[\s_-]+/g,"");
 }
 function isCompletedStatus(status){
-  // Hanya COMPLETE yang merupakan status selesai resmi.
-  return normalizeStatus(status)==="complete";
-}
-function migrateReportStatus(status){
   const v=normalizeStatus(status);
-  // Migrasikan status lama agar aplikasi sekarang hanya mempunyai 3 status.
-  if(v==="complete" || v==="completed" || v==="selesai" || v==="sudahselesai" || v==="done" || v==="finish" || v==="finished" || v==="complate" || v==="complated") return "Complete";
-  if(v==="progress") return "Progress";
-  return "Pending";
+  // Terima variasi penulisan status agar data lama dari CSV/Sheets tidak
+  // kembali muncul sebagai deadline aktif.
+  return v==="complete" || v==="completed" || v==="selesai" ||
+         v==="sudahselesai" || v==="done" || v==="finish" ||
+         v==="finished" || v==="complated" || v==="complate" ||
+         v.includes("complete") || v.includes("selesai");
 }
 function getActiveDeadlineRows(rows){
   return (Array.isArray(rows)?rows:[]).filter(r=>{
-    if(!r || normalizeMember(r.nama||r.member)!==normalizeMember(currentMember)) return false;
-    const status=r.status??r.Status??"";
-    const deadline=r.deadline??r.Deadline??"";
-    // SATU aturan sumber: hanya laporan aktif + punya deadline yang boleh
-    // masuk Deadline dan Kalender Anggota. Semua status selesai dikeluarkan.
-    if(!String(deadline).trim() || isCompletedStatus(status)) return false;
-    return !!parseDateLocal(deadline);
+    const status=r?.status??r?.Status??"";
+    const deadline=r?.deadline??r?.Deadline??"";
+    // Hanya deadline yang benar-benar aktif dan memiliki tanggal valid.
+    // Semua variasi status selesai dikeluarkan dari deadline dan kalender.
+    return Boolean(String(deadline).trim()) && !!parseDateLocal(deadline) && !isCompletedStatus(status);
   });
 }
 function activeDeadlineRows(rows){return getActiveDeadlineRows(rows);}
@@ -532,7 +512,23 @@ function parseCSV(text){const rows=[];let row=[],cell="",quote=false;for(let i=0
 async function getLogbook(){
   const memberKey=normalizeMember(currentMember);
   let rows=readLocalLogbook();
-  if(rows.length)return rows;
+
+  // Normalisasi data lama: status selesai tidak boleh memiliki deadline aktif.
+  // Ini juga memperbaiki data lama yang sebelumnya masih tertinggal di kalender.
+  if(rows.length){
+    let changed=false;
+    const all=getJSON(KEYS.logbook,[]).map(r=>{
+      if(normalizeMember(r.nama||r.member)!==memberKey)return r;
+      const completed=isCompletedStatus(r.status??r.Status??"");
+      if(completed && String(r.deadline??r.Deadline??"").trim()){
+        changed=true;
+        return {...r,deadline:""};
+      }
+      return r;
+    });
+    if(changed)setJSON(KEYS.logbook,all);
+    return all.filter(x=>normalizeMember(x.nama||x.member)===memberKey);
+  }
 
   // CSV hanya dipakai sebagai sumber awal. Tandai bahwa CSV anggota ini
   // sudah pernah diimpor agar penghapusan/status dari aplikasi tidak hidup
@@ -552,7 +548,7 @@ async function getLogbook(){
     No:r.No||String(i+1),
     tanggal:r.Tanggal||r.tanggal||"",
     keterangan:r.Keterangan||r.keterangan||"",
-    deadline:r.Deadline||r.deadline||"",
+    deadline:isCompletedStatus(r.Status||r.status||"")?"":(r.Deadline||r.deadline||""),
     status:r.Status||r.status||"Pending",
     file:r.File||r.file||""
   }));
@@ -565,7 +561,7 @@ async function getLogbook(){
   setJSON(KEYS.sourceLogbook,flags);
   return rows;
 }
-async function renderLogbook(){const body=$("logbookBody");$("logbookTitle").textContent="Logbook - "+currentMember;body.innerHTML='<tr><td colspan="7">Memuat...</td></tr>';const rows=await getLogbook();logbookRows=rows;body.innerHTML="";if(!rows.length){body.innerHTML='<tr><td colspan="7">Belum ada laporan.</td></tr>';return}rows.forEach((r,i)=>{const tr=document.createElement("tr");const status=r.status||r.Status||"";tr.innerHTML='<td>'+escapeHTML(r.No||i+1)+'</td><td>'+escapeHTML(r.tanggal||r.Tanggal||"")+'</td><td>'+escapeHTML(r.keterangan||r.Keterangan||"")+'</td><td>'+escapeHTML(r.deadline||r.Deadline||"")+'</td><td><select class="logbook-status" data-report-index="'+i+'"><option value="Pending">Pending</option><option value="Progress">Progress</option><option value="Complete">Complete</option></select></td><td>'+renderFileValue(r.file||r.File||"")+'</td><td><button class="button small-btn red-button" onclick="deleteReport('+i+')">Hapus</button></td>';const sel=tr.querySelector("select");sel.value=status;if(sel.value!==status)sel.value=isCompletedStatus(status)?"Complete":(status||"Pending");sel.addEventListener("change",()=>updateReportStatus(i,sel.value));body.appendChild(tr)})}
+async function renderLogbook(){const body=$("logbookBody");$("logbookTitle").textContent="Logbook - "+currentMember;body.innerHTML='<tr><td colspan="7">Memuat...</td></tr>';const rows=await getLogbook();logbookRows=rows;body.innerHTML="";if(!rows.length){body.innerHTML='<tr><td colspan="7">Belum ada laporan.</td></tr>';return}rows.forEach((r,i)=>{const tr=document.createElement("tr");const status=r.status||r.Status||"";tr.innerHTML='<td>'+escapeHTML(r.No||i+1)+'</td><td>'+escapeHTML(r.tanggal||r.Tanggal||"")+'</td><td>'+escapeHTML(r.keterangan||r.Keterangan||"")+'</td><td>'+escapeHTML(r.deadline||r.Deadline||"")+'</td><td><select class="logbook-status" data-report-index="'+i+'"><option value="Pending">Pending</option><option value="Progress">Progress</option><option value="Selesai">Selesai</option><option value="Complete">Complete</option></select></td><td>'+renderFileValue(r.file||r.File||"")+'</td><td><button class="button small-btn red-button" onclick="deleteReport('+i+')">Hapus</button></td>';const sel=tr.querySelector("select");sel.value=status;if(sel.value!==status)sel.value=isCompletedStatus(status)?"Complete":(status||"Pending");sel.addEventListener("change",()=>updateReportStatus(i,sel.value));body.appendChild(tr)})}
 
 async function updateReportStatus(index,status){
   await getLogbook();
@@ -634,49 +630,53 @@ async function renderDashboard(){
 async function updateDeadlineStatusById(reportId,status){
   const id=String(reportId??"").trim();
   if(!id)return;
-  const member=normalizeMember(currentMember);
+  // Pastikan CSV awal sudah diimpor bila memang diperlukan.
   await getLogbook();
   const all=getJSON(KEYS.logbook,[]);
-  const idx=all.findIndex(r=>String(r.id??r.ID??"").trim()===id && normalizeMember(r.nama||r.member)===member);
-  if(idx<0){alert("Laporan tidak ditemukan.");await renderDashboard();return;}
+  const idx=all.findIndex(r=>String(r.id??r.ID??"").trim()===id && normalizeMember(r.nama||r.member)===normalizeMember(currentMember));
+  if(idx<0){
+    alert("Laporan tidak ditemukan.");
+    await renderDashboard();
+    return;
+  }
 
-  const old={...all[idx]};
+  const old=all[idx];
   const previousStatus=String(old.status??old.Status??"").trim();
   const newStatus=String(status||"").trim();
   const wasComplete=isCompletedStatus(previousStatus);
   const willComplete=isCompletedStatus(newStatus);
 
-  // Status aktif tetap pada laporan yang sama. Complete adalah status terminal.
-  all[idx]={...old,status:willComplete?"Complete":(newStatus||"Pending")};
+  all[idx]={...old,status:willComplete?"Complete":newStatus,deadline:willComplete?"":(old.deadline??old.Deadline??"")};
 
-  // Saat pertama kali menjadi Complete, buat SATU laporan penyelesaian baru.
-  // Laporan baru sengaja tanpa deadline agar tidak masuk Deadline/Kalender.
+  // Sekali saja buat laporan penyelesaian. Laporan penyelesaian tidak memiliki
+  // deadline sehingga tidak akan muncul lagi di kalender/deadline.
   if(willComplete && !wasComplete && !old.completion_report_id){
-    const completionId="completion_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,9);
+    const completionId="completion_"+Date.now()+"_"+Math.random().toString(36).slice(2,9);
     all[idx].completion_report_id=completionId;
     all[idx].completed_at=new Date().toISOString();
-    const memberCount=all.filter(x=>normalizeMember(x.nama||x.member)===member).length;
+    const memberCount=all.filter(x=>normalizeMember(x.nama||x.member)===normalizeMember(currentMember)).length;
     all.push({
+      ...all[idx],
       id:completionId,
-      nama:member,
       No:memberCount+1,
-      tanggal:new Date().toISOString().slice(0,10),
-      keterangan:(old.keterangan||old.Keterangan||"Laporan")+" — Penyelesaian",
-      deadline:"",
       status:"Complete",
-      file:old.file||old.File||"",
       completion_report:true,
-      completion_of_id:old.id
+      completion_of_id:old.id,
+      keterangan:(old.keterangan||old.Keterangan||"Laporan")+" — Penyelesaian",
+      tanggal:new Date().toISOString().slice(0,10),
+      deadline:"",
+      Deadline:""
     });
   }
 
-  // Nomor logbook selalu dirapikan dan seluruh perubahan ditulis atomik ke storage.
   let nomor=1;
-  all.forEach(r=>{if(normalizeMember(r.nama||r.member)===member)r.No=nomor++;});
+  all.forEach(r=>{
+    if(normalizeMember(r.nama||r.member)===normalizeMember(currentMember))r.No=nomor++;
+  });
   setJSON(KEYS.logbook,all);
 
-  // Render dari storage TERBARU. Complete tidak mungkin masuk lagi karena
-  // getActiveDeadlineRows() menolaknya sebelum kalender/deadline dibuat.
+  // Render ulang dari sumber data terbaru. Dengan ini Complete langsung hilang
+  // dari daftar deadline dan kalender pada klik yang sama.
   await renderLogbook();
   await renderDashboard();
 }
@@ -687,8 +687,7 @@ document.addEventListener("click",function(e){
   const btn=e.target.closest(".deadline-status-save");
   if(!btn)return;
   const id=btn.dataset.reportId||"";
-  const card=btn.closest("[data-deadline-report-id]");
-  const select=card?.querySelector('.deadline-status-select[data-report-id="'+CSS.escape(id)+'"]');
+  const select=document.querySelector('.deadline-status-select[data-report-id="'+CSS.escape(id)+'"]');
   if(!select)return;
   btn.disabled=true;
   updateDeadlineStatusById(id,select.value).finally(()=>{btn.disabled=false});
