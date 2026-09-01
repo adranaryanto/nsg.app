@@ -484,6 +484,24 @@ function readLocalLogbook(){return getJSON(KEYS.logbook,[]).filter(x=>normalizeM
 // Semua variasi status selesai dianggap COMPLETE. Data tetap berada di logbook,
 // tetapi tidak lagi dianggap sebagai deadline aktif dan tidak ditampilkan di
 // kalender anggota.
+// HARD STATUS SANITIZER: hanya tiga status resmi di seluruh UI.
+function enforceThreeStatuses(){
+  const allowed=["Pending","Progress","Complete"];
+  document.querySelectorAll("select").forEach(sel=>{
+    const isStatus = sel.id === "reportStatus" || sel.classList.contains("logbook-status") || sel.classList.contains("deadline-status-select") || /status/i.test(sel.name||"");
+    if(!isStatus)return;
+    const oldValue=canonicalStatusValueForUI(sel.value);
+    sel.innerHTML=allowed.map(v=>`<option value="${v}">${v}</option>`).join("");
+    sel.value=allowed.includes(oldValue)?oldValue:"Pending";
+  });
+}
+function canonicalStatusValueForUI(status){
+  const v=String(status??"").trim().toLowerCase().replace(/[\s_-]+/g,"");
+  if(v==="complete"||v==="completed"||v==="selesai"||v==="sudahselesai"||v==="done"||v==="finish"||v==="finished"||v==="complate"||v==="complated"||v.includes("complete")||v.includes("selesai")) return "Complete";
+  if(v==="progress"||v==="progres"||v==="inprogress"||v==="ongoing") return "Progress";
+  return "Pending";
+}
+
 function normalizeStatus(status){
   return String(status??"").trim().toLowerCase().replace(/[\s_-]+/g,"");
 }
@@ -575,7 +593,8 @@ async function getLogbook(){
   setJSON(KEYS.sourceLogbook,flags);
   return rows;
 }
-async function renderLogbook(){const body=$("logbookBody");$("logbookTitle").textContent="Logbook - "+currentMember;body.innerHTML='<tr><td colspan="7">Memuat...</td></tr>';const rows=await getLogbook();logbookRows=rows;body.innerHTML="";if(!rows.length){body.innerHTML='<tr><td colspan="7">Belum ada laporan.</td></tr>';return}rows.forEach((r,i)=>{const tr=document.createElement("tr");const status=canonicalStatus(r.status||r.Status||"Pending");tr.innerHTML='<td>'+escapeHTML(r.No||i+1)+'</td><td>'+escapeHTML(r.tanggal||r.Tanggal||"")+'</td><td>'+escapeHTML(r.keterangan||r.Keterangan||"")+'</td><td>'+escapeHTML(r.deadline||r.Deadline||"")+'</td><td><select class="logbook-status" data-report-index="'+i+'"><option value="Pending">Pending</option><option value="Progress">Progress</option><option value="Complete">Complete</option></select></td><td>'+renderFileValue(r.file||r.File||"")+'</td><td><button class="button small-btn red-button" onclick="deleteReport('+i+')">Hapus</button></td>';const sel=tr.querySelector("select");sel.value=status;if(sel.value!==status)sel.value=isCompletedStatus(status)?"Complete":(status||"Pending");sel.addEventListener("change",()=>updateReportStatus(i,sel.value));body.appendChild(tr)})}
+async function renderLogbook(){const body=$("logbookBody");$("logbookTitle").textContent="Logbook - "+currentMember;body.innerHTML='<tr><td colspan="7">Memuat...</td></tr>';const rows=await getLogbook();logbookRows=rows;body.innerHTML="";if(!rows.length){body.innerHTML='<tr><td colspan="7">Belum ada laporan.</td></tr>';return}rows.forEach((r,i)=>{const tr=document.createElement("tr");const status=canonicalStatus(r.status||r.Status||"Pending");tr.innerHTML='<td>'+escapeHTML(r.No||i+1)+'</td><td>'+escapeHTML(r.tanggal||r.Tanggal||"")+'</td><td>'+escapeHTML(r.keterangan||r.Keterangan||"")+'</td><td>'+escapeHTML(r.deadline||r.Deadline||"")+'</td><td><select class="logbook-status" data-report-index="'+i+'"><option value="Pending">Pending</option><option value="Progress">Progress</option><option value="Complete">Complete</option></select></td><td>'+renderFileValue(r.file||r.File||"")+'</td><td><button class="button small-btn red-button" onclick="deleteReport('+i+')">Hapus</button></td>';const sel=tr.querySelector("select");sel.value=status;if(sel.value!==status)sel.value=isCompletedStatus(status)?"Complete":(status||"Pending");sel.addEventListener("change",()=>updateReportStatus(i,sel.value));body.appendChild(tr)});enforceThreeStatuses()}
+
 
 async function updateReportStatus(index,status){
   await getLogbook();
@@ -596,7 +615,7 @@ function renderSelectedFiles(){const root=$("fileList");if(!root)return;if(!sele
 function setReportFiles(fileList){selectedReportFiles=[...fileList].filter(f=>allowedFile(f.name));renderSelectedFiles()}
 function initDropzone(){const dz=$("dropzone"),input=$("reportFiles");if(!dz||!input)return;dz.addEventListener("click",()=>input.click());dz.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();input.click()}});input.addEventListener("change",()=>setReportFiles(input.files));["dragenter","dragover"].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();dz.classList.add("dragover")}));["dragleave","drop"].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();dz.classList.remove("dragover")}));dz.addEventListener("drop",e=>{setReportFiles(e.dataTransfer.files);try{const dt=new DataTransfer();selectedReportFiles.forEach(f=>dt.items.add(f));input.files=dt.files}catch{}})}
 
-function prepareReport(){$("reportMemberLabel").textContent=currentMember;selectedReportFiles=[];renderSelectedFiles();$("reportDate").value=new Date().toISOString().slice(0,10);$("reportStatus").value="Pending";$("uploadStatus").classList.add("hidden")}
+function prepareReport(){$("reportMemberLabel").textContent=currentMember;selectedReportFiles=[];renderSelectedFiles();$("reportDate").value=new Date().toISOString().slice(0,10);$("reportStatus").value="Pending";enforceThreeStatuses();$("uploadStatus").classList.add("hidden")}
 async function uploadToGoogleDrive(file,nama,tanggal){if(!file||!allowedFile(file.name))return null;const data=await file.arrayBuffer();let binary="";const bytes=new Uint8Array(data);const chunk=0x8000;for(let i=0;i<bytes.length;i+=chunk)binary+=String.fromCharCode(...bytes.subarray(i,i+chunk));const encoded=btoa(binary);const finalFilename=safeFilename(nama)+"_"+safeFilename(tanggal)+"_"+file.name.replace(/[^a-zA-Z0-9._-]/g,"_");const payload={action:"upload",nama,tanggal,filename:finalFilename,contentType:file.type||"application/octet-stream",file:encoded};const r=await fetch(CONFIG.GOOGLE_APPS_SCRIPT_UPLOAD_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8","Accept":"application/json"},body:JSON.stringify(payload)});const text=await r.text();if(!r.ok)throw new Error("Upload HTTP "+r.status);let result;try{result=JSON.parse(text)}catch{throw new Error("Response Google bukan JSON.")}if(!result.success)throw new Error(result.message||result.error||"Upload ditolak.");return result}
 $("reportForm").addEventListener("submit",async e=>{e.preventDefault();if(!currentMember){alert("Pilih anggota terlebih dahulu.");showPage("members");return}const tanggal=$("reportDate").value,keterangan=$("reportDescription").value.trim(),deadline=$("reportDeadline").value,status=$("reportStatus").value,files=selectedReportFiles.length?selectedReportFiles:[...$("reportFiles").files];let links=[];const notice=$("uploadStatus");notice.classList.remove("hidden");notice.textContent="Menyimpan laporan...";for(const f of files){try{if(!allowedFile(f.name))continue;notice.textContent="Mengupload "+f.name+"...";const r=await uploadToGoogleDrive(f,currentMember,tanggal);if(r?.fileUrl)links.push(r.fileUrl)}catch(err){console.warn(err)}}const all=getJSON(KEYS.logbook,[]);const current=all.filter(x=>normalizeMember(x.nama||x.member)===currentMember);const row={id:Date.now(),nama:currentMember,No:current.length+1,tanggal,keterangan,deadline:status==="Complete"?"":deadline,status:canonicalStatus(status),file:links.join("||")};all.push(row);setJSON(KEYS.logbook,all);notice.textContent=links.length?"Laporan tersimpan dan file berhasil diunggah.":"Laporan tersimpan. Tidak ada file yang berhasil diunggah.";e.target.reset();currentMember=row.nama;setTimeout(()=>showPage("logbook"),500)})
 
@@ -799,7 +818,22 @@ async function downloadLogbookPDF(){if(!currentMember){alert("Pilih anggota terl
 
 function setLogo(){const src="static/logo.png";["loginLogo","reportLogo","appHeaderLogo"].forEach(id=>{const im=$(id);if(im)im.src=src})}
 function init(){setLogo();loadInitialData().then(()=>{showLogin();refreshCalendar()})}
-document.addEventListener("DOMContentLoaded",()=>{init();initDropzone()});
+// Bersihkan status lama dari localStorage sekali setiap membuka aplikasi.
+(function migrateLegacyStatusesOnStartup(){
+  try{
+    const all=getJSON(KEYS.logbook,[]);
+    let changed=false;
+    const migrated=(Array.isArray(all)?all:[]).map(r=>{
+      const st=canonicalStatusValueForUI(r.status??r.Status??"Pending");
+      const deadline=(st==="Complete")?"":(r.deadline??r.Deadline??"");
+      if(r.status!==st || r.Deadline!==undefined && r.Deadline!==deadline || (st==="Complete" && r.deadline)) changed=true;
+      return {...r,status:st,deadline, ...(r.Deadline!==undefined?{Deadline:deadline}:{})};
+    });
+    if(changed)setJSON(KEYS.logbook,migrated);
+  }catch(err){console.warn("Status migration gagal",err)}
+})();
+
+document.addEventListener("DOMContentLoaded",()=>{enforceThreeStatuses();init();initDropzone();});
 </script>
 
 <!-- ============================================================
