@@ -1,5 +1,10 @@
 {
-  "version": 1,
-  "members": [],
-  "logbooks": {}
+  "members": [
+    {
+      "nama": "Adam",
+      "logbook": []
+    }
+  ],
+  "stock": [],
+  "bookings": []
 }
