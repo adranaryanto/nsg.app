@@ -178,7 +178,7 @@ body.stock-body{background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:
             <div class="form-group"><label>Tanggal</label><input id="reportDate" type="date" required></div>
             <div class="form-group"><label>Keterangan</label><textarea id="reportDescription" required placeholder="Masukkan keterangan laporan..."></textarea></div>
             <div class="form-group"><label>Deadline</label><input id="reportDeadline" type="date"></div>
-            <div class="form-group"><label>Status</label><select id="reportStatus"><option value="Pending">Pending</option><option value="Progress">Progress</option><option value="Selesai">Selesai</option><option value="Complete">Complete</option></select></div>
+            <div class="form-group"><label>Status</label><select id="reportStatus"><option value="Pending">Pending</option><option value="Progress">Progress</option><option value="Complete">Complete</option></select></div>
             <div class="form-group"><label>File Bukti / Lampiran</label>
               <div id="dropzone" class="dropzone" tabindex="0">
                 <div class="dropzone-title">📎 Drag & Drop File di Sini</div>
@@ -487,14 +487,20 @@ function readLocalLogbook(){return getJSON(KEYS.logbook,[]).filter(x=>normalizeM
 function normalizeStatus(status){
   return String(status??"").trim().toLowerCase().replace(/[\s_-]+/g,"");
 }
-function isCompletedStatus(status){
+function canonicalStatus(status){
   const v=normalizeStatus(status);
-  // Terima variasi penulisan status agar data lama dari CSV/Sheets tidak
-  // kembali muncul sebagai deadline aktif.
-  return v==="complete" || v==="completed" || v==="selesai" ||
-         v==="sudahselesai" || v==="done" || v==="finish" ||
-         v==="finished" || v==="complated" || v==="complate" ||
-         v.includes("complete") || v.includes("selesai");
+  // Status resmi aplikasi HANYA tiga: Pending, Progress, Complete.
+  // Data lama yang memakai Selesai/Done/Completed/Complate, dll.
+  // otomatis dimigrasikan menjadi Complete.
+  if(v==="complete" || v==="completed" || v==="selesai" ||
+     v==="sudahselesai" || v==="done" || v==="finish" ||
+     v==="finished" || v==="complated" || v==="complate" ||
+     v.includes("complete") || v.includes("selesai")) return "Complete";
+  if(v==="progress" || v==="progres" || v==="inprogress" || v==="ongoing") return "Progress";
+  return "Pending";
+}
+function isCompletedStatus(status){
+  return canonicalStatus(status)==="Complete";
 }
 function getActiveDeadlineRows(rows){
   return (Array.isArray(rows)?rows:[]).filter(r=>{
@@ -519,10 +525,18 @@ async function getLogbook(){
     let changed=false;
     const all=getJSON(KEYS.logbook,[]).map(r=>{
       if(normalizeMember(r.nama||r.member)!==memberKey)return r;
-      const completed=isCompletedStatus(r.status??r.Status??"");
-      if(completed && String(r.deadline??r.Deadline??"").trim()){
+      const rawStatus=r.status??r.Status??"";
+      const normalized=canonicalStatus(rawStatus);
+      const completed=normalized==="Complete";
+      const hasLegacyStatus=String(rawStatus??"").trim()!==normalized;
+      const hasDeadline=String(r.deadline??r.Deadline??"").trim()!=="";
+      if(completed && hasDeadline){
         changed=true;
-        return {...r,deadline:""};
+        return {...r,status:"Complete",deadline:"",Deadline:""};
+      }
+      if(hasLegacyStatus){
+        changed=true;
+        return {...r,status:normalized};
       }
       return r;
     });
@@ -549,7 +563,7 @@ async function getLogbook(){
     tanggal:r.Tanggal||r.tanggal||"",
     keterangan:r.Keterangan||r.keterangan||"",
     deadline:isCompletedStatus(r.Status||r.status||"")?"":(r.Deadline||r.deadline||""),
-    status:r.Status||r.status||"Pending",
+    status:canonicalStatus(r.Status||r.status||"Pending"),
     file:r.File||r.file||""
   }));
 
@@ -561,7 +575,7 @@ async function getLogbook(){
   setJSON(KEYS.sourceLogbook,flags);
   return rows;
 }
-async function renderLogbook(){const body=$("logbookBody");$("logbookTitle").textContent="Logbook - "+currentMember;body.innerHTML='<tr><td colspan="7">Memuat...</td></tr>';const rows=await getLogbook();logbookRows=rows;body.innerHTML="";if(!rows.length){body.innerHTML='<tr><td colspan="7">Belum ada laporan.</td></tr>';return}rows.forEach((r,i)=>{const tr=document.createElement("tr");const status=r.status||r.Status||"";tr.innerHTML='<td>'+escapeHTML(r.No||i+1)+'</td><td>'+escapeHTML(r.tanggal||r.Tanggal||"")+'</td><td>'+escapeHTML(r.keterangan||r.Keterangan||"")+'</td><td>'+escapeHTML(r.deadline||r.Deadline||"")+'</td><td><select class="logbook-status" data-report-index="'+i+'"><option value="Pending">Pending</option><option value="Progress">Progress</option><option value="Selesai">Selesai</option><option value="Complete">Complete</option></select></td><td>'+renderFileValue(r.file||r.File||"")+'</td><td><button class="button small-btn red-button" onclick="deleteReport('+i+')">Hapus</button></td>';const sel=tr.querySelector("select");sel.value=status;if(sel.value!==status)sel.value=isCompletedStatus(status)?"Complete":(status||"Pending");sel.addEventListener("change",()=>updateReportStatus(i,sel.value));body.appendChild(tr)})}
+async function renderLogbook(){const body=$("logbookBody");$("logbookTitle").textContent="Logbook - "+currentMember;body.innerHTML='<tr><td colspan="7">Memuat...</td></tr>';const rows=await getLogbook();logbookRows=rows;body.innerHTML="";if(!rows.length){body.innerHTML='<tr><td colspan="7">Belum ada laporan.</td></tr>';return}rows.forEach((r,i)=>{const tr=document.createElement("tr");const status=canonicalStatus(r.status||r.Status||"Pending");tr.innerHTML='<td>'+escapeHTML(r.No||i+1)+'</td><td>'+escapeHTML(r.tanggal||r.Tanggal||"")+'</td><td>'+escapeHTML(r.keterangan||r.Keterangan||"")+'</td><td>'+escapeHTML(r.deadline||r.Deadline||"")+'</td><td><select class="logbook-status" data-report-index="'+i+'"><option value="Pending">Pending</option><option value="Progress">Progress</option><option value="Complete">Complete</option></select></td><td>'+renderFileValue(r.file||r.File||"")+'</td><td><button class="button small-btn red-button" onclick="deleteReport('+i+')">Hapus</button></td>';const sel=tr.querySelector("select");sel.value=status;if(sel.value!==status)sel.value=isCompletedStatus(status)?"Complete":(status||"Pending");sel.addEventListener("change",()=>updateReportStatus(i,sel.value));body.appendChild(tr)})}
 
 async function updateReportStatus(index,status){
   await getLogbook();
@@ -584,7 +598,7 @@ function initDropzone(){const dz=$("dropzone"),input=$("reportFiles");if(!dz||!i
 
 function prepareReport(){$("reportMemberLabel").textContent=currentMember;selectedReportFiles=[];renderSelectedFiles();$("reportDate").value=new Date().toISOString().slice(0,10);$("reportStatus").value="Pending";$("uploadStatus").classList.add("hidden")}
 async function uploadToGoogleDrive(file,nama,tanggal){if(!file||!allowedFile(file.name))return null;const data=await file.arrayBuffer();let binary="";const bytes=new Uint8Array(data);const chunk=0x8000;for(let i=0;i<bytes.length;i+=chunk)binary+=String.fromCharCode(...bytes.subarray(i,i+chunk));const encoded=btoa(binary);const finalFilename=safeFilename(nama)+"_"+safeFilename(tanggal)+"_"+file.name.replace(/[^a-zA-Z0-9._-]/g,"_");const payload={action:"upload",nama,tanggal,filename:finalFilename,contentType:file.type||"application/octet-stream",file:encoded};const r=await fetch(CONFIG.GOOGLE_APPS_SCRIPT_UPLOAD_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8","Accept":"application/json"},body:JSON.stringify(payload)});const text=await r.text();if(!r.ok)throw new Error("Upload HTTP "+r.status);let result;try{result=JSON.parse(text)}catch{throw new Error("Response Google bukan JSON.")}if(!result.success)throw new Error(result.message||result.error||"Upload ditolak.");return result}
-$("reportForm").addEventListener("submit",async e=>{e.preventDefault();if(!currentMember){alert("Pilih anggota terlebih dahulu.");showPage("members");return}const tanggal=$("reportDate").value,keterangan=$("reportDescription").value.trim(),deadline=$("reportDeadline").value,status=$("reportStatus").value,files=selectedReportFiles.length?selectedReportFiles:[...$("reportFiles").files];let links=[];const notice=$("uploadStatus");notice.classList.remove("hidden");notice.textContent="Menyimpan laporan...";for(const f of files){try{if(!allowedFile(f.name))continue;notice.textContent="Mengupload "+f.name+"...";const r=await uploadToGoogleDrive(f,currentMember,tanggal);if(r?.fileUrl)links.push(r.fileUrl)}catch(err){console.warn(err)}}const all=getJSON(KEYS.logbook,[]);const current=all.filter(x=>normalizeMember(x.nama||x.member)===currentMember);const row={id:Date.now(),nama:currentMember,No:current.length+1,tanggal,keterangan,deadline,status,file:links.join("||")};all.push(row);setJSON(KEYS.logbook,all);notice.textContent=links.length?"Laporan tersimpan dan file berhasil diunggah.":"Laporan tersimpan. Tidak ada file yang berhasil diunggah.";e.target.reset();currentMember=row.nama;setTimeout(()=>showPage("logbook"),500)})
+$("reportForm").addEventListener("submit",async e=>{e.preventDefault();if(!currentMember){alert("Pilih anggota terlebih dahulu.");showPage("members");return}const tanggal=$("reportDate").value,keterangan=$("reportDescription").value.trim(),deadline=$("reportDeadline").value,status=$("reportStatus").value,files=selectedReportFiles.length?selectedReportFiles:[...$("reportFiles").files];let links=[];const notice=$("uploadStatus");notice.classList.remove("hidden");notice.textContent="Menyimpan laporan...";for(const f of files){try{if(!allowedFile(f.name))continue;notice.textContent="Mengupload "+f.name+"...";const r=await uploadToGoogleDrive(f,currentMember,tanggal);if(r?.fileUrl)links.push(r.fileUrl)}catch(err){console.warn(err)}}const all=getJSON(KEYS.logbook,[]);const current=all.filter(x=>normalizeMember(x.nama||x.member)===currentMember);const row={id:Date.now(),nama:currentMember,No:current.length+1,tanggal,keterangan,deadline:status==="Complete"?"":deadline,status:canonicalStatus(status),file:links.join("||")};all.push(row);setJSON(KEYS.logbook,all);notice.textContent=links.length?"Laporan tersimpan dan file berhasil diunggah.":"Laporan tersimpan. Tidak ada file yang berhasil diunggah.";e.target.reset();currentMember=row.nama;setTimeout(()=>showPage("logbook"),500)})
 
 function deadlineClass(d){const x=parseDateLocal(d);if(!x)return"";const diff=daysDiff(nowDateOnly(),new Date(x.getFullYear(),x.getMonth(),x.getDate()));if(diff<0)return"overdue";if(diff===0)return"today";if(diff<=3)return"soon";if(diff<=7)return"week";return""}
 async function renderDashboard(){
@@ -642,7 +656,7 @@ async function updateDeadlineStatusById(reportId,status){
 
   const old=all[idx];
   const previousStatus=String(old.status??old.Status??"").trim();
-  const newStatus=String(status||"").trim();
+  const newStatus=canonicalStatus(status);
   const wasComplete=isCompletedStatus(previousStatus);
   const willComplete=isCompletedStatus(newStatus);
 
