@@ -1,0 +1,5424 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="NSG App - Logbook dan Peminjaman Alat">
+<title>NSG App - Logbook & Peminjaman</title>
+<style>
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;padding:20px;background:#b3b3b3;font-family:"Times New Roman",serif;color:#111}.hidden{display:none!important}.container{width:1100px;max-width:100%;margin:auto;background:#fff;border:1px solid #555}.header{background:#2f7d20;color:#fff;padding:15px 20px;display:flex;justify-content:space-between;align-items:center}.header-right{display:flex;align-items:center;gap:12px}.header-logo{width:72px;height:45px;object-fit:contain}.title{font-size:26px;font-weight:bold}.member-name{font-size:18px;font-weight:bold}.content{padding:20px}.section{border:1px solid #777;padding:15px;margin-bottom:20px;background:#fafafa;scroll-margin-top:15px}.section-title{font-size:21px;font-weight:bold;margin-bottom:12px}.menu-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:15px;margin-bottom:25px}.main-menu-grid{display:grid;grid-template-columns:1fr;gap:12px;margin:25px}.member-list{display:flex;flex-direction:column;gap:12px}.member-card{display:flex;align-items:center;justify-content:space-between;border:1px solid #777;background:#ddd;padding:16px 18px;font-size:18px;cursor:pointer;text-decoration:none;color:#111}.member-card:hover{background:#d2d2d2}.member-arrow{font-size:22px}.dropzone{border:2px dashed #777;background:#f2f2f2;padding:28px 18px;text-align:center;cursor:pointer;margin-bottom:15px}.dropzone.dragover{background:#e9f5e5;border-color:#2f7d20}.dropzone-title{font-size:18px;font-weight:bold;margin-bottom:8px}.dropzone-subtitle{font-size:14px;color:#666}.file-list{margin-top:10px;text-align:left;font-size:14px}.file-list div{padding:4px 0;border-bottom:1px solid #ddd}.menu{display:block;padding:20px;text-align:center;border:1px solid #555;background:#eee;color:#000;text-decoration:none;font-size:20px;font-weight:bold;cursor:pointer}.menu:hover{background:#d7d7d7}.menu.gdrive{background:#eef6ff}.announcement{border-left:6px solid #2f7d20;padding:12px;margin-bottom:8px;background:#fff}.announcement.today{border-left-color:#d00000;background:#fff0f0}.announcement.soon{border-left-color:#e67e00;background:#fff7ed}.announcement.week{border-left-color:#d6a600;background:#fffbea}.announcement.overdue{border-left-color:#8b0000;background:#ffe5e5}.empty-alert{color:#555;padding:5px 0}.calendar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.calendar-title{font-size:22px;font-weight:bold}.calendar-button,.button{border:1px solid #555;background:#eee;padding:7px 14px;cursor:pointer;font-family:"Times New Roman",serif;font-size:16px;text-decoration:none;color:#000}.calendar-button:hover,.button:hover{background:#ddd}.calendar-week,.calendar-days{display:grid;grid-template-columns:repeat(7,1fr)}.calendar-week{text-align:center;font-weight:bold;background:#ddd}.calendar-week div{padding:8px;border:1px solid #aaa}.day{min-height:100px;border:1px solid #aaa;padding:5px;position:relative;background:#fff}.day.other{background:#eee;color:#999}.day.today{background:#e9f5e5}.day-number{font-weight:bold;font-size:15px}.deadline{margin-top:5px;padding:4px;font-size:12px;border-radius:3px;background:#ffd966;overflow-wrap:anywhere;cursor:pointer}.deadline.today-deadline{background:#ff6666;color:#fff}.deadline.soon-deadline{background:#f6b26b}.deadline.week-deadline{background:#ffe599}.deadline.overdue-deadline{background:#d9a0a0;color:#4a0000}.deadline.booking{background:#ddf0d8;border-left:3px solid #2f7d20}.deadline.booking.today-deadline{background:#ff9999;border-left-color:#990000}.deadline.booking.soon-deadline{background:#ffe0a3;border-left-color:#d68a00}.deadline.booking.overdue-deadline{background:#ffdddd;border-left-color:#cc0000}.deadline-person{font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.deadline-detail{font-size:10px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.status{display:inline-block;margin-top:5px;padding:3px 8px;border:1px solid #999;background:#eee;font-size:13px}.deadline-action{margin-top:12px;padding-top:10px;border-top:1px solid #ccc}.deadline-action select{padding:7px;font-family:"Times New Roman",serif;border:1px solid #888;background:#fff}.deadline-action button{padding:7px 12px;margin-left:5px;border:1px solid #245d19;background:#2f7d20;color:#fff;cursor:pointer;font-family:"Times New Roman",serif}.deadline-action button:disabled{background:#888;border-color:#777;cursor:wait}.footer{margin-top:20px;padding-top:15px;border-top:1px solid #777;display:flex;justify-content:space-between}.logout{color:#a00000!important}.panel{width:650px;min-height:650px;margin:0 auto;background:#fff;border:1px solid #000}.login-panel{width:420px;min-height:auto}.login-content{padding:25px}.form-group{margin-bottom:18px}.form-group label{display:block;font-size:17px;font-weight:bold;margin-bottom:6px}.form-group input,.form-group textarea,.form-group select{width:100%;border:1px solid #555;background:#eee;padding:8px;font-family:"Times New Roman",serif;font-size:16px}.form-group input{height:36px}.form-group textarea{height:110px;resize:vertical}.form-group select{height:36px}.row{display:grid;grid-template-columns:1fr 1fr;gap:15px}.buttons{margin-top:25px;display:flex;justify-content:space-between;gap:10px}.green-button{background:#2f7d20;color:#fff;border-color:#245d19}.green-button:hover{background:#256619}.red-button{background:#c62828!important;color:#fff!important;border-color:#a51f1f!important}.blue-button{background:#eef6ff}.notice{background:#f0f4f8;border:1px solid #ccd3d8;padding:10px;margin-bottom:15px;font-size:13px;color:#555}.error{color:#a00000;margin:8px 0;font-weight:bold}.table-wrap{overflow:auto}.data-table{width:100%;border-collapse:collapse;background:#fff}.data-table th,.data-table td{border:1px solid #777;padding:8px;text-align:left;vertical-align:top}.data-table th{background:#ddd}.small-btn{padding:6px 10px;font-size:14px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}.file-menu-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}.file-menu{border:1px solid #555;border-radius:8px;background:#fafafa;text-decoration:none;color:#222;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 24px;min-height:220px}.file-menu:hover{background:#f3f3f3;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.12)}.file-icon{font-size:52px;margin-bottom:14px}.file-title{font-size:22px;font-weight:bold;margin-bottom:8px}.file-desc{font-size:15px;color:#666;line-height:1.45}.booking-box{width:750px;max-width:100%;margin:auto;background:#fff;padding:30px;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,.1)}.calendar-box{margin-top:30px;background:#fff;border:1px solid #555;padding:20px}.calendar-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}.calendar-toolbar button{width:auto;min-width:42px;padding:8px 14px;background:#2f7d20;color:#fff;border:1px solid #245d19;border-radius:0;cursor:pointer;font-size:18px}.calendar-toolbar button:hover{background:#256619}.calendar-table{width:100%;border-collapse:collapse;table-layout:fixed}.calendar-table th{background:#ddd;border:1px solid #555;padding:10px 5px;text-align:center;font-weight:bold}.calendar-table td{height:110px;border:1px solid #777;vertical-align:top;padding:6px;background:#fff;overflow:hidden}.calendar-table td.other-month{background:#eee;color:#999}.calendar-table td.today-cell{background:#fffdf0}.calendar-date{font-weight:bold;margin-bottom:5px;font-size:14px}.booking-deadline{background:#ddf0d8;border-left:3px solid #2f7d20;padding:3px 4px;margin-top:3px;font-size:10px;line-height:1.15;cursor:pointer;overflow:hidden;overflow-wrap:anywhere;border-radius:3px}.booking-deadline.today{background:#ff9999;border-left-color:#990000}.booking-deadline.soon{background:#ffe0a3;border-left-color:#d68a00}.booking-deadline.past{background:#ffdddd;border-left-color:#cc0000}.booking-person{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.booking-detail{font-size:9px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.booking-status{font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.calendar-empty{text-align:center;padding:20px;color:#777}.calendar-legend{margin-top:12px;font-size:12px;color:#555}.modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.45);align-items:center;justify-content:center;padding:20px}.modal.show{display:flex}.modal-card{width:min(600px,100%);background:#fff;border-radius:12px;padding:20px;box-shadow:0 15px 50px rgba(0,0,0,.25)}.modal-card h2{margin-top:0}.modal-content{background:#f5f5f5;border-radius:8px;padding:12px;white-space:pre-wrap;word-break:break-word;line-height:1.45}.logo{width:70px;height:45px;object-fit:contain}.file-note{margin-top:12px;text-align:right;font-size:13px;color:#555;font-style:italic}.source-info{font-size:12px;color:#666;margin-top:15px}.source-code{display:none}
+@media(max-width:700px){body{padding:8px}.header{flex-direction:column;align-items:flex-start;gap:5px}.menu-grid,.main-menu-grid{grid-template-columns:1fr}.row{grid-template-columns:1fr}.file-menu-grid{grid-template-columns:1fr}.day{min-height:70px;padding:3px}.deadline{font-size:10px}.booking-box{padding:18px}.calendar-box{padding:10px}.calendar-table th{font-size:11px;padding:7px 2px}.calendar-table td{height:90px;padding:4px}.booking-deadline{font-size:9px;padding:2px 3px}.calendar-date{font-size:12px}.panel{width:100%}.buttons{justify-content:stretch}.buttons>*{flex:1}.content{padding:12px}.title{font-size:22px}}
+
+/* ===== FINAL BUG FIXES: DASHBOARD / BACKGROUND / DELETE ===== */
+body{background-color:#b3b3b3;background-image:url("static/latar.png");background-repeat:no-repeat;background-position:center top;background-size:cover;background-attachment:fixed}
+#appPage.dashboard-mode> .header{display:none}
+#appPage.dashboard-mode>.content{padding-top:20px}
+body.stock-body{background-color:#f4f6f8;background-image:none;background-attachment:initial}
+/* ===== FINAL UI FIXES: LOGIN / MENU / STOCK ===== */
+.login-panel{width:304px;min-height:262px;margin:40px auto 0;background:#fff;border:1px solid #222}
+.login-panel .header{height:52px;padding:8px 10px;background:#2f7d20}
+.login-panel .header .title{font-size:19px}
+.login-panel .logo{width:58px;height:38px}
+.login-panel .login-content{padding:18px 20px 12px}
+.login-panel .login-content .page-title{display:none!important}
+.login-panel .form-group{margin-bottom:13px}
+.login-panel .form-group label{font-size:14px;font-weight:normal;margin-bottom:4px}
+.login-panel .form-group input{height:25px;padding:3px 6px;font-size:12px;background:#e7eef9}
+.login-panel .button{height:26px;padding:2px 8px;font-size:13px}
+.login-panel .error{font-size:11px;margin:5px 0 0}
+.login-version{margin-top:18px;text-align:center;color:#777;font-size:10px}
+.menu-mode{width:500px!important;min-height:457px!important;margin:34px auto 0!important}
+.menu-mode .content{padding:0 25px 18px}
+.menu-mode .header{height:66px;padding:10px 12px;background:#2f7d20}
+.menu-mode .header .title{font-size:24px}
+.menu-mode .header-logo{width:62px;height:43px}
+.menu-mode .header-right{gap:0}
+.menu-mode .header-right .member-name{display:none}
+.menu-mode .section.menu-welcome{border:0;background:#fff;padding:24px 0 10px;margin:0;text-align:center}
+.menu-mode .menu-welcome .section-title{font-size:22px;margin-bottom:8px}
+.menu-mode .main-menu-grid{margin:20px 0 0;gap:12px}
+.menu-mode .main-menu-grid .menu{padding:17px 10px;font-size:18px;border:0;background:#2f7d20;color:#fff}
+.menu-mode .main-menu-grid .menu:hover{background:#256619}
+.menu-mode .menu-footer{margin-top:20px;padding-top:0;border-top:0;display:block;text-align:center}
+.menu-mode .menu-footer .logout{display:block;color:#a00000!important;text-decoration:none;margin-bottom:26px;font-size:14px}
+.menu-mode .menu-version{text-align:center;color:#777;font-size:11px}
+body.stock-body{background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:#292929;padding:0}
+#appPage.stock-mode{width:100%;max-width:none;margin:0;background:transparent;border:0}
+#appPage.stock-mode>.header{display:none}
+#appPage.stock-mode>.content{padding:0}
+.stock-page{font-family:Arial,Helvetica,sans-serif!important;padding:28px 6px 40px;max-width:920px;margin:0 auto}
+.stock-back{display:inline-flex;align-items:center;padding:10px 17px;background:#fff;border:1px solid #ddd;border-radius:10px;box-shadow:0 2px 5px rgba(0,0,0,.08);color:#333;text-decoration:none;font-size:14px;margin-bottom:15px;cursor:pointer}
+.stock-hero{background:#fff;border-radius:14px;padding:24px 26px 20px;box-shadow:0 5px 14px rgba(0,0,0,.08);margin-bottom:20px}
+.stock-hero h1{font-size:28px;margin:0 0 6px;font-weight:700}
+.stock-hero p{margin:0;color:#888;font-size:14px}
+.stock-toolbar{background:#fff;border-radius:14px;padding:18px;box-shadow:0 5px 14px rgba(0,0,0,.08);display:flex;gap:12px;margin-bottom:20px}
+.stock-search{flex:1;border:1px solid #d8d8d8;border-radius:10px;padding:12px 15px;font-size:14px;outline:none}
+.stock-add-btn{border:0;border-radius:10px;background:#222;color:#fff;font-weight:700;padding:0 20px;cursor:pointer;font-size:13px}
+.stock-add-btn:hover{background:#333}
+.stock-table-card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 5px 14px rgba(0,0,0,.08);margin-bottom:20px}
+.stock-table{width:100%;border-collapse:collapse}
+.stock-table th{background:#f1f3f4;color:#444;font-size:13px;text-align:left;padding:16px}
+.stock-table td{padding:15px 16px;border-top:1px solid #eee;font-size:13px;vertical-align:middle}
+.stock-name{font-weight:700;font-size:14px}.stock-code{color:#999;margin-top:4px;font-size:12px}
+.stock-qty{display:flex;align-items:center;gap:10px}.qty-btn{width:30px;height:30px;border:1px solid #ddd;background:#fff;border-radius:7px;cursor:pointer;font-size:18px;line-height:1}.qty-number{min-width:25px;text-align:center;font-weight:700}
+.stock-statuses{display:flex;gap:5px}.stock-badge{padding:7px 11px;border-radius:7px;font-size:11px;font-weight:700;opacity:.42}.stock-badge.active{opacity:1}.badge-ada{background:#e7f7ed;color:#4ca66d}.badge-habis{background:#fff0c7;color:#9a6a00}.badge-tidak{background:#fde7e7;color:#d87878}
+.stock-delete{border:0;background:#ffe1e1;color:#d22;border-radius:8px;padding:8px 13px;font-weight:700;cursor:pointer}
+.stock-buy-card{background:#fff;border-radius:14px;padding:22px 20px;box-shadow:0 5px 14px rgba(0,0,0,.08)}
+.stock-buy-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.stock-buy-head h2{font-size:20px;margin:0}.stock-buy-head p{margin:6px 0 0;color:#999;font-size:13px}.stock-count{background:#fff1c7;color:#9a6a00;border-radius:18px;padding:8px 13px;font-size:12px;font-weight:700}
+.stock-buy-item{border:1px solid #eee;border-radius:10px;padding:14px;display:flex;align-items:center;justify-content:space-between}.stock-buy-left{display:flex;align-items:center;gap:12px}.cart-icon{width:38px;height:38px;border-radius:9px;background:#fff0c7;display:flex;align-items:center;justify-content:center;font-size:21px}.stock-buy-name{font-weight:700;font-size:14px}.stock-buy-code{font-size:12px;color:#999;margin-top:3px}.stock-buy-right{text-align:right}.stock-buy-stock{font-weight:700;font-size:13px}.stock-buy-warning{font-size:11px;color:#f11;margin-top:5px}
+.stock-empty{text-align:center;color:#999;padding:30px}
+.stock-add-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);align-items:center;justify-content:center;padding:20px;z-index:10000}.stock-add-modal.show{display:flex}.stock-add-box{width:400px;max-width:100%;background:#fff;border-radius:14px;padding:22px;box-shadow:0 15px 45px rgba(0,0,0,.25)}.stock-add-box h2{margin:0 0 18px;font-size:20px}.stock-add-box label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}.stock-add-box input{width:100%;padding:11px;border:1px solid #ddd;border-radius:8px;margin-bottom:14px}.stock-modal-actions{display:flex;justify-content:flex-end;gap:8px}.stock-modal-actions button{padding:9px 14px;border-radius:8px;border:1px solid #ddd;cursor:pointer}.stock-save{background:#222!important;color:#fff;border-color:#222!important}
+@media(max-width:650px){.menu-mode{width:100%!important;margin:10px auto 0!important}.stock-toolbar{flex-direction:column}.stock-add-btn{height:42px}.stock-table th,.stock-table td{padding:11px 8px}.stock-statuses{flex-wrap:wrap}.stock-page{padding:18px 6px 30px}.stock-hero h1{font-size:24px}}
+</style>
+</head>
+<body>
+
+<div id="loginPage" class="panel login-panel">
+  <div class="header"><div class="title">Form Laporan</div><img id="loginLogo" class="logo" alt="NSG"></div>
+  <div class="login-content">
+    <form id="loginForm">
+      <div class="form-group"><label for="loginUsername">Username</label><input id="loginUsername" autocomplete="username" required></div>
+      <div class="form-group"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" required></div>
+      <button class="button green-button" style="width:100%" type="submit">LOGIN</button>
+      <div id="loginError" class="error"></div>
+    </form>
+    <div class="login-version">v1.0.1</div>
+  </div>
+</div>
+
+<div id="appPage" class="container hidden">
+  <div class="header">
+    <div class="title" id="appHeaderTitle">NSG App</div>
+    <div class="header-right"><div class="member-name" id="appHeaderMember"></div><img id="appHeaderLogo" class="header-logo" alt="NSG"></div>
+  </div>
+  <div class="content">
+
+    <section id="page-menu" class="app-section">
+      <div class="section menu-welcome"><div class="section-title">Selamat Datang</div><div>Silakan pilih menu yang ingin digunakan</div></div>
+      <div class="main-menu-grid">
+        <a class="menu" onclick="showPage('members')">Anggota</a>
+        <a class="menu" onclick="showPage('booking')">Peminjaman</a>
+        <a class="menu" onclick="showPage('stock')">Stock</a>
+      </div>
+      <div class="menu-footer"><a class="logout" onclick="logout()">Logout</a><div class="menu-version">v1.0.0</div></div>
+    </section>
+
+    <section id="page-booking" class="app-section hidden">
+      <div class="booking-box">
+        <h1>Booking / Peminjaman Alat</h1>
+        <div class="notice">Form mengikuti field asli Flask: nama, nomor telepon, alat, tanggal mulai, tanggal selesai, jam mulai, jam selesai, keperluan, dan catatan. Data kalender disimpan lokal dan akan mencoba sinkron ke API/GAS bila tersedia.</div>
+        <form id="bookingForm">
+          <div class="form-group"><label>Nama Peminjam</label><input id="bookingNama" name="nama" required></div>
+          <div class="form-group"><label>Nomor Telepon</label><input id="bookingPhone" name="nomor_telepon" type="tel"></div>
+          <div class="form-group"><label>Nama Alat</label><input id="bookingAlat" name="alat" required></div>
+          <div class="row">
+            <div class="form-group"><label>Tanggal Mulai</label><input id="tanggal_mulai" name="tanggal_mulai" type="date" required></div>
+            <div class="form-group"><label>Tanggal Selesai</label><input id="tanggal_selesai" name="tanggal_selesai" type="date" required></div>
+          </div>
+          <div class="row">
+            <div class="form-group"><label>Jam Mulai</label><input id="jam_mulai" name="jam_mulai" type="time" required></div>
+            <div class="form-group"><label>Jam Selesai</label><input id="jam_selesai" name="jam_selesai" type="time" required></div>
+          </div>
+          <div class="form-group"><label>Keperluan</label><textarea id="bookingKeperluan" name="keperluan" placeholder="Tuliskan tujuan penggunaan alat..."></textarea></div>
+          <div class="form-group"><label>Catatan</label><textarea id="bookingCatatan" name="catatan" placeholder="Catatan tambahan..."></textarea></div>
+          <button type="submit" class="button green-button" style="width:100%">KIRIM BOOKING</button>
+          <div id="bookingError" class="error"></div>
+        </form>
+        <div class="calendar-box">
+          <div class="calendar-toolbar"><button onclick="changeCalendarMonth(-1)">‹</button><div id="calendarTitle" class="calendar-title">Kalender Peminjaman</div><button onclick="changeCalendarMonth(1)">›</button><button class="calendar-refresh" onclick="refreshCalendar()">↻</button></div>
+          <table class="calendar-table"><thead><tr><th>Minggu</th><th>Senin</th><th>Selasa</th><th>Rabu</th><th>Kamis</th><th>Jumat</th><th>Sabtu</th></tr></thead><tbody id="calendarBody"><tr><td colspan="7" class="calendar-empty">Memuat jadwal...</td></tr></tbody></table>
+          <div class="calendar-legend">Hijau = jadwal normal | Kuning = 3 hari lagi | Merah = hari mulai / sudah lewat | Biru = peminjaman sedang berlangsung. Klik jadwal untuk melihat detail.</div>
+        </div>
+        <div class="buttons"><a class="button" onclick="showPage('menu')">← Kembali ke Menu Utama</a><a class="button blue-button" onclick="openBookingSpreadsheet()">Google Sheets Booking</a></div>
+      </div>
+    </section>
+
+    <section id="page-members" class="app-section hidden">
+      <div class="section">
+        <div class="section-title">Daftar Anggota</div>
+        <div id="membersBody" class="member-list"></div>
+        <div class="form-group" style="margin-top:28px">
+          <label>Tambah Anggota</label>
+          <div style="display:flex;gap:8px">
+            <input id="memberName" placeholder="Masukkan nama anggota" required>
+            <button class="button green-button" type="button" onclick="addMemberFromButton()">TAMBAH</button>
+          </div>
+          <div id="memberError" class="error"></div>
+        </div>
+      </div>
+      <div class="footer"><a class="button" onclick="showPage('menu')">← Kembali ke Menu Utama</a><a class="button logout" onclick="logout()">LOGOUT</a></div>
+    </section>
+
+    <section id="page-dashboard" class="app-section hidden">
+      <div class="header" style="margin:-20px -20px 20px"><div class="title">Dashboard Anggota</div><div class="member-name" id="dashboardMember"></div></div>
+      <div class="section" id="pengumuman"><div class="section-title">🔔 Pengumuman Deadline</div><div id="deadline-alerts">Memeriksa deadline...</div></div>
+      <div class="menu-grid">
+        <a class="menu" onclick="showPage('report')">📝<br>Form Laporan</a>
+        <a class="menu" onclick="showPage('logbook')">📖<br>Logbook</a>
+        <a class="menu" onclick="scrollDashboardTo('dashboardCalendar')">📅<br>Kalender Deadline</a>
+        <a class="menu" onclick="scrollDashboardTo('pengumuman')">🔔<br>Pengumuman</a>
+        <a class="menu gdrive" onclick="openDrive()">☁️<br>Google Drive</a>
+      </div>
+      <div class="section" id="dashboardCalendar"><div class="section-title">📅 Kalender Deadline & Peminjaman</div><div id="dashboardCalendarBody"></div></div>
+      <div class="section" id="deadline-list"><div class="section-title">📋 Daftar Deadline</div><div id="deadline-items"></div></div>
+      <div class="footer"><a class="button" onclick="showPage('members')">← Daftar Anggota</a><a class="button" onclick="logout()">Logout</a></div>
+    </section>
+
+    <section id="page-logbook" class="app-section hidden">
+      <div class="section"><div class="section-title" id="logbookTitle">Logbook</div><div class="actions"><a class="button" onclick="showPage('dashboard')">← Dashboard</a><a class="button green-button" onclick="showPage('report')">📝 Tambah Laporan</a><a class="button blue-button" onclick="downloadLogbookPDF()">⬇ Download PDF</a></div></div>
+      <div class="section"><div class="table-wrap"><table class="data-table"><thead><tr><th>No</th><th>Tanggal</th><th>Keterangan</th><th>Deadline</th><th>Status</th><th>File</th><th>Aksi</th></tr></thead><tbody id="logbookBody"></tbody></table></div></div>
+    </section>
+
+    <section id="page-report" class="app-section hidden">
+      <div class="panel" style="width:650px;max-width:100%">
+        <div class="header"><div class="title">Form Laporan</div><img id="reportLogo" class="logo" alt="NSG"></div>
+        <div class="content">
+          <div style="font-size:23px;font-weight:bold">Input Laporan</div><div style="font-size:18px;margin-bottom:25px">Anggota: <strong id="reportMemberLabel"></strong></div>
+          <form id="reportForm">
+            <div class="form-group"><label>Tanggal</label><input id="reportDate" type="date" required></div>
+            <div class="form-group"><label>Keterangan</label><textarea id="reportDescription" required placeholder="Masukkan keterangan laporan..."></textarea></div>
+            <div class="form-group"><label>Deadline</label><input id="reportDeadline" type="date"></div>
+            <div class="form-group"><label>Status</label><select id="reportStatus"><option value="Pending">Pending</option><option value="Progress">Progress</option><option value="Selesai">Selesai</option></select></div>
+            <div class="form-group"><label>File Bukti / Lampiran</label>
+              <div id="dropzone" class="dropzone" tabindex="0">
+                <div class="dropzone-title">📎 Drag & Drop File di Sini</div>
+                <div class="dropzone-subtitle">atau klik untuk memilih file (bisa lebih dari satu)</div>
+                <input id="reportFiles" type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt" hidden>
+                <div id="fileList" class="file-list">Belum ada file dipilih.</div>
+              </div>
+            </div>
+            <div id="uploadStatus" class="notice hidden"></div>
+            <div class="buttons"><a class="button" onclick="showPage('dashboard')">BATAL</a><button class="button green-button" type="submit">SIMPAN KE LOGBOOK</button></div>
+          </form>
+          <div class="file-note">File akan diunggah ke Google Drive jika endpoint upload dapat diakses. Jika tidak, metadata tetap disimpan di browser.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-stock" class="app-section hidden">
+      <div class="stock-page">
+        <a class="stock-back" onclick="showPage('menu')">←&nbsp; Kembali ke Menu Utama</a>
+        <div class="stock-hero"><h1>Stok Barang</h1><p>Kelola persediaan barang dan status ketersediaannya.</p></div>
+        <div class="stock-toolbar"><input id="stockSearch" class="stock-search" placeholder="Cari nama barang…"><button class="stock-add-btn" type="button" onclick="openStockAdd()">+&nbsp; Tambah Barang</button></div>
+        <div class="stock-table-card"><div style="overflow:auto"><table class="stock-table"><thead><tr><th>Barang</th><th>Jumlah</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead><tbody id="stockBody"></tbody></table></div></div>
+        <div class="stock-buy-card"><div class="stock-buy-head"><div><h2>🛒 Harus Dibeli</h2><p>Barang dengan stok mau habis atau sudah habis.</p></div><span id="stockBuyCount" class="stock-count">0 barang</span></div><div id="stockBuyBody"></div></div>
+      </div>
+    </section>
+
+    <section id="page-files" class="app-section hidden">
+      <div class="section"><div class="section-title">📁 File</div><p>Pilih cara yang ingin digunakan untuk mengelola file.</p>
+        <div class="file-menu-grid">
+          <a class="file-menu" onclick="showPage('report')"><div class="file-icon">📎</div><div class="file-title">Drag and Drop</div><div class="file-desc">Upload file melalui form laporan.</div></a>
+          <a class="file-menu" onclick="openDrive()"><div class="file-icon">☁️</div><div class="file-title">Google Drive</div><div class="file-desc">Buka folder Google Drive.</div></a>
+        </div>
+      </div>
+      <div class="footer"><a class="button" onclick="goBackFromFiles()">← Kembali</a></div>
+    </section>
+
+  </div>
+</div>
+
+<div id="stockAddModal" class="stock-add-modal" onclick="if(event.target===this)closeStockAdd()"><div class="stock-add-box"><h2>Tambah Barang</h2><label for="stockAddName">Nama Barang</label><input id="stockAddName" placeholder="Contoh: filter"><label for="stockAddCode">Kode Barang</label><input id="stockAddCode" placeholder="Contoh: atk-01"><label for="stockAddQty">Jumlah</label><input id="stockAddQty" type="number" min="0" value="0"><div class="stock-modal-actions"><button type="button" onclick="closeStockAdd()">Batal</button><button type="button" class="stock-save" onclick="saveStockItem()">Simpan</button></div></div></div>
+
+<div id="bookingModal" class="modal" aria-hidden="true"><div class="modal-card" onclick="event.stopPropagation()"><h2>Detail Booking</h2><div id="bookingModalContent" class="modal-content"></div><div class="buttons"><button class="button" onclick="closeBookingModal()">Tutup</button><button class="button red-button" onclick="deleteCurrentBooking()">Hapus Booking</button></div></div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script>
+/* ============================================================
+   NSG APP - STATIC HTML CONVERSION
+   ------------------------------------------------------------
+   Basis perilaku dipertahankan dari app.py asli:
+   - login admin / 1234
+   - booking multi-hari
+   - alias tanggal = tanggal_mulai
+   - kalender deadline + booking
+   - anggota
+   - logbook CSV-compatible
+   - upload Google Drive melalui Apps Script
+   - Google Drive utama
+   - dashboard deadline
+   - hapus laporan
+   - download PDF
+   - fallback localStorage untuk lingkungan statis
+   ============================================================ */
+
+const CONFIG={
+  GOOGLE_APPS_SCRIPT_BOOKING_URL:"https://script.google.com/macros/s/AKfycbxakOtSCMq6fAstFRgUHWmse8Fu3qJjo9o4A-XpsusuzoV_BCz25-660j0DYEH7SboF/exec",
+  GOOGLE_APPS_SCRIPT_UPLOAD_URL:"https://script.google.com/macros/s/AKfycbxpUX3nhT-c-SwYY7TvWev_9ej81E4jXgiZb75A0Iz8Agvc_llkyZfYfJgCzgt_pmXb/exec",
+  GOOGLE_DRIVE_URL:"https://drive.google.com/drive/folders/1KySCCNFRx-9dn6cetV-gxhKfiuf8Cz-4?usp=drive_link",
+  GOOGLE_BOOKING_SPREADSHEET_URL:"https://docs.google.com/spreadsheets/d/1FkxTNoUveHNvWseFoFZJA-xxNS3PgX1dSv7LjLx1UvU/edit?usp=sharing",
+  GOOGLE_BOOKING_SPREADSHEET_ID:"1FkxTNoUveHNvWseFoFZJA-xxNS3PgX1dSv7LjLx1UvU",
+  USERNAME:"admin",
+  PASSWORD:"1234",
+  MEMBER_FILE:"members.json",
+  BOOKING_DATA_FILE:"data/bookings.json",
+  GOOGLE_DRIVE_FILE_URL:"https://drive.google.com/drive/folders/1gfO_MPTcCMseNmuMUNvr8309xTin_GMc?usp=drive_link",
+  ALLOWED_EXTENSIONS:["jpg","jpeg","png","pdf","doc","docx","xls","xlsx","csv","txt"]
+};
+const KEYS={members:"nsg_members_v2",bookings:"nsg_bookings_v2",logbook:"nsg_logbook_v2",stock:"nsg_stock_v2",login:"nsg_logged_in",sourceMembers:"nsg_source_members_loaded",sourceBookings:"nsg_source_bookings_loaded",blankInit:"nsg_blank_data_initialized_v3"};
+let currentPage="menu",currentMember="",currentBookingId="",filesReturnPage="menu",calendarDate=new Date(),calendarBookings=[],members=[],logbookRows=[],stockRows=[];
+
+function $(id){return document.getElementById(id)}
+function escapeHTML(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/'/g,"&#039;")}
+function getJSON(key,fallback){try{const raw=localStorage.getItem(key);return raw===null?fallback:JSON.parse(raw)}catch{return fallback}}
+function setJSON(key,value){localStorage.setItem(key,JSON.stringify(value))}
+function safeFilename(name){return String(name??"").replace(/[<>:"/\\|?*]/g,"_").trim()}
+function dateKey(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function parseDateLocal(v){if(!v)return null;const m=String(v).trim().match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);return m?new Date(+m[1],+m[2]-1,+m[3]):null}
+function sameDate(a,b){return !!(a&&b&&a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate())}
+function formatDate(v){const d=v instanceof Date?v:parseDateLocal(v);return d?d.toLocaleDateString("id-ID"):String(v||"")}
+function formatMonth(d){return d.toLocaleDateString("id-ID",{month:"long",year:"numeric"})}
+function nowDateOnly(){const d=new Date();d.setHours(0,0,0,0);return d}
+function daysDiff(a,b){return Math.round((a-b)/86400000)}
+function normalizeMember(m){if(typeof m==="string")return m.trim();if(m&&typeof m==="object")return String(m.nama||m.name||m.Nama||"").trim();return ""}
+function normalizeBooking(item){if(!item||typeof item!=="object")return null;const s=String(item.tanggal_mulai||item.tanggal||"").trim();const e=String(item.tanggal_selesai||s).trim();if(!s)return null;return {...item,id:String(item.id||bookingId(item)),tanggal:s,tanggal_mulai:s,tanggal_selesai:e,nama:String(item.nama||"").trim(),nomor_telepon:String(item.nomor_telepon||"").trim(),alat:String(item.alat||"").trim(),jam_mulai:String(item.jam_mulai||"").trim(),jam_selesai:String(item.jam_selesai||"").trim(),keperluan:String(item.keperluan||"").trim(),catatan:String(item.catatan||"").trim()}}
+function bookingId(b){return [b.nama||"",b.alat||"",b.tanggal_mulai||b.tanggal||"",b.tanggal_selesai||b.tanggal_mulai||b.tanggal||"",b.jam_mulai||"",b.jam_selesai||"",b.nomor_telepon||""].join("|")}
+function bookingStart(b){return parseDateLocal(b.tanggal_mulai||b.tanggal)}
+function bookingEnd(b){return parseDateLocal(b.tanggal_selesai||b.tanggal_mulai||b.tanggal)}
+function bookingCoversDate(b,d){const s=bookingStart(b),e=bookingEnd(b);if(!s||!e)return false;const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());const a=new Date(s.getFullYear(),s.getMonth(),s.getDate());const z=new Date(e.getFullYear(),e.getMonth(),e.getDate());return x>=a&&x<=z}
+function bookingClass(b){const e=bookingEnd(b);if(!e)return"";const diff=daysDiff(nowDateOnly(),e);if(diff<0)return"past";if(diff===0)return"today";if(diff<=3)return"soon";return""}
+function allowedFile(name){const p=String(name||"").toLowerCase().split(".");return p.length>1&&CONFIG.ALLOWED_EXTENSIONS.includes(p.pop())}
+
+async function loadInitialData(){
+  // Versi baru dimulai dengan daftar Anggota dan Stock kosong, seperti web baru.
+  // Reset satu kali untuk menghapus data contoh/seed dari versi app.html sebelumnya.
+  if(localStorage.getItem(KEYS.blankInit)!=="1"){
+    localStorage.removeItem(KEYS.members);
+    localStorage.removeItem(KEYS.stock);
+    localStorage.removeItem(KEYS.sourceMembers);
+    localStorage.setItem(KEYS.blankInit,"1");
+  }
+
+  members=getJSON(KEYS.members,[]).map(normalizeMember).filter(Boolean);
+  // Jangan mengambil members.json otomatis: halaman Anggota harus kosong pada instalasi baru.
+
+  // Muat bookings.json hanya sebagai data awal. Setelah pengguna menghapus
+  // booking, localStorage menjadi sumber utama agar booking yang dihapus
+  // tidak muncul kembali ketika app.html dibuka ulang.
+  const storedBookings=localStorage.getItem(KEYS.bookings);
+  if(storedBookings!==null){
+    calendarBookings=ensureUniqueBookingIds(getJSON(KEYS.bookings,[]));
+    setJSON(KEYS.bookings,calendarBookings);
+  }else{
+    calendarBookings=[];
+    try{
+      const r=await fetch(CONFIG.BOOKING_DATA_FILE+"?_="+Date.now(),{cache:"no-store"});
+      if(r.ok){
+        const d=await r.json();
+        if(Array.isArray(d))calendarBookings=ensureUniqueBookingIds(d);
+      }
+    }catch{}
+    setJSON(KEYS.bookings,calendarBookings);
+    localStorage.setItem(KEYS.sourceBookings,"1");
+  }
+
+  stockRows=getJSON(KEYS.stock,[]);
+  // Tidak ada barang contoh/seed. Stock dimulai benar-benar kosong.
+  if(!Array.isArray(stockRows))stockRows=[];
+  renderStock();
+}
+
+function showPage(name){
+  if(name!=="login"&&!isLoggedIn()){showLogin();return}
+  document.querySelectorAll(".app-section").forEach(x=>x.classList.add("hidden"));
+  const target=$("page-"+name);if(!target)return;
+  target.classList.remove("hidden");currentPage=name;
+  $("appPage").classList.toggle("menu-mode",name==="menu");
+  $("appPage").classList.toggle("stock-mode",name==="stock");
+  $("appPage").classList.toggle("dashboard-mode",name==="dashboard");
+  document.body.classList.toggle("stock-body",name==="stock");
+  if(name==="menu")setHeader("Menu Utama","");
+  if(name==="booking"){setHeader("Peminjaman Alat","");refreshCalendar()}
+  if(name==="members"){setHeader("Daftar Anggota","");renderMembers()}
+  if(name==="dashboard"){setHeader("Dashboard Anggota",currentMember);renderDashboard()}
+  if(name==="logbook"){setHeader("Logbook",currentMember);renderLogbook()}
+  if(name==="report"){setHeader("Form Laporan",currentMember);prepareReport()}
+  if(name==="stock"){setHeader("Stock","");renderStock()}
+  if(name==="files"){setHeader("File","")}
+}
+function setHeader(title,member){$("appHeaderTitle").textContent=title;$("appHeaderMember").textContent=member||""}
+function isLoggedIn(){return localStorage.getItem(KEYS.login)==="1"}
+function showLogin(){$("loginPage").classList.remove("hidden");$("appPage").classList.add("hidden")}
+function enterApp(){$("loginPage").classList.add("hidden");$("appPage").classList.remove("hidden");showPage("menu")}
+function logout(){localStorage.removeItem(KEYS.login);currentMember="";currentPage="login";showLogin()}
+$("loginForm").addEventListener("submit",e=>{e.preventDefault();if($("loginUsername").value.trim()===CONFIG.USERNAME&&$("loginPassword").value===CONFIG.PASSWORD){localStorage.setItem(KEYS.login,"1");$("loginError").textContent="";enterApp()}else $("loginError").textContent="Username atau password salah."})
+
+function openDrive(){window.open(CONFIG.GOOGLE_DRIVE_URL,"_blank","noopener,noreferrer")}
+function openBookingSpreadsheet(){window.open(CONFIG.GOOGLE_BOOKING_SPREADSHEET_URL,"_blank","noopener,noreferrer")}
+function goBackFromFiles(){showPage(filesReturnPage||"menu")}
+
+$("bookingForm").addEventListener("submit",async e=>{
+  e.preventDefault();const err=$("bookingError");err.textContent="";
+  const nama=$("bookingNama").value.trim(),nomor_telepon=$("bookingPhone").value.trim(),alat=$("bookingAlat").value.trim();let tanggal_mulai=$("tanggal_mulai").value.trim(),tanggal_selesai=$("tanggal_selesai").value.trim();const jam_mulai=$("jam_mulai").value.trim(),jam_selesai=$("jam_selesai").value.trim(),keperluan=$("bookingKeperluan").value.trim(),catatan=$("bookingCatatan").value.trim();
+  if(!nama){err.textContent="Nama peminjam wajib dipilih.";return}if(!alat){err.textContent="Nama alat wajib diisi.";return}if(!tanggal_mulai) {err.textContent="Tanggal mulai wajib diisi.";return}if(!tanggal_selesai)tanggal_selesai=tanggal_mulai;const s=parseDateLocal(tanggal_mulai),z=parseDateLocal(tanggal_selesai);if(!s||!z){err.textContent="Format tanggal peminjaman tidak valid.";return}if(z<s){err.textContent="Tanggal selesai tidak boleh lebih awal daripada tanggal mulai.";return}if(!jam_mulai||!jam_selesai){err.textContent="Jam mulai dan jam selesai wajib diisi.";return}if(tanggal_mulai===tanggal_selesai&&jam_selesai<=jam_mulai){err.textContent="Untuk peminjaman 1 hari, jam selesai harus setelah jam mulai.";return}
+  const payload={action:"booking",type:"booking",spreadsheetId:CONFIG.GOOGLE_BOOKING_SPREADSHEET_ID,spreadsheetUrl:CONFIG.GOOGLE_BOOKING_SPREADSHEET_URL,nama,nomor_telepon,alat,tanggal:tanggal_mulai,tanggal_mulai,tanggal_selesai,jam_mulai,jam_selesai,keperluan,catatan};
+  const local=normalizeBooking({...payload,id:"bk_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,8)});calendarBookings.push(local);setJSON(KEYS.bookings,calendarBookings);renderCalendar();
+  try{
+    const r=await fetch(CONFIG.GOOGLE_APPS_SCRIPT_BOOKING_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8","Accept":"application/json"},body:JSON.stringify(payload)});
+    const text=(await r.text()).trim();let result=null;try{result=JSON.parse(text)}catch{}
+    if(!r.ok)throw new Error("Google Apps Script HTTP "+r.status+"\n"+text);
+    if(result&&String(result.success).toLowerCase()!=="true"&&result.success!==true&&!(text.toLowerCase().includes("success")&&text.toLowerCase().includes("true")))throw new Error(result?.message||result?.error||text||"Google Apps Script menolak data booking.");
+    alert("Booking berhasil dikirim dan disimpan di kalender.");
+  }catch(ex){alert("Booking disimpan di browser, tetapi pengiriman ke Google Apps Script gagal.\n\n"+ex.message)}
+  e.target.reset();$("tanggal_selesai").min="";refreshCalendar();
+});
+$("tanggal_mulai").addEventListener("change",()=>{$("tanggal_selesai").min=$("tanggal_mulai").value||"";if(!$("tanggal_selesai").value)$("tanggal_selesai").value=$("tanggal_mulai").value})
+$("tanggal_selesai").addEventListener("change",()=>{if($("tanggal_mulai").value&&$("tanggal_selesai").value<$("tanggal_mulai").value){alert("Tanggal selesai tidak boleh lebih awal daripada tanggal mulai.");$("tanggal_selesai").value=$("tanggal_mulai").value}})
+
+async function refreshCalendar(){
+  // app.html berjalan tanpa Flask. Jangan mencoba endpoint Flask karena
+  // kegagalan request sebelumnya dapat membuat data lokal terasa "hilang".
+  // Jika halaman memang dijalankan melalui Flask, data server tetap dipakai.
+  const runningOnFlask=window.location.protocol!=="file:" &&
+    (window.location.pathname==="/" || window.location.pathname.includes("/peminjaman"));
+  if(runningOnFlask){
+    try{
+      const r=await fetch("/api/bookings?_="+Date.now(),{cache:"no-store",credentials:"same-origin",headers:{Accept:"application/json"}});
+      if(r.ok){
+        const d=await r.json();
+        if(d&&d.success&&Array.isArray(d.bookings)){
+          calendarBookings=ensureUniqueBookingIds(d.bookings);
+          setJSON(KEYS.bookings,calendarBookings);
+        }
+      }
+    }catch(error){console.warn("Data server tidak dapat dimuat; memakai data lokal.",error)}
+  }else{
+    calendarBookings=ensureUniqueBookingIds(getJSON(KEYS.bookings,[]));
+  }
+  renderCalendar();
+}
+function ensureUniqueBookingIds(list){
+  const used=new Set();
+  return (Array.isArray(list)?list:[]).map((item,index)=>{
+    const b=normalizeBooking(item);
+    if(!b)return null;
+    let id=String(b.id||bookingId(b)||('bk_'+index)).trim();
+    if(!id)id='bk_'+index;
+    if(used.has(id)){
+      const seed=bookingId(b)||('booking_'+index);
+      let n=2;
+      let candidate=id+'_'+n;
+      while(used.has(candidate)){n++;candidate=id+'_'+n}
+      id=candidate;
+    }
+    used.add(id);
+    b.id=id;
+    return b;
+  }).filter(Boolean);
+}
+function changeCalendarMonth(n){calendarDate=new Date(calendarDate.getFullYear(),calendarDate.getMonth()+n,1);renderCalendar()}
+function renderCalendar(){const title=$("calendarTitle"),body=$("calendarBody");if(!title||!body)return;title.textContent=formatMonth(calendarDate);const y=calendarDate.getFullYear(),m=calendarDate.getMonth(),first=new Date(y,m,1),last=new Date(y,m+1,0),start=first.getDay(),total=last.getDate();let out="",day=1-start;for(let w=0;w<6;w++){out+="<tr>";for(let dow=0;dow<7;dow++,day++){const d=new Date(y,m,day),inMonth=d.getMonth()===m,today=sameDate(d,nowDateOnly());out+='<td class="'+(inMonth?"":"other-month ")+(today?"today-cell":"")+'"><div class="calendar-date">'+d.getDate()+"</div>";if(inMonth){calendarBookings.filter(b=>bookingCoversDate(b,d)).forEach(b=>{out+='<div class="booking-deadline '+bookingClass(b)+'" data-booking-id="'+escapeHTML(b.id)+'" role="button" tabindex="0"><div class="booking-person">'+escapeHTML(b.nama||"Tanpa nama")+'</div><div class="booking-detail">'+escapeHTML(b.alat||"")+'</div><div class="booking-detail">🕐 '+escapeHTML(b.jam_mulai||"")+" - "+escapeHTML(b.jam_selesai||"")+'</div><div class="booking-detail">📅 '+escapeHTML(formatDate(b.tanggal_mulai||b.tanggal))+" → "+escapeHTML(formatDate(b.tanggal_selesai||b.tanggal_mulai||b.tanggal))+'</div></div>'})}out+="</td>"}out+="</tr>";if(day>total)break}body.innerHTML=out||'<tr><td colspan="7" class="calendar-empty">Tidak ada data.</td></tr>'}
+function openBookingModal(id){
+  const b=calendarBookings.find(x=>String(x.id)===String(id));
+  if(!b)return;
+  currentBookingId=String(b.id);
+  // Simpan snapshot agar penghapusan tidak bergantung pada elemen kalender
+  // yang sedang dirender ulang.
+  window.currentBookingForDelete=b;
+  $("bookingModalContent").textContent=
+    "Nama: "+(b.nama||"-")+"\n"+
+    "Telepon: "+(b.nomor_telepon||"-")+"\n"+
+    "Alat: "+(b.alat||"-")+"\n"+
+    "Waktu: "+(b.tanggal_mulai||b.tanggal||"-")+" "+(b.jam_mulai||"")+" hingga "+(b.tanggal_selesai||b.tanggal_mulai||b.tanggal||"-")+" "+(b.jam_selesai||"")+"\n"+
+    "Keperluan: "+(b.keperluan||"-")+"\n"+
+    "Catatan: "+(b.catatan||"-");
+  $("bookingModal").classList.add("show");
+  $("bookingModal").setAttribute("aria-hidden","false");
+}
+function closeBookingModal(){
+  $("bookingModal").classList.remove("show");
+  $("bookingModal").setAttribute("aria-hidden","true");
+  currentBookingId="";
+  window.currentBookingForDelete=null;
+}
+function deleteCurrentBooking(){
+  const id=String(currentBookingId||"").trim();
+  if(!id)return;
+  const source=Array.isArray(calendarBookings)?calendarBookings:[];
+  const index=source.findIndex(x=>String(x.id||"").trim()===id);
+  if(index<0){closeBookingModal();renderCalendar();return}
+  const booking=source[index];
+  const label=(booking.nama||"Tanpa nama")+"\n"+(booking.alat||"Alat")+"\n"+(booking.tanggal_mulai||booking.tanggal||"");
+  if(!window.confirm("Hapus booking ini?\n\n"+label))return;
+
+  // Buat array baru berdasarkan ID tepat yang diklik. Tidak memakai index
+  // tabel/kalender sehingga aman walaupun satu hari berisi banyak booking.
+  const updated=source.filter(x=>String(x.id||"").trim()!==id);
+  if(updated.length===source.length)return;
+  calendarBookings=ensureUniqueBookingIds(updated);
+  setJSON(KEYS.bookings,calendarBookings);
+
+  closeBookingModal();
+  renderCalendar();
+  if(typeof renderDashboard === "function")renderDashboard();
+}
+
+// Event delegation kalender: aman walaupun jadwal sangat banyak dan kalender dirender ulang.
+document.addEventListener("click",function(e){
+  const item=e.target.closest("[data-booking-id]");
+  if(item){
+    e.preventDefault();
+    openBookingModal(item.getAttribute("data-booking-id"));
+  }
+  if(e.target===$("bookingModal"))closeBookingModal();
+});
+document.addEventListener("keydown",function(e){
+  if(e.key==="Escape")closeBookingModal();
+  if((e.key==="Enter"||e.key===" ") && e.target.closest && e.target.closest("[data-booking-id]")){
+    e.preventDefault();
+    openBookingModal(e.target.closest("[data-booking-id]").getAttribute("data-booking-id"));
+  }
+});
+
+function renderMembers(){const body=$("membersBody");body.innerHTML="";if(!members.length){body.innerHTML='<div style="padding:10px;color:#555">Belum ada anggota.</div>';return}members.forEach((name,i)=>{const card=document.createElement("a");card.className="member-card";card.href="#";card.innerHTML='<span>'+escapeHTML(name)+'</span><span class="member-arrow">&gt;</span>';card.onclick=e=>{e.preventDefault();openMember(i)};body.appendChild(card)})}
+function addMemberFromButton(){const input=$("memberName"),n=input.value.trim();if(!n)return;if(members.some(x=>x.toLowerCase()===n.toLowerCase())){$("memberError").textContent="Anggota sudah ada.";return}members.push(n);setJSON(KEYS.members,members);setJSON(KEYS.sourceMembers,members);input.value="";$("memberError").textContent="";renderMembers()}
+function deleteMember(i){if(!confirm("Hapus anggota ini?"))return;members.splice(i,1);setJSON(KEYS.members,members);if(currentMember===members[i])currentMember="";renderMembers()}
+function openMember(i){currentMember=members[i]||"";if(!currentMember)return;showPage("dashboard")}
+function openMemberLogbook(i){currentMember=members[i]||"";if(!currentMember)return;showPage("logbook")}
+
+function readLocalLogbook(){return getJSON(KEYS.logbook,[]).filter(x=>normalizeMember(x.nama||x.member)===currentMember)}
+async function loadMemberCSV(name){const candidates=["data/"+encodeURIComponent(safeFilename(name))+".csv","data/"+safeFilename(name)+".csv"];for(const url of candidates){try{const r=await fetch(url,{cache:"no-store"});if(r.ok){const text=await r.text();return parseCSV(text)}}catch{}}return []}
+function parseCSV(text){const rows=[];let row=[],cell="",quote=false;for(let i=0;i<text.length;i++){const c=text[i],n=text[i+1];if(c==='"'&&quote&&n==='"'){cell+='"';i++;continue}if(c==='"'){quote=!quote;continue}if(c===','&&!quote){row.push(cell);cell="";continue}if((c==='\n'||c==='\r')&&!quote){if(c==='\r'&&n==='\n')i++;row.push(cell);if(row.some(v=>v!==""))rows.push(row);row=[];cell="";continue}cell+=c}if(cell||row.length){row.push(cell);rows.push(row)}if(!rows.length)return[];const h=rows[0].map(x=>x.trim());return rows.slice(1).map(r=>Object.fromEntries(h.map((k,i)=>[k,r[i]??""]))).filter(x=>Object.values(x).some(Boolean))}
+async function getLogbook(){let rows=readLocalLogbook();if(!rows.length){const csv=await loadMemberCSV(currentMember);if(csv.length){rows=csv.map((r,i)=>({id:"csv_"+i,nama:currentMember,No:r.No||String(i+1),tanggal:r.Tanggal||"",keterangan:r.Keterangan||"",deadline:r.Deadline||"",status:r.Status||"",file:r.File||""}))}}return rows}
+async function renderLogbook(){const body=$("logbookBody");$("logbookTitle").textContent="Logbook - "+currentMember;body.innerHTML='<tr><td colspan="7">Memuat...</td></tr>';const rows=await getLogbook();logbookRows=rows;body.innerHTML="";if(!rows.length){body.innerHTML='<tr><td colspan="7">Belum ada laporan.</td></tr>';return}rows.forEach((r,i)=>{const tr=document.createElement("tr");tr.innerHTML='<td>'+escapeHTML(r.No||i+1)+'</td><td>'+escapeHTML(r.tanggal||r.Tanggal||"")+'</td><td>'+escapeHTML(r.keterangan||r.Keterangan||"")+'</td><td>'+escapeHTML(r.deadline||r.Deadline||"")+'</td><td>'+escapeHTML(r.status||r.Status||"")+'</td><td>'+renderFileValue(r.file||r.File||"")+'</td><td><button class="button small-btn red-button" onclick="deleteReport('+i+')">Hapus</button></td>';body.appendChild(tr)})}
+function renderFileValue(v){if(!v)return"";return String(v).split("||").map(x=>x.trim()).filter(Boolean).map(x=>/^https?:\/\//i.test(x)?'<a href="'+escapeHTML(x)+'" target="_blank" rel="noopener noreferrer">Buka</a>':escapeHTML(x)).join(" | ")}
+async function deleteReport(i){if(!confirm("Hapus laporan ini?"))return;const rows=await getLogbook();rows.splice(i,1);const all=getJSON(KEYS.logbook,[]);const kept=all.filter(x=>normalizeMember(x.nama||x.member)!==currentMember);rows.forEach((r,j)=>kept.push({...r,nama:currentMember,No:j+1}));setJSON(KEYS.logbook,kept);await renderLogbook()}
+
+function scrollDashboardTo(id){const el=$(id);if(el){el.scrollIntoView({behavior:"smooth",block:"start"})}}
+
+let selectedReportFiles=[];
+function renderSelectedFiles(){const root=$("fileList");if(!root)return;if(!selectedReportFiles.length){root.textContent="Belum ada file dipilih.";return}root.innerHTML=selectedReportFiles.map((f,i)=>'<div>'+escapeHTML(f.name)+' <span style="color:#666">('+Math.round(f.size/1024)+' KB)</span></div>').join("")}
+function setReportFiles(fileList){selectedReportFiles=[...fileList].filter(f=>allowedFile(f.name));renderSelectedFiles()}
+function initDropzone(){const dz=$("dropzone"),input=$("reportFiles");if(!dz||!input)return;dz.addEventListener("click",()=>input.click());dz.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();input.click()}});input.addEventListener("change",()=>setReportFiles(input.files));["dragenter","dragover"].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();dz.classList.add("dragover")}));["dragleave","drop"].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();dz.classList.remove("dragover")}));dz.addEventListener("drop",e=>{setReportFiles(e.dataTransfer.files);try{const dt=new DataTransfer();selectedReportFiles.forEach(f=>dt.items.add(f));input.files=dt.files}catch{}})}
+
+function prepareReport(){$("reportMemberLabel").textContent=currentMember;selectedReportFiles=[];renderSelectedFiles();$("reportDate").value=new Date().toISOString().slice(0,10);$("reportStatus").value="Pending";$("uploadStatus").classList.add("hidden")}
+async function uploadToGoogleDrive(file,nama,tanggal){if(!file||!allowedFile(file.name))return null;const data=await file.arrayBuffer();let binary="";const bytes=new Uint8Array(data);const chunk=0x8000;for(let i=0;i<bytes.length;i+=chunk)binary+=String.fromCharCode(...bytes.subarray(i,i+chunk));const encoded=btoa(binary);const finalFilename=safeFilename(nama)+"_"+safeFilename(tanggal)+"_"+file.name.replace(/[^a-zA-Z0-9._-]/g,"_");const payload={action:"upload",nama,tanggal,filename:finalFilename,contentType:file.type||"application/octet-stream",file:encoded};const r=await fetch(CONFIG.GOOGLE_APPS_SCRIPT_UPLOAD_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8","Accept":"application/json"},body:JSON.stringify(payload)});const text=await r.text();if(!r.ok)throw new Error("Upload HTTP "+r.status);let result;try{result=JSON.parse(text)}catch{throw new Error("Response Google bukan JSON.")}if(!result.success)throw new Error(result.message||result.error||"Upload ditolak.");return result}
+$("reportForm").addEventListener("submit",async e=>{e.preventDefault();if(!currentMember){alert("Pilih anggota terlebih dahulu.");showPage("members");return}const tanggal=$("reportDate").value,keterangan=$("reportDescription").value.trim(),deadline=$("reportDeadline").value,status=$("reportStatus").value,files=selectedReportFiles.length?selectedReportFiles:[...$("reportFiles").files];let links=[];const notice=$("uploadStatus");notice.classList.remove("hidden");notice.textContent="Menyimpan laporan...";for(const f of files){try{if(!allowedFile(f.name))continue;notice.textContent="Mengupload "+f.name+"...";const r=await uploadToGoogleDrive(f,currentMember,tanggal);if(r?.fileUrl)links.push(r.fileUrl)}catch(err){console.warn(err)}}const all=getJSON(KEYS.logbook,[]);const current=all.filter(x=>normalizeMember(x.nama||x.member)===currentMember);const row={id:Date.now(),nama:currentMember,No:current.length+1,tanggal,keterangan,deadline,status,file:links.join("||")};all.push(row);setJSON(KEYS.logbook,all);notice.textContent=links.length?"Laporan tersimpan dan file berhasil diunggah.":"Laporan tersimpan. Tidak ada file yang berhasil diunggah.";e.target.reset();currentMember=row.nama;setTimeout(()=>showPage("logbook"),500)})
+
+function deadlineClass(d){const x=parseDateLocal(d);if(!x)return"";const diff=daysDiff(nowDateOnly(),new Date(x.getFullYear(),x.getMonth(),x.getDate()));if(diff<0)return"overdue";if(diff===0)return"today";if(diff<=3)return"soon";if(diff<=7)return"week";return""}
+async function renderDashboard(){$("dashboardMember").textContent=currentMember;const rows=await getLogbook();const upcoming=rows.filter(r=>r.deadline||r.Deadline).map(r=>({...r,_d:parseDateLocal(r.deadline||r.Deadline)})).filter(r=>r._d).sort((a,b)=>a._d-b._d);const alerts=$("deadline-alerts"),items=$("deadline-items");if(!upcoming.length){alerts.innerHTML='<div class="empty-alert">Tidak ada deadline yang mendekat dalam 7 hari ke depan.</div>';items.innerHTML='<div class="empty-alert">Tidak ada deadline aktif.</div>'}else{const near=upcoming.filter(r=>daysDiff(nowDateOnly(),new Date(r._d.getFullYear(),r._d.getMonth(),r._d.getDate()))<=7);alerts.innerHTML=near.length?near.slice(0,10).map(r=>{const cls=deadlineClass(r._d);return '<div class="announcement '+cls+'"><strong>'+escapeHTML(r.keterangan||r.Keterangan||"Laporan")+'</strong><br>Deadline: '+escapeHTML(formatDate(r._d))+'<br><span class="status">'+escapeHTML(r.status||r.Status||"")+'</span></div>'}).join(""):'<div class="empty-alert">Tidak ada deadline yang mendekat dalam 7 hari ke depan.</div>';items.innerHTML=upcoming.slice(0,30).map(r=>{const cls=deadlineClass(r._d);return '<div class="announcement '+cls+'"><strong>'+escapeHTML(r.keterangan||r.Keterangan||"Laporan")+'</strong><br>Deadline: '+escapeHTML(formatDate(r._d))+'<br><span class="status">'+escapeHTML(r.status||r.Status||"")+'</span></div>'}).join("")}renderDashboardCalendar(upcoming)}
+function renderDashboardCalendar(rows){const root=$("dashboardCalendarBody");const y=calendarDate.getFullYear(),m=calendarDate.getMonth(),first=new Date(y,m,1),last=new Date(y,m+1,0),start=first.getDay(),total=last.getDate();let out='<div class="calendar-header"><button class="calendar-button" onclick="changeCalendarMonth(-1);renderDashboard()">‹</button><div class="calendar-title">'+escapeHTML(formatMonth(calendarDate))+'</div><button class="calendar-button" onclick="changeCalendarMonth(1);renderDashboard()">›</button></div><div class="calendar-week">'+["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"].map(x=>'<div>'+x+'</div>').join("")+'</div><div class="calendar-days">';for(let i=0;i<start;i++)out+='<div class="day other"></div>';for(let d=1;d<=total;d++){const date=new Date(y,m,d),today=sameDate(date,nowDateOnly());out+='<div class="day '+(today?"today":"")+'"><div class="day-number">'+d+'</div>';rows.filter(r=>sameDate(r._d,date)).forEach(r=>{out+='<div class="deadline '+deadlineClass(r._d)+'"><strong>'+escapeHTML(r.keterangan||r.Keterangan||"Laporan")+'</strong><br>'+escapeHTML(r.status||r.Status||"")+'</div>'});calendarBookings.filter(b=>bookingCoversDate(b,date)).forEach(b=>{out+='<div class="deadline booking '+bookingClass(b)+'" data-booking-id="'+escapeHTML(b.id)+'" role="button" tabindex="0"><div class="deadline-person">'+escapeHTML(b.nama||"Tanpa nama")+'</div><div class="deadline-detail">'+escapeHTML(b.alat||"")+'</div></div>'});out+='</div>'}out+='</div>';root.innerHTML=out}
+
+function stockStatus(q){q=Number(q)||0;return q<=0?"tidak":q<=5?"habis":"ada"}
+function stockStatusLabel(q){const s=stockStatus(q);return s==="ada"?"Ada":s==="habis"?"Mau Habis":"Tidak Ada"}
+function stockCode(x){return String(x.kode||x.code||"atk-01")}
+function renderStock(){
+  const body=$("stockBody");
+  if(!body)return;
+  stockRows=getJSON(KEYS.stock,[]);
+  const search=($("stockSearch")?.value||"").trim().toLowerCase();
+  const filtered=stockRows.map((x,i)=>({...x,_i:i,_stockKey:String(x._stockKey||("stock_"+i+"_"+String(x.nama||"").toLowerCase().replace(/[^a-z0-9]+/g,"_") ))})).filter(x=>String(x.nama||"").toLowerCase().includes(search));
+  body.innerHTML="";
+  if(!filtered.length){
+    body.innerHTML='<tr><td colspan="4" class="stock-empty">Belum ada barang.</td></tr>';
+  } else {
+    filtered.forEach(x=>{
+      const q=Number(x.jumlah)||0;
+      const st=stockStatus(q);
+      const tr=document.createElement("tr");
+      tr.innerHTML=
+        '<td><div class="stock-name">'+escapeHTML(x.nama||"")+'</div><div class="stock-code">'+escapeHTML(stockCode(x))+'</div></td>'+
+        '<td><div class="stock-qty"><button type="button" class="qty-btn" data-stock-action="minus" data-stock-index="'+x._i+'">−</button><span class="qty-number">'+q+'</span><button type="button" class="qty-btn" data-stock-action="plus" data-stock-index="'+x._i+'">+</button></div></td>'+
+        '<td><div class="stock-statuses"><span class="stock-badge badge-ada '+(st==="ada"?"active":"")+'">Ada</span><span class="stock-badge badge-habis '+(st==="habis"?"active":"")+'">Mau Habis</span><span class="stock-badge badge-tidak '+(st==="tidak"?"active":"")+'">Tidak Ada</span></div></td>'+
+        '<td style="text-align:right"><button type="button" class="stock-delete" data-stock-action="delete" data-stock-index="'+x._i+'" data-stock-key="'+escapeHTML(x._stockKey)+'">Hapus</button></td>';
+      body.appendChild(tr);
+    });
+  }
+  renderStockBuy();
+}
+
+// Event delegation: tombol stok tetap bekerja walaupun tabel dirender ulang/filter.
+document.addEventListener("click",function(e){
+  const btn=e.target.closest("[data-stock-action]");
+  if(!btn)return;
+  e.preventDefault();
+  const action=btn.dataset.stockAction;
+  const key=btn.dataset.stockKey||"";
+  let i=Number(btn.dataset.stockIndex);
+  const a=getJSON(KEYS.stock,[]);
+  if(key){
+    const byKey=a.findIndex(x=>String(x._stockKey||"")===key);
+    if(byKey>=0)i=byKey;
+  }
+  if(!Number.isInteger(i)||!a[i])return;
+  if(action==="delete")deleteStock(i,key);
+  else if(action==="minus")changeStockQty(i,-1);
+  else if(action==="plus")changeStockQty(i,1);
+});
+function renderStockBuy(){const box=$("stockBuyBody"),count=$("stockBuyCount");if(!box)return;const buys=stockRows.filter(x=>(Number(x.jumlah)||0)<=5);count.textContent=buys.length+" barang";box.innerHTML="";if(!buys.length){box.innerHTML='<div class="stock-empty">Semua barang masih tersedia.</div>';return}buys.forEach(x=>{const q=Number(x.jumlah)||0;box.innerHTML+='<div class="stock-buy-item"><div class="stock-buy-left"><div class="cart-icon">🛒</div><div><div class="stock-buy-name">'+escapeHTML(x.nama||"")+'</div><div class="stock-buy-code">'+escapeHTML(stockCode(x))+'</div></div></div><div class="stock-buy-right"><div class="stock-buy-stock">Stok: '+q+'</div><div class="stock-buy-warning">STOK '+(q===0?'TIDAK ADA':'MAU HABIS')+'</div></div></div>'})}
+function openStockAdd(){$("stockAddModal").classList.add("show");setTimeout(()=>$("stockAddName").focus(),50)}
+function closeStockAdd(){$("stockAddModal").classList.remove("show")}
+function saveStockItem(){const n=$("stockAddName").value.trim(),code=$("stockAddCode").value.trim()||"atk-01",q=Math.max(0,Number($("stockAddQty").value)||0);if(!n){alert("Nama barang wajib diisi.");return}const a=getJSON(KEYS.stock,[]),x=a.find(v=>String(v.nama||"").toLowerCase()===n.toLowerCase());if(x){x.jumlah=q;x.kode=code}else a.push({nama:n,kode:code,jumlah:q});setJSON(KEYS.stock,a);$("stockAddName").value="";$("stockAddCode").value="";$("stockAddQty").value="0";closeStockAdd();renderStock()}
+function changeStockQty(i,delta){
+  const a=getJSON(KEYS.stock,[]);
+  if(!Array.isArray(a)||!a[i])return;
+  a[i].jumlah=Math.max(0,(Number(a[i].jumlah)||0)+delta);
+  setJSON(KEYS.stock,a);
+  stockRows=a;
+  renderStock();
+}
+function deleteStock(i,keyOverride){
+  const a=getJSON(KEYS.stock,[]);
+  if(!Array.isArray(a))return;
+
+  // Index dari tabel bisa berubah karena pencarian/filter. Karena itu
+  // tombol juga membawa _stockKey dan kita cocokkan key terlebih dahulu.
+  const key=String(keyOverride||"");
+  let realIndex=Number.isInteger(i)?i:-1;
+
+  if(key){
+    const keyedIndex=a.findIndex((x,idx)=>{
+      const generated=String(x._stockKey||("stock_"+idx+"_"+String(x.nama||"").toLowerCase().replace(/[^a-z0-9]+/g,"_")));
+      return generated===key;
+    });
+    if(keyedIndex>=0)realIndex=keyedIndex;
+  }
+
+  if(realIndex<0||realIndex>=a.length||!a[realIndex])return;
+  const nama=String(a[realIndex].nama||"Barang");
+  if(!window.confirm("Hapus "+nama+" dari daftar stok?"))return;
+
+  a.splice(realIndex,1);
+  setJSON(KEYS.stock,a);
+  stockRows=a;
+  renderStock();
+}
+$("stockSearch")?.addEventListener("input",renderStock)
+
+async function downloadLogbookPDF(){if(!currentMember){alert("Pilih anggota terlebih dahulu.");return}const rows=await getLogbook();if(!rows.length){alert("Belum ada data logbook.");return}if(!window.jspdf?.jsPDF){alert("Library PDF belum termuat. Periksa koneksi internet lalu coba lagi.");return}const {jsPDF}=window.jspdf;const doc=new jsPDF({orientation:"landscape",unit:"pt",format:"a4"});doc.setFontSize(18);doc.text("LOGBOOK LAPORAN",421,35,{align:"center"});doc.setFontSize(11);doc.text("Nama Anggota: "+currentMember,40,60);const body=rows.map((r,i)=>[r.No||i+1,r.tanggal||r.Tanggal||"",r.keterangan||r.Keterangan||"",r.deadline||r.Deadline||"",r.status||r.Status||"",r.file||r.File||""]);doc.autoTable({startY:75,head:[["No","Tanggal","Keterangan","Deadline","Status","Bukti / File"]],body,styles:{fontSize:8,cellPadding:4,valign:"top"},headStyles:{fillColor:[211,211,211],textColor:[0,0,0]},columnStyles:{0:{cellWidth:35},1:{cellWidth:75},2:{cellWidth:300},3:{cellWidth:75},4:{cellWidth:75},5:{cellWidth:160}}});doc.save("Logbook_"+safeFilename(currentMember)+".pdf")}
+
+function setLogo(){const src="static/logo.png";["loginLogo","reportLogo","appHeaderLogo"].forEach(id=>{const im=$(id);if(im)im.src=src})}
+function init(){setLogo();loadInitialData().then(()=>{showLogin();refreshCalendar()})}
+document.addEventListener("DOMContentLoaded",()=>{init();initDropzone()});
+</script>
+
+<!-- ============================================================
+     ORIGINAL app.py SOURCE REFERENCE
+     The source is retained here so no original route/logic is
+     silently discarded during the conversion. It is not executed
+     by the browser; the executable layer above is JavaScript.
+     ============================================================ -->
+<template id="original-app-py-source" class="source-code">
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    session,
+    send_file,
+    send_from_directory
+)
+
+import json
+import os
+import csv
+import requests
+import base64
+import html
+import hashlib
+
+from werkzeug.utils import secure_filename
+
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.enums import TA_CENTER
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Table,
+    TableStyle,
+    Paragraph,
+    Spacer
+)
+
+
+# ============================================================
+# GOOGLE APPS SCRIPT - BOOKING / PEMINJAMAN
+# ============================================================
+# URL TERBARU YANG DIBERIKAN
+# ============================================================
+
+GOOGLE_APPS_SCRIPT_BOOKING_URL = (
+    "https://script.google.com/macros/s/"
+    "AKfycbxakOtSCMq6fAstFRgUHWmse8Fu3qJjo9o4A-XpsusuzoV_BCz25-660j0DYEH7SboF"
+    "/exec"
+)
+
+
+# ============================================================
+# GOOGLE APPS SCRIPT - UPLOAD GOOGLE DRIVE
+# ============================================================
+
+GOOGLE_APPS_SCRIPT_UPLOAD_URL = (
+    "https://script.google.com/macros/s/"
+    "AKfycbxpUX3nhT-c-SwYY7TvWev_9ej81E4jXgiZb75A0Iz8Agvc_llkyZfYfJgCzgt_pmXb"
+    "/exec"
+)
+
+
+# ============================================================
+# GOOGLE DRIVE UTAMA
+# ============================================================
+
+GOOGLE_DRIVE_URL = (
+    "https://drive.google.com/drive/folders/"
+    "1KySCCNFRx-9dn6cetV-gxhKfiuf8Cz-4?usp=drive_link"
+)
+
+
+# ============================================================
+# GOOGLE SPREADSHEET BOOKING
+# ============================================================
+
+GOOGLE_BOOKING_SPREADSHEET_URL = (
+    "https://docs.google.com/spreadsheets/d/"
+    "1FkxTNoUveHNvWseFoFZJA-xxNS3PgX1dSv7LjLx1UvU"
+    "/edit?usp=sharing"
+)
+
+GOOGLE_BOOKING_SPREADSHEET_ID = (
+    "1FkxTNoUveHNvWseFoFZJA-xxNS3PgX1dSv7LjLx1UvU"
+)
+
+
+# ============================================================
+# FLASK
+# ============================================================
+
+app = Flask(__name__)
+
+app.secret_key = "logbook-nsg-secret-key"
+
+
+# ============================================================
+# LOGIN
+# ============================================================
+
+USERNAME = "admin"
+PASSWORD = "1234"
+
+
+# ============================================================
+# FILE DAN FOLDER
+# ============================================================
+
+MEMBER_FILE = "members.json"
+
+DATA_FOLDER = "data"
+
+UPLOAD_FOLDER = "uploads"
+
+PDF_FOLDER = "pdf"
+
+# ============================================================
+# DATA BOOKING UNTUK KALENDER
+# ============================================================
+
+BOOKING_DATA_FILE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    DATA_FOLDER,
+    "bookings.json"
+)
+
+
+# ============================================================
+# BUAT FOLDER
+# ============================================================
+
+os.makedirs(DATA_FOLDER, exist_ok=True)
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(PDF_FOLDER, exist_ok=True)
+
+
+# ============================================================
+# FORMAT FILE YANG DIIZINKAN
+# ============================================================
+
+ALLOWED_EXTENSIONS = {
+    "jpg",
+    "jpeg",
+    "png",
+    "gif",
+    "webp",
+    "pdf",
+    "doc",
+    "docx",
+    "xls",
+    "xlsx",
+    "csv"
+}
+
+
+def booking_id(booking):
+    """
+    ID stabil untuk setiap booking.
+    Booking lama yang belum memiliki field 'id' tetap bisa
+    dihapus karena ID dihitung dari isi datanya.
+    """
+    existing = str(booking.get("id", "")).strip()
+    if existing:
+        return existing
+
+    # Booking lama tetap menggunakan struktur/ID lama.
+    # Booking baru dengan rentang tanggal ikut memasukkan rentang
+    # tanggal agar ID tetap unik.
+    source = {
+        "nama": str(booking.get("nama", "")).strip(),
+        "nomor_telepon": str(booking.get("nomor_telepon", "")).strip(),
+        "alat": str(booking.get("alat", "")).strip(),
+        "tanggal": str(booking.get("tanggal_mulai") or booking.get("tanggal") or "").strip(),
+        "tanggal_mulai": str(
+            booking.get("tanggal_mulai")
+            or booking.get("tanggal")
+            or ""
+        ).strip(),
+        "tanggal_selesai": str(
+            booking.get("tanggal_selesai")
+            or booking.get("tanggal_mulai")
+            or booking.get("tanggal")
+            or ""
+        ).strip(),
+        "jam_mulai": str(booking.get("jam_mulai", "")).strip(),
+        "jam_selesai": str(booking.get("jam_selesai", "")).strip(),
+        "keperluan": str(booking.get("keperluan", "")).strip(),
+        "catatan": str(booking.get("catatan", "")).strip(),
+    }
+
+    tanggal_mulai = str(
+        booking.get("tanggal_mulai", "")
+    ).strip()
+    tanggal_selesai = str(
+        booking.get("tanggal_selesai", "")
+    ).strip()
+
+    if tanggal_mulai or tanggal_selesai:
+        source["tanggal_mulai"] = tanggal_mulai
+        source["tanggal_selesai"] = tanggal_selesai
+
+    raw = json.dumps(
+        source,
+        ensure_ascii=False,
+        sort_keys=True
+    )
+
+    return "bk_" + hashlib.sha256(
+        raw.encode("utf-8")
+    ).hexdigest()[:24]
+
+
+def normalize_booking(booking):
+    """Menjamin setiap booking yang dikirim ke kalender memiliki ID."""
+    if not isinstance(booking, dict):
+        return None
+
+    item = dict(booking)
+
+    # Kompatibilitas booking lama: jika hanya memiliki "tanggal",
+    # anggap sebagai booking 1 hari.
+    tanggal_legacy = str(item.get("tanggal", "")).strip()
+    tanggal_mulai = str(item.get("tanggal_mulai", "")).strip()
+    tanggal_selesai = str(item.get("tanggal_selesai", "")).strip()
+
+    if not tanggal_mulai:
+        tanggal_mulai = tanggal_legacy
+
+    if not tanggal_selesai:
+        tanggal_selesai = tanggal_mulai or tanggal_legacy
+
+    item["tanggal_mulai"] = tanggal_mulai
+    item["tanggal_selesai"] = tanggal_selesai
+
+    # Field "tanggal" tetap dipertahankan untuk kompatibilitas lama
+    # dan selalu berarti tanggal mulai.
+    if not tanggal_legacy and tanggal_mulai:
+        item["tanggal"] = tanggal_mulai
+
+    item["id"] = booking_id(item)
+    return item
+
+
+def load_bookings():
+    """Membaca seluruh data peminjaman yang menjadi sumber kalender."""
+
+    try:
+        if not os.path.exists(BOOKING_DATA_FILE):
+            return []
+
+        with open(
+            BOOKING_DATA_FILE,
+            "r",
+            encoding="utf-8"
+        ) as file:
+            data = json.load(file)
+
+        if not isinstance(data, list):
+            return []
+
+        result = []
+
+        for item in data:
+            normalized = normalize_booking(item)
+
+            if normalized:
+                result.append(normalized)
+
+        return result
+
+    except Exception as e:
+        print("Gagal membaca bookings.json:", e)
+        return []
+
+
+def write_bookings(bookings):
+    """
+    Menulis seluruh booking secara atomik.
+    Dipakai untuk tambah maupun hapus booking.
+    """
+
+    os.makedirs(
+        os.path.dirname(BOOKING_DATA_FILE),
+        exist_ok=True
+    )
+
+    temp_file = BOOKING_DATA_FILE + ".tmp"
+
+    with open(
+        temp_file,
+        "w",
+        encoding="utf-8"
+    ) as file:
+        json.dump(
+            bookings,
+            file,
+            ensure_ascii=False,
+            indent=2
+        )
+
+    os.replace(
+        temp_file,
+        BOOKING_DATA_FILE
+    )
+
+
+def save_booking_for_calendar(booking):
+    """
+    Menyimpan HASIL INPUT FORM secara langsung ke bookings.json.
+
+    Google Spreadsheet tidak digunakan sebagai sumber kalender.
+    """
+
+    # Simpan seluruh informasi rentang tanggal + waktu.
+    # Ini penting karena kalender menggunakan tanggal_mulai dan
+    # tanggal_selesai untuk menampilkan booking pada SETIAP hari
+    # yang termasuk dalam rentang peminjaman.
+    tanggal_mulai = str(
+        booking.get("tanggal_mulai")
+        or booking.get("tanggal")
+        or ""
+    ).strip()
+
+    tanggal_selesai = str(
+        booking.get("tanggal_selesai")
+        or tanggal_mulai
+        or booking.get("tanggal")
+        or ""
+    ).strip()
+
+    booking_copy = {
+        "id": booking_id(booking),
+        "nama": str(booking.get("nama", "")).strip(),
+        "nomor_telepon": str(booking.get("nomor_telepon", "")).strip(),
+        "alat": str(booking.get("alat", "")).strip(),
+
+        # "tanggal" tetap dipertahankan sebagai alias tanggal mulai.
+        "tanggal": tanggal_mulai,
+        "tanggal_mulai": tanggal_mulai,
+        "tanggal_selesai": tanggal_selesai,
+
+        "jam_mulai": str(booking.get("jam_mulai", "")).strip(),
+        "jam_selesai": str(booking.get("jam_selesai", "")).strip(),
+        "keperluan": str(booking.get("keperluan", "")).strip(),
+        "catatan": str(booking.get("catatan", "")).strip()
+    }
+
+    try:
+        bookings = load_bookings()
+        bookings.append(booking_copy)
+
+        write_bookings(bookings)
+
+        print("==========================================")
+        print("BOOKING KALENDER TERSIMPAN")
+        print("FILE:", BOOKING_DATA_FILE)
+        print(json.dumps(booking_copy, ensure_ascii=False))
+        print("==========================================")
+
+        return True
+
+    except Exception as e:
+        print("Gagal menyimpan booking kalender:", e)
+        return False
+
+
+def allowed_file(filename):
+
+    if not filename:
+        return False
+
+    if "." not in filename:
+        return False
+
+    extension = filename.rsplit(".", 1)[1].lower()
+
+    return extension in ALLOWED_EXTENSIONS
+
+
+# ============================================================
+# MEMBACA DAFTAR ANGGOTA
+# ============================================================
+
+def get_members():
+
+    if not os.path.exists(MEMBER_FILE):
+        return []
+
+    try:
+
+        with open(
+            MEMBER_FILE,
+            "r",
+            encoding="utf-8"
+        ) as file:
+
+            data = json.load(file)
+
+            if isinstance(data, list):
+                return data
+
+            return []
+
+    except Exception as e:
+
+        print(
+            "Gagal membaca members.json:",
+            e
+        )
+
+        return []
+
+
+# ============================================================
+# MENYIMPAN DAFTAR ANGGOTA
+# ============================================================
+
+def save_members(members):
+
+    with open(
+        MEMBER_FILE,
+        "w",
+        encoding="utf-8"
+    ) as file:
+
+        json.dump(
+            members,
+            file,
+            ensure_ascii=False,
+            indent=4
+        )
+
+
+# ============================================================
+# NAMA FILE / FOLDER YANG AMAN
+# ============================================================
+
+def safe_filename(nama):
+
+    if nama is None:
+        return ""
+
+    nama = str(nama)
+
+    karakter_terlarang = '&lt;&gt;:"/\\|?*'
+
+    for karakter in karakter_terlarang:
+
+        nama = nama.replace(
+            karakter,
+            "_"
+        )
+
+    return nama.strip()
+
+
+# ============================================================
+# FOLDER UPLOAD LOKAL
+# ============================================================
+
+def create_member_upload_folder(nama):
+
+    nama_folder = safe_filename(nama)
+
+    folder_path = os.path.join(
+        UPLOAD_FOLDER,
+        nama_folder
+    )
+
+    os.makedirs(
+        folder_path,
+        exist_ok=True
+    )
+
+    return folder_path
+
+
+# ============================================================
+# MEMBUAT CSV ANGGOTA
+# ============================================================
+
+def create_member_csv(nama):
+
+    nama_file = safe_filename(nama)
+
+    file_path = os.path.join(
+        DATA_FOLDER,
+        nama_file + ".csv"
+    )
+
+    if not os.path.exists(file_path):
+
+        with open(
+            file_path,
+            "w",
+            encoding="utf-8-sig",
+            newline=""
+        ) as file:
+
+            writer = csv.writer(file)
+
+            writer.writerow([
+                "No",
+                "Tanggal",
+                "Keterangan",
+                "Deadline",
+                "Status",
+                "File"
+            ])
+
+    else:
+
+        try:
+
+            with open(
+                file_path,
+                "r",
+                encoding="utf-8-sig",
+                newline=""
+            ) as file:
+
+                reader = csv.reader(file)
+
+                rows = list(reader)
+
+            if rows:
+
+                header = rows[0]
+
+                if "File" not in header:
+
+                    header.append("File")
+
+                    for row in rows[1:]:
+
+                        while len(row) &lt; len(header):
+                            row.append("")
+
+                    with open(
+                        file_path,
+                        "w",
+                        encoding="utf-8-sig",
+                        newline=""
+                    ) as file:
+
+                        writer = csv.writer(file)
+
+                        writer.writerows(rows)
+
+        except Exception as e:
+
+            print(
+                "Gagal memeriksa struktur CSV:",
+                e
+            )
+
+    return file_path
+
+
+# ============================================================
+# MEMBACA LOGBOOK
+# ============================================================
+
+def get_logbook(nama):
+
+    file_path = create_member_csv(nama)
+
+    try:
+
+        with open(
+            file_path,
+            "r",
+            encoding="utf-8-sig",
+            newline=""
+        ) as file:
+
+            reader = csv.DictReader(file)
+
+            return list(reader)
+
+    except Exception as e:
+
+        print(
+            "Gagal membaca logbook:",
+            e
+        )
+
+        return []
+
+
+# ============================================================
+# MENAMBAHKAN DATA KE CSV
+# ============================================================
+
+def add_logbook(
+    nama,
+    tanggal,
+    keterangan,
+    deadline,
+    status,
+    file_name
+):
+
+    file_path = create_member_csv(nama)
+
+    data = get_logbook(nama)
+
+    nomor = len(data) + 1
+
+    with open(
+        file_path,
+        "a",
+        encoding="utf-8-sig",
+        newline=""
+    ) as file:
+
+        writer = csv.writer(file)
+
+        writer.writerow([
+            nomor,
+            tanggal,
+            keterangan,
+            deadline,
+            status,
+            file_name
+        ])
+
+
+# ============================================================
+# UPLOAD KE GOOGLE DRIVE
+# ============================================================
+
+def upload_to_google_drive(
+    uploaded_file,
+    nama,
+    tanggal
+):
+
+    if not uploaded_file:
+
+        print(
+            "Tidak ada file yang dikirim."
+        )
+
+        return None
+
+    if not uploaded_file.filename:
+
+        print(
+            "Nama file kosong."
+        )
+
+        return None
+
+    if not allowed_file(
+        uploaded_file.filename
+    ):
+
+        print(
+            "Format file tidak diizinkan:",
+            uploaded_file.filename
+        )
+
+        return None
+
+    try:
+
+        file_data = uploaded_file.read()
+
+        if not file_data:
+
+            print(
+                "File kosong:",
+                uploaded_file.filename
+            )
+
+            return None
+
+        encoded_file = base64.b64encode(
+            file_data
+        ).decode("utf-8")
+
+        original_name = secure_filename(
+            uploaded_file.filename
+        )
+
+        nama_aman = safe_filename(nama)
+
+        tanggal_aman = safe_filename(tanggal)
+
+        final_filename = (
+            nama_aman
+            + "_"
+            + tanggal_aman
+            + "_"
+            + original_name
+        )
+
+        payload = {
+
+            "action": "upload",
+
+            "nama": nama,
+
+            "tanggal": tanggal,
+
+            "filename": final_filename,
+
+            "contentType": (
+                uploaded_file.content_type
+                or "application/octet-stream"
+            ),
+
+            "file": encoded_file
+        }
+
+        print(
+            "=========================================="
+        )
+
+        print(
+            "MENGUPLOAD FILE KE GOOGLE DRIVE"
+        )
+
+        print(
+            "Nama:",
+            nama
+        )
+
+        print(
+            "File:",
+            final_filename
+        )
+
+        print(
+            "Ukuran:",
+            len(file_data),
+            "bytes"
+        )
+
+        print(
+            "=========================================="
+        )
+
+        response = requests.post(
+
+            GOOGLE_APPS_SCRIPT_UPLOAD_URL,
+
+            json=payload,
+
+            timeout=120
+
+        )
+
+        print(
+            "HTTP:",
+            response.status_code
+        )
+
+        print(
+            "Response:",
+            response.text
+        )
+
+        if response.status_code != 200:
+
+            return None
+
+        try:
+
+            result = response.json()
+
+        except Exception:
+
+            print(
+                "Response Google bukan JSON."
+            )
+
+            return None
+
+        if result.get("success"):
+
+            return {
+
+                "fileName": result.get(
+                    "fileName",
+                    final_filename
+                ),
+
+                "fileId": result.get(
+                    "fileId",
+                    ""
+                ),
+
+                "fileUrl": result.get(
+                    "fileUrl",
+                    ""
+                )
+            }
+
+        print(
+            "Google Drive Error:",
+            result
+        )
+
+        return None
+
+    except requests.exceptions.RequestException as e:
+
+        print(
+            "Koneksi ke Google Apps Script gagal:"
+        )
+
+        print(e)
+
+        return None
+
+    except Exception as e:
+
+        print(
+            "Upload Google Drive gagal:"
+        )
+
+        print(e)
+
+        return None
+
+
+# ============================================================
+# HALAMAN ERROR BOOKING
+# ============================================================
+
+def booking_error_page(
+    title,
+    message,
+    status_code=500
+):
+
+    safe_title = html.escape(
+        str(title)
+    )
+
+    safe_message = html.escape(
+        str(message)
+    )
+
+    return f"""
+    &lt;!DOCTYPE html&gt;
+
+    &lt;html lang="id"&gt;
+
+    &lt;head&gt;
+
+        &lt;meta charset="UTF-8"&gt;
+
+        &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+
+        &lt;title&gt;{safe_title}&lt;/title&gt;
+
+        &lt;style&gt;
+
+            body {{
+                font-family: Arial, Helvetica, sans-serif;
+                background: #f4f6f8;
+                padding: 30px;
+            }}
+
+            .box {{
+                max-width: 700px;
+                margin: 40px auto;
+                background: white;
+                padding: 30px;
+                border-radius: 14px;
+                box-shadow: 0 4px 20px rgba(0,0,0,.10);
+            }}
+
+            h2 {{
+                color: #c62828;
+            }}
+
+            .detail {{
+                background: #f5f5f5;
+                padding: 15px;
+                border-radius: 8px;
+                white-space: pre-wrap;
+                word-break: break-word;
+                margin-top: 15px;
+            }}
+
+            a {{
+                display: inline-block;
+                margin-top: 20px;
+                padding: 10px 18px;
+                background: #222;
+                color: white;
+                text-decoration: none;
+                border-radius: 7px;
+            }}
+
+        &lt;/style&gt;
+
+    &lt;/head&gt;
+
+    &lt;body&gt;
+
+        &lt;div class="box"&gt;
+
+            &lt;h2&gt;{safe_title}&lt;/h2&gt;
+
+            &lt;p&gt;
+                {safe_message}
+            &lt;/p&gt;
+
+            &lt;div class="detail"&gt;
+                Periksa terminal Flask untuk melihat
+                response lengkap dari Google Apps Script.
+            &lt;/div&gt;
+
+            &lt;a href="/peminjaman"&gt;
+                ← Kembali ke Peminjaman
+            &lt;/a&gt;
+
+        &lt;/div&gt;
+
+    &lt;/body&gt;
+
+    &lt;/html&gt;
+    """, status_code
+
+
+# ============================================================
+# LOGIN
+# ============================================================
+
+@app.route(
+    "/",
+    methods=["GET", "POST"]
+)
+def login():
+
+    pesan = ""
+
+    if request.method == "POST":
+
+        username = request.form.get(
+            "username",
+            ""
+        ).strip()
+
+        password = request.form.get(
+            "password",
+            ""
+        )
+
+        if (
+            username == USERNAME
+            and password == PASSWORD
+        ):
+
+            session["logged_in"] = True
+
+            return redirect(
+                url_for("menu_utama")
+            )
+
+        pesan = (
+            "Username atau password salah."
+        )
+
+    return render_template(
+        "login.html",
+        pesan=pesan
+    )
+
+
+# ============================================================
+# MENU UTAMA
+# ============================================================
+
+@app.route("/menu")
+def menu_utama():
+
+    if not session.get("logged_in"):
+
+        return redirect(
+            url_for("login")
+        )
+
+    return render_template(
+        "menu_utama.html"
+    )
+
+
+# ============================================================
+# PEMINJAMAN / BOOKING
+# ============================================================
+
+@app.route(
+    "/peminjaman",
+    methods=["GET", "POST"]
+)
+def peminjaman():
+
+    if not session.get("logged_in"):
+
+        return redirect(
+            url_for("login")
+        )
+
+    # ========================================================
+    # PROSES POST BOOKING
+    # ========================================================
+
+    if request.method == "POST":
+
+        nama = request.form.get(
+            "nama",
+            ""
+        ).strip()
+
+        nomor_telepon = request.form.get(
+            "nomor_telepon",
+            ""
+        ).strip()
+
+        alat = request.form.get(
+            "alat",
+            ""
+        ).strip()
+
+        # Rentang tanggal peminjaman.
+        # "tanggal" tetap dipakai sebagai alias tanggal mulai.
+        tanggal_mulai = request.form.get(
+            "tanggal_mulai",
+            ""
+        ).strip()
+
+        tanggal_selesai = request.form.get(
+            "tanggal_selesai",
+            ""
+        ).strip()
+
+        tanggal = tanggal_mulai or request.form.get(
+            "tanggal",
+            ""
+        ).strip()
+
+        jam_mulai = request.form.get(
+            "jam_mulai",
+            ""
+        ).strip()
+
+        jam_selesai = request.form.get(
+            "jam_selesai",
+            ""
+        ).strip()
+
+        keperluan = request.form.get(
+            "keperluan",
+            ""
+        ).strip()
+
+        catatan = request.form.get(
+            "catatan",
+            ""
+        ).strip()
+
+        # ====================================================
+        # VALIDASI
+        # ====================================================
+
+        if not nama:
+
+            return booking_error_page(
+                "Booking Gagal",
+                "Nama peminjam wajib dipilih.",
+                400
+            )
+
+        if not alat:
+
+            return booking_error_page(
+                "Booking Gagal",
+                "Nama alat wajib diisi.",
+                400
+            )
+
+        if not tanggal_mulai:
+            tanggal_mulai = tanggal
+
+        if not tanggal_selesai:
+            tanggal_selesai = tanggal_mulai
+
+        try:
+            from datetime import date as _date
+
+            start_date = _date.fromisoformat(tanggal_mulai)
+            end_date = _date.fromisoformat(tanggal_selesai)
+
+        except ValueError:
+            return booking_error_page(
+                "Booking Gagal",
+                "Format tanggal peminjaman tidak valid.",
+                400
+            )
+
+        if end_date &lt; start_date:
+            return booking_error_page(
+                "Booking Gagal",
+                "Tanggal selesai tidak boleh lebih awal "
+                "daripada tanggal mulai.",
+                400
+            )
+
+        if not jam_mulai or not jam_selesai:
+            return booking_error_page(
+                "Booking Gagal",
+                "Jam mulai dan jam selesai wajib diisi.",
+                400
+            )
+
+        # ====================================================
+        # PAYLOAD
+        # ====================================================
+
+        payload = {
+
+            "action": "booking",
+
+            "type": "booking",
+
+            "spreadsheetId": (
+                GOOGLE_BOOKING_SPREADSHEET_ID
+            ),
+
+            "spreadsheetUrl": (
+                GOOGLE_BOOKING_SPREADSHEET_URL
+            ),
+
+            "nama": nama,
+
+            "nomor_telepon": nomor_telepon,
+
+            "alat": alat,
+
+            # Kompatibilitas: tanggal = tanggal mulai.
+            "tanggal": tanggal_mulai,
+            "tanggal_mulai": tanggal_mulai,
+            "tanggal_selesai": tanggal_selesai,
+
+            "jam_mulai": jam_mulai,
+
+            "jam_selesai": jam_selesai,
+
+            "keperluan": keperluan,
+
+            "catatan": catatan
+
+        }
+
+        # ====================================================
+        # SIMPAN LANGSUNG KE DATA KALENDER
+        #
+        # Kalender membaca bookings.json.
+        # Kalender TIDAK membaca Google Spreadsheet.
+        # ====================================================
+
+        calendar_saved = save_booking_for_calendar(payload)
+
+        if not calendar_saved:
+            return booking_error_page(
+                "Booking Gagal",
+                "Data peminjaman tidak dapat disimpan ke kalender.",
+                500
+            )
+
+        print()
+        print("=" * 70)
+        print("MENGIRIM DATA BOOKING KE GOOGLE APPS SCRIPT")
+        print("=" * 70)
+
+        print(
+            "URL:",
+            GOOGLE_APPS_SCRIPT_BOOKING_URL
+        )
+
+        print(
+            "PAYLOAD:"
+        )
+
+        print(
+            json.dumps(
+                payload,
+                ensure_ascii=False,
+                indent=2
+            )
+        )
+
+        print("=" * 70)
+
+        # ====================================================
+        # KIRIM KE GOOGLE APPS SCRIPT
+        #
+        # PERBAIKAN UTAMA:
+        #
+        # Jangan menggunakan allow_redirects=False.
+        #
+        # Endpoint Apps Script /exec dapat melakukan redirect
+        # internal Google. requests harus menangani redirect
+        # tersebut secara otomatis.
+        #
+        # Gunakan json=payload agar requests membuat body JSON
+        # dengan benar.
+        # ====================================================
+
+        try:
+
+            response = requests.post(
+
+                GOOGLE_APPS_SCRIPT_BOOKING_URL,
+
+                json=payload,
+
+                headers={
+                    "Accept": "application/json"
+                },
+
+                timeout=60,
+
+                allow_redirects=True
+
+            )
+
+            print()
+            print("RESPONSE GOOGLE APPS SCRIPT")
+            print(
+                "HTTP:",
+                response.status_code
+            )
+
+            print(
+                "Final URL:",
+                response.url
+            )
+
+            print(
+                "Headers:",
+                dict(response.headers)
+            )
+
+            print(
+                "Body:"
+            )
+
+            print(
+                response.text
+            )
+
+            print("=" * 70)
+
+            # ====================================================
+            # CEK HTTP
+            # ====================================================
+
+            if not (
+                200
+                &lt;= response.status_code
+                &lt; 300
+            ):
+
+                return booking_error_page(
+                    "Booking Gagal",
+                    (
+                        "Google Apps Script mengembalikan "
+                        f"HTTP {response.status_code}.\n\n"
+                        f"Final URL:\n{response.url}\n\n"
+                        f"Response:\n{response.text}"
+                    ),
+                    502
+                )
+
+            # ====================================================
+            # PARSE RESPONSE
+            # ====================================================
+
+            response_text = (
+                response.text.strip()
+            )
+
+            if not response_text:
+
+                return booking_error_page(
+                    "Booking Gagal",
+                    (
+                        "Google Apps Script tidak "
+                        "mengembalikan response."
+                    ),
+                    502
+                )
+
+            try:
+
+                result = response.json()
+
+            except Exception:
+
+                # ==============================================
+                # Kadang Apps Script mengembalikan text biasa.
+                # ==============================================
+
+                print(
+                    "Response bukan JSON."
+                )
+
+                print(
+                    response_text
+                )
+
+                # ==============================================
+                # Jika response mengandung indikator sukses,
+                # anggap berhasil.
+                # ==============================================
+
+                lower_response = (
+                    response_text.lower()
+                )
+
+                if (
+                    "success" in lower_response
+                    and (
+                        "true" in lower_response
+                        or "berhasil" in lower_response
+                    )
+                ):
+
+                    result = {
+                        "success": True,
+                        "message": response_text
+                    }
+
+                else:
+
+                    return booking_error_page(
+                        "Booking Gagal",
+                        (
+                            "Google Apps Script mengembalikan "
+                            "response yang bukan JSON.\n\n"
+                            f"Response:\n{response_text}"
+                        ),
+                        502
+                    )
+
+            print(
+                "JSON RESULT:"
+            )
+
+            print(
+                json.dumps(
+                    result,
+                    ensure_ascii=False,
+                    indent=2
+                )
+                if isinstance(result, dict)
+                else result
+            )
+
+            # ====================================================
+            # CEK SUCCESS
+            # ====================================================
+
+            if isinstance(result, dict):
+
+                success_value = result.get(
+                    "success",
+                    False
+                )
+
+                # ==============================================
+                # Antisipasi GAS mengirim "true" sebagai string.
+                # ==============================================
+
+                if (
+                    success_value is True
+                    or str(success_value).lower()
+                    == "true"
+                ):
+
+                    # Google Sheets tetap diproses seperti biasa.
+                    # Setelah berhasil, kembali ke halaman peminjaman
+                    # agar kalender langsung membaca bookings.json terbaru.
+                    return redirect(url_for("peminjaman", calendar_date=tanggal_mulai))
+
+                message = result.get(
+                    "message",
+                    result.get(
+                        "error",
+                        "Google Apps Script menolak data booking."
+                    )
+                )
+
+            else:
+
+                message = str(result)
+
+            return booking_error_page(
+                "Booking Gagal",
+                message,
+                502
+            )
+
+        # ====================================================
+        # REQUEST ERROR
+        # ====================================================
+
+        except requests.exceptions.RequestException as e:
+
+            print()
+            print("=" * 70)
+            print("ERROR KONEKSI BOOKING")
+            print("=" * 70)
+            print(e)
+            print("=" * 70)
+
+            return booking_error_page(
+                "Koneksi ke Google Apps Script Gagal",
+                (
+                    "Flask tidak berhasil terhubung "
+                    "ke Google Apps Script.\n\n"
+                    f"Detail:\n{e}"
+                ),
+                502
+            )
+
+        # ====================================================
+        # ERROR LAIN
+        # ====================================================
+
+        except Exception as e:
+
+            print()
+            print("=" * 70)
+            print("BOOKING ERROR")
+            print("=" * 70)
+            print(e)
+            print("=" * 70)
+
+            return booking_error_page(
+                "Terjadi Kesalahan",
+                (
+                    "Sistem gagal memproses booking.\n\n"
+                    f"Detail:\n{e}"
+                ),
+                500
+            )
+
+    # ========================================================
+    # FORM BOOKING
+    # ========================================================
+    #
+    # Tidak menggunakan render_template.
+    # Jadi tidak bergantung pada peminjaman.html.
+    # ========================================================
+
+    members = get_members()
+
+    options = ""
+
+    for member in members:
+
+        # members.json diasumsikan berisi:
+        #
+        # [
+        #     "Nama A",
+        #     "Nama B"
+        # ]
+        #
+        # Jika ternyata object/dictionary, ambil nama
+        # dengan aman.
+
+        if isinstance(member, dict):
+
+            member_name = (
+                member.get("nama")
+                or member.get("name")
+                or member.get("Nama")
+                or ""
+            )
+
+        else:
+
+            member_name = str(member)
+
+        member_name = member_name.strip()
+
+        if not member_name:
+            continue
+
+        safe_member = html.escape(
+            member_name,
+            quote=True
+        )
+
+        options += (
+            '&lt;option value="'
+            + safe_member
+            + '"&gt;'
+            + safe_member
+            + "&lt;/option&gt;"
+        )
+
+    return f"""
+    &lt;!DOCTYPE html&gt;
+
+    &lt;html lang="id"&gt;
+
+    &lt;head&gt;
+
+        &lt;meta charset="UTF-8"&gt;
+
+        &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+
+        &lt;title&gt;Booking / Peminjaman Alat&lt;/title&gt;
+
+        &lt;style&gt;
+
+            * {{
+                box-sizing: border-box;
+            }}
+
+            body {{
+
+                margin: 0;
+
+                padding: 30px;
+
+                font-family:
+                    Arial,
+                    Helvetica,
+                    sans-serif;
+
+                background: #f4f6f8;
+
+            }}
+
+            .container {{
+
+                max-width: 750px;
+
+                margin: auto;
+
+                background: white;
+
+                padding: 30px;
+
+                border-radius: 14px;
+
+                box-shadow:
+                    0 4px 20px
+                    rgba(0,0,0,.10);
+
+            }}
+
+            h1 {{
+
+                margin-top: 0;
+
+                text-align: center;
+
+            }}
+
+            .info {{
+
+                background: #f0f4f8;
+
+                padding: 12px 15px;
+
+                border-radius: 8px;
+
+                margin-bottom: 22px;
+
+                font-size: 13px;
+
+                color: #555;
+
+            }}
+
+            .form-group {{
+
+                margin-bottom: 18px;
+
+            }}
+
+            label {{
+
+                display: block;
+
+                font-weight: bold;
+
+                margin-bottom: 7px;
+
+            }}
+
+            input,
+            select,
+            textarea {{
+
+                width: 100%;
+
+                padding: 11px;
+
+                border: 1px solid #ccc;
+
+                border-radius: 7px;
+
+                font-size: 14px;
+
+            }}
+
+            textarea {{
+
+                min-height: 100px;
+
+                resize: vertical;
+
+            }}
+
+            .row {{
+
+                display: grid;
+
+                grid-template-columns:
+                    1fr 1fr;
+
+                gap: 15px;
+
+            }}
+
+            button {{
+
+                width: 100%;
+
+                padding: 13px;
+
+                border: none;
+
+                border-radius: 7px;
+
+                background: #222;
+
+                color: white;
+
+                font-size: 16px;
+
+                cursor: pointer;
+
+            }}
+
+            button:hover {{
+
+                background: #444;
+
+            }}
+
+            .back {{
+
+                display: block;
+
+                text-align: center;
+
+                margin-top: 20px;
+
+                color: #333;
+
+                text-decoration: none;
+
+            }}
+
+            /* =====================================================
+               KALENDER PEMINJAMAN - MODEL KALENDER DEADLINE
+            ===================================================== */
+
+            .calendar-box {{
+                margin-top: 30px;
+                background: #ffffff;
+                border: 1px solid #555;
+                border-radius: 0;
+                padding: 20px;
+            }}
+
+            .calendar-toolbar {{
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+                margin-bottom: 15px;
+            }}
+
+            .calendar-toolbar button {{
+                width: auto;
+                min-width: 42px;
+                padding: 8px 14px;
+                background: #2f7d20;
+                color: white;
+                border: 1px solid #245d19;
+                border-radius: 0;
+                cursor: pointer;
+                font-size: 18px;
+            }}
+
+            .calendar-toolbar button:hover {{
+                background: #256619;
+            }}
+
+            .calendar-title {{
+                flex: 1;
+                text-align: center;
+                font-size: 22px;
+                font-weight: bold;
+            }}
+
+            .calendar-refresh {{
+                font-size: 16px !important;
+            }}
+
+            .calendar-table {{
+                width: 100%;
+                border-collapse: collapse;
+                table-layout: fixed;
+            }}
+
+            .calendar-table th {{
+                background: #dddddd;
+                border: 1px solid #555;
+                padding: 10px 5px;
+                text-align: center;
+                font-weight: bold;
+            }}
+
+            .calendar-table td {{
+                height: 110px;
+                border: 1px solid #777;
+                vertical-align: top;
+                padding: 6px;
+                background: #ffffff;
+                overflow: hidden;
+            }}
+
+            .calendar-table td.other-month {{
+                background: #eeeeee;
+                color: #999999;
+            }}
+
+            .calendar-table td.today-cell {{
+                background: #fffdf0;
+            }}
+
+            .calendar-date {{
+                font-weight: bold;
+                margin-bottom: 5px;
+                font-size: 14px;
+            }}
+
+            .booking-deadline {{
+                background: #ddf0d8;
+                border-left: 3px solid #2f7d20;
+                padding: 3px 4px;
+                margin-top: 3px;
+                font-size: 10px;
+                line-height: 1.15;
+                cursor: pointer;
+                overflow: hidden;
+                overflow-wrap: anywhere;
+                border-radius: 3px;
+            }}
+
+            .booking-deadline.today {{
+                background: #ff9999;
+                border-left-color: #990000;
+            }}
+
+            .booking-deadline.soon {{
+                background: #ffe0a3;
+                border-left-color: #d68a00;
+            }}
+
+            .booking-deadline.past {{
+                background: #ffdddd;
+                border-left-color: #cc0000;
+            }}
+
+            .booking-deadline:hover {{
+                filter: brightness(0.96);
+            }}
+
+            .booking-person {{
+                font-weight: 700;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }}
+
+            .booking-detail {{
+                margin-top: 1px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }}
+
+            .booking-deadline .booking-detail {{
+                font-size: 9px;
+            }}
+
+            .booking-status {{
+                margin-top: 1px;
+                font-size: 9px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }}
+
+            /* =====================================================
+               DETAIL + HAPUS BOOKING
+            ===================================================== */
+            .booking-modal {{
+                display: none;
+                position: fixed;
+                inset: 0;
+                z-index: 9999;
+                background: rgba(0,0,0,.45);
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            }}
+
+            .booking-modal.show {{
+                display: flex;
+            }}
+
+            .booking-modal-card {{
+                width: min(500px, 100%);
+                background: #ffffff;
+                border-radius: 12px;
+                padding: 20px;
+                box-shadow: 0 15px 50px rgba(0,0,0,.25);
+            }}
+
+            .booking-modal-title {{
+                margin: 0 0 14px;
+                font-size: 20px;
+            }}
+
+            .booking-modal-content {{
+                background: #f5f5f5;
+                border-radius: 8px;
+                padding: 12px;
+                white-space: pre-wrap;
+                word-break: break-word;
+                line-height: 1.45;
+            }}
+
+            .booking-modal-actions {{
+                display: flex;
+                gap: 10px;
+                margin-top: 15px;
+            }}
+
+            .booking-modal-actions button {{
+                width: auto;
+                flex: 1;
+            }}
+
+            .booking-delete-button {{
+                background: #c62828 !important;
+            }}
+
+            .booking-delete-button:hover {{
+                background: #a51f1f !important;
+            }}
+
+            .booking-cancel-button {{
+                background: #555 !important;
+            }}
+
+            .calendar-empty {{
+                padding: 20px;
+                text-align: center;
+                color: #777;
+            }}
+
+            .calendar-legend {{
+                margin-top: 12px;
+                font-size: 12px;
+                color: #555;
+            }}
+
+            @media(max-width:600px) {{
+                .calendar-box {{
+                    padding: 10px;
+                }}
+
+                .calendar-table th {{
+                    font-size: 11px;
+                    padding: 7px 2px;
+                }}
+
+                .calendar-table td {{
+                    height: 90px;
+                    padding: 4px;
+                }}
+
+                .booking-deadline {{
+                    font-size: 9px;
+                    padding: 2px 3px;
+                    margin-top: 2px;
+                }}
+
+                .calendar-date {{
+                    font-size: 12px;
+                }}
+            }}
+
+            @media(max-width:600px) {{{{
+
+                .row {{{{
+
+                    grid-template-columns: 1fr;
+
+                }}}}
+
+                body {{{{
+
+                    padding: 15px;
+
+                }}}}
+
+                .container {{{{
+
+                    padding: 20px;
+
+                }}}}
+
+            }}}}
+
+        &lt;/style&gt;
+
+    &lt;/head&gt;
+
+    &lt;body&gt;
+
+        &lt;div class="container"&gt;
+
+            &lt;h1&gt;
+                Booking / Peminjaman Alat
+            &lt;/h1&gt;
+
+            &lt;div class="info"&gt;
+
+                Data booking akan dikirim langsung
+                ke Google Apps Script dan Google Sheets.
+
+            &lt;/div&gt;
+
+            &lt;form
+                method="POST"
+                action="/peminjaman"
+            &gt;
+
+                &lt;div class="form-group"&gt;
+
+                    &lt;label&gt;
+                        Nama Peminjam
+                    &lt;/label&gt;
+
+                    &lt;input
+                        type="text"
+                        name="nama"
+                        placeholder="Masukkan nama peminjam"
+                        required
+                        autocomplete="name"
+                    &gt;
+                &lt;/div&gt;
+                
+                &lt;div class="form-group"&gt;
+
+                    &lt;label&gt;
+                        Nomor Telepon
+                    &lt;/label&gt;
+
+                    &lt;input
+                        type="tel"
+                        name="nomor_telepon"
+                        placeholder="Contoh: 081234567890"
+                        required
+                        autocomplete="tel"
+                    &gt;
+
+                &lt;/div&gt;
+                
+                &lt;div class="form-group"&gt;
+
+                    &lt;label&gt;
+                        Nama Alat
+                    &lt;/label&gt;
+
+                    &lt;input
+                        type="text"
+                        name="alat"
+                        placeholder="Contoh: XRD, SEM, Furnace"
+                        required
+                    &gt;
+
+                &lt;/div&gt;
+
+                &lt;div class="row"&gt;
+
+                    &lt;div class="form-group"&gt;
+
+                        &lt;label&gt;
+                            Tanggal Mulai
+                        &lt;/label&gt;
+
+                        &lt;input
+                            type="date"
+                            id="tanggal_mulai"
+                            name="tanggal_mulai"
+                            required
+                        &gt;
+
+                    &lt;/div&gt;
+
+                    &lt;div class="form-group"&gt;
+
+                        &lt;label&gt;
+                            Tanggal Selesai
+                        &lt;/label&gt;
+
+                        &lt;input
+                            type="date"
+                            id="tanggal_selesai"
+                            name="tanggal_selesai"
+                            required
+                        &gt;
+
+                    &lt;/div&gt;
+
+                &lt;/div&gt;
+
+                &lt;div class="info" style="margin-top:-4px;"&gt;
+                    Tentukan tanggal dan jam mulai sampai tanggal dan jam selesai.
+                    Untuk peminjaman 1 hari, pilih tanggal mulai dan selesai yang sama.
+                &lt;/div&gt;
+
+                &lt;div class="row"&gt;
+
+                    &lt;div class="form-group"&gt;
+
+                        &lt;label&gt;
+                            Jam Mulai
+                        &lt;/label&gt;
+
+                        &lt;input
+                            type="time"
+                            name="jam_mulai"
+                            required
+                        &gt;
+
+                    &lt;/div&gt;
+
+                    &lt;div class="form-group"&gt;
+
+                        &lt;label&gt;
+                            Jam Selesai
+                        &lt;/label&gt;
+
+                        &lt;input
+                            type="time"
+                            name="jam_selesai"
+                            required
+                        &gt;
+
+                    &lt;/div&gt;
+
+                &lt;/div&gt;
+
+                &lt;div class="form-group"&gt;
+
+                    &lt;label&gt;
+                        Keperluan
+                    &lt;/label&gt;
+
+                    &lt;textarea
+                        name="keperluan"
+                        placeholder="Tuliskan tujuan penggunaan alat..."
+                    &gt;&lt;/textarea&gt;
+
+                &lt;/div&gt;
+
+                &lt;div class="form-group"&gt;
+
+                    &lt;label&gt;
+                        Catatan
+                    &lt;/label&gt;
+
+                    &lt;textarea
+                        name="catatan"
+                        placeholder="Catatan tambahan..."
+                    &gt;&lt;/textarea&gt;
+
+                &lt;/div&gt;
+
+                &lt;button type="submit"&gt;
+                    KIRIM BOOKING
+                &lt;/button&gt;
+
+            &lt;/form&gt;
+
+            &lt;!-- =====================================================
+                 KALENDER PEMINJAMAN
+                 SUMBER DATA TERPISAH DARI GOOGLE SHEETS
+            ====================================================== --&gt;
+
+            &lt;div class="calendar-box"&gt;
+
+                &lt;div class="calendar-toolbar"&gt;
+
+                    &lt;button
+                        type="button"
+                        onclick="changeCalendarMonth(-1)"
+                        title="Bulan sebelumnya"
+                    &gt;‹&lt;/button&gt;
+
+                    &lt;div
+                        id="calendarTitle"
+                        class="calendar-title"
+                    &gt;Kalender Peminjaman&lt;/div&gt;
+
+                    &lt;button
+                        type="button"
+                        onclick="changeCalendarMonth(1)"
+                        title="Bulan berikutnya"
+                    &gt;›&lt;/button&gt;
+
+                    &lt;button
+                        type="button"
+                        class="calendar-refresh"
+                        onclick="refreshCalendar()"
+                        title="Muat ulang kalender"
+                    &gt;↻&lt;/button&gt;
+
+                &lt;/div&gt;
+
+                &lt;table class="calendar-table"&gt;
+
+                    &lt;thead&gt;
+                        &lt;tr&gt;
+                            &lt;th&gt;Minggu&lt;/th&gt;
+                            &lt;th&gt;Senin&lt;/th&gt;
+                            &lt;th&gt;Selasa&lt;/th&gt;
+                            &lt;th&gt;Rabu&lt;/th&gt;
+                            &lt;th&gt;Kamis&lt;/th&gt;
+                            &lt;th&gt;Jumat&lt;/th&gt;
+                            &lt;th&gt;Sabtu&lt;/th&gt;
+                        &lt;/tr&gt;
+                    &lt;/thead&gt;
+
+                    &lt;tbody id="calendarBody"&gt;
+                        &lt;tr&gt;
+                            &lt;td colspan="7" class="calendar-empty"&gt;
+                                Memuat jadwal...
+                            &lt;/td&gt;
+                        &lt;/tr&gt;
+                    &lt;/tbody&gt;
+
+                &lt;/table&gt;
+
+                &lt;div class="calendar-legend"&gt;
+                    Hijau = jadwal normal &amp;nbsp; | &amp;nbsp;
+                    Kuning = 3 hari lagi &amp;nbsp; | &amp;nbsp;
+                    Merah = hari ini / sudah lewat.
+                    Klik jadwal untuk melihat detail.
+                &lt;/div&gt;
+
+            &lt;/div&gt;
+
+            &lt;div
+                id="bookingModal"
+                class="booking-modal"
+                aria-hidden="true"
+            &gt;
+                &lt;div
+                    class="booking-modal-card"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="bookingModalTitle"
+                    onclick="event.stopPropagation()"
+                &gt;
+                    &lt;h2
+                        id="bookingModalTitle"
+                        class="booking-modal-title"
+                    &gt;
+                        Detail Booking
+                    &lt;/h2&gt;
+
+                    &lt;div
+                        id="bookingModalContent"
+                        class="booking-modal-content"
+                    &gt;&lt;/div&gt;
+
+                    &lt;div class="booking-modal-actions"&gt;
+                        &lt;button
+                            type="button"
+                            class="booking-cancel-button"
+                            onclick="closeBookingModal()"
+                        &gt;
+                            Tutup
+                        &lt;/button&gt;
+
+                        &lt;button
+                            type="button"
+                            id="bookingDeleteButton"
+                            class="booking-delete-button"
+                            onclick="deleteCurrentBooking()"
+                        &gt;
+                            Hapus Booking
+                        &lt;/button&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+
+            &lt;script&gt;
+
+                /* =====================================================
+                   KALENDER PEMINJAMAN
+
+                   DATA FORM DIBAGI MENJADI 2 JALUR:
+
+                   FORM PEMINJAMAN
+                        |
+                        +----&gt; GOOGLE SHEETS  (jalur lama)
+                        |
+                        +----&gt; bookings.json  (jalur kalender)
+
+                   KALENDER HANYA MEMBACA /api/bookings.
+                   TIDAK PERNAH MEMBACA GOOGLE SHEETS.
+                ===================================================== */
+
+                let calendarBookings = [];
+
+                let calendarDate = new Date();
+
+                const LOCAL_BOOKING_KEY = "nsg_peminjaman_calendar";
+
+                function parseDateLocal(value) {{
+
+                    if (!value) return null;
+
+                    const text = String(value).trim();
+
+                    const match = text.match(
+                        /^([0-9]{{4}})[-/]([0-9]{{1,2}})[-/]([0-9]{{1,2}})/
+                    );
+
+                    if (match) {{
+                        return new Date(
+                            Number(match[1]),
+                            Number(match[2]) - 1,
+                            Number(match[3])
+                        );
+                    }}
+
+                    const d = new Date(text);
+                    return isNaN(d.getTime()) ? null : d;
+                }}
+
+                function getBookingStartDate(booking) {{
+                    return parseDateLocal(
+                        booking.tanggal_mulai ||
+                        booking.tanggal ||
+                        ""
+                    );
+                }}
+
+                function getBookingEndDate(booking) {{
+                    return parseDateLocal(
+                        booking.tanggal_selesai ||
+                        booking.tanggal_mulai ||
+                        booking.tanggal ||
+                        ""
+                    );
+                }}
+
+                function dateOnly(date) {{
+                    if (!date) return null;
+
+                    return new Date(
+                        date.getFullYear(),
+                        date.getMonth(),
+                        date.getDate()
+                    );
+                }}
+
+                function dateRangeContains(booking, targetDate) {{
+                    const start = dateOnly(getBookingStartDate(booking));
+                    const end = dateOnly(getBookingEndDate(booking));
+                    const target = dateOnly(targetDate);
+
+                    if (!start || !end || !target) return false;
+
+                    return target &gt;= start &amp;&amp; target &lt;= end;
+                }}
+
+                function formatDateID(date) {{
+                    if (!date) return "";
+
+                    return date.toLocaleDateString(
+                        "id-ID",
+                        {{
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric"
+                        }}
+                    );
+                }}
+
+                function formatBookingRange(booking) {{
+                    const start = getBookingStartDate(booking);
+                    const end = getBookingEndDate(booking);
+
+                    if (!start &amp;&amp; !end) return "-";
+
+                    const tanggalMulai = start
+                        ? formatDateID(start)
+                        : "-";
+
+                    const tanggalSelesai = end
+                        ? formatDateID(end)
+                        : tanggalMulai;
+
+                    const jamMulai =
+                        booking.jam_mulai || "-";
+
+                    const jamSelesai =
+                        booking.jam_selesai || "-";
+
+                    // Format yang sengaja dibuat eksplisit:
+                    // (tanggal mulai : waktu mulai) hingga
+                    // (tanggal selesai : waktu selesai)
+                    if (start &amp;&amp; end &amp;&amp; sameDate(start, end)) {{
+                        return (
+                            "(" +
+                            tanggalMulai +
+                            " : " +
+                            jamMulai +
+                            ") hingga (" +
+                            tanggalSelesai +
+                            " : " +
+                            jamSelesai +
+                            ")"
+                        );
+                    }}
+
+                    return (
+                        "(" +
+                        tanggalMulai +
+                        " : " +
+                        jamMulai +
+                        ") hingga (" +
+                        tanggalSelesai +
+                        " : " +
+                        jamSelesai +
+                        ")"
+                    );
+                }}
+
+                function formatBookingTime(booking) {{
+                    const jamMulai = booking.jam_mulai || "";
+                    const jamSelesai = booking.jam_selesai || "";
+
+                    if (!jamMulai &amp;&amp; !jamSelesai) {{
+                        return "";
+                    }}
+
+                    if (jamMulai &amp;&amp; jamSelesai) {{
+                        return jamMulai + " - " + jamSelesai;
+                    }}
+
+                    return jamMulai || jamSelesai;
+                }}
+
+                function formatBookingDateForCell(booking, cellDate) {{
+                    const start = getBookingStartDate(booking);
+                    const end = getBookingEndDate(booking);
+                    const target = dateOnly(cellDate);
+
+                    if (!target) return "";
+
+                    const startText =
+                        start &amp;&amp; sameDate(target, start)
+                            ? "Mulai " + (booking.jam_mulai || "")
+                            : "";
+
+                    const endText =
+                        end &amp;&amp; sameDate(target, end)
+                            ? "Selesai " + (booking.jam_selesai || "")
+                            : "";
+
+                    if (startText &amp;&amp; endText) {{
+                        return startText + " • " + endText;
+                    }}
+
+                    if (startText) return startText;
+                    if (endText) return endText;
+
+                    return "Masih dipinjam";
+                }}
+
+                function sameDate(a, b) {{
+                    return a &amp;&amp; b &amp;&amp;
+                        a.getFullYear() === b.getFullYear() &amp;&amp;
+                        a.getMonth() === b.getMonth() &amp;&amp;
+                        a.getDate() === b.getDate();
+                }}
+
+                function escapeHTML(value) {{
+                    const div = document.createElement("div");
+                    div.textContent = value == null ? "" : String(value);
+                    return div.innerHTML;
+                }}
+
+                function formatMonth(date) {{
+                    return date.toLocaleDateString(
+                        "id-ID",
+                        {{
+                            month: "long",
+                            year: "numeric"
+                        }}
+                    );
+                }}
+
+                function bookingKey(item) {{
+                    return [
+                        item.nama || "",
+                        item.alat || "",
+                        item.tanggal_mulai || item.tanggal || "",
+                        item.tanggal_selesai || item.tanggal_mulai || item.tanggal || "",
+                        item.jam_mulai || "",
+                        item.jam_selesai || "",
+                        item.nomor_telepon || ""
+                    ].join("|");
+                }}
+
+                function mergeBookings(serverData, localData) {{
+
+                    const result = [];
+                    const seen = new Set();
+
+                    [...serverData, ...localData].forEach(item =&gt; {{
+
+                        if (!item || typeof item !== "object") return;
+
+                        const key = bookingKey(item);
+
+                        if (seen.has(key)) return;
+
+                        seen.add(key);
+                        result.push(item);
+                    }});
+
+                    return result;
+                }}
+
+                function readLocalBookings() {{
+
+                    try {{
+
+                        const raw = localStorage.getItem(
+                            LOCAL_BOOKING_KEY
+                        );
+
+                        if (!raw) return [];
+
+                        const data = JSON.parse(raw);
+
+                        return Array.isArray(data) ? data : [];
+
+                    }} catch (error) {{
+
+                        console.error(
+                            "Gagal membaca backup kalender:",
+                            error
+                        );
+
+                        return [];
+                    }}
+                }}
+
+                function saveLocalBooking(item) {{
+
+                    try {{
+
+                        const oldData = readLocalBookings();
+                        const merged = mergeBookings(oldData, [item]);
+
+                        localStorage.setItem(
+                            LOCAL_BOOKING_KEY,
+                            JSON.stringify(merged)
+                        );
+
+                    }} catch (error) {{
+
+                        console.error(
+                            "Gagal menyimpan backup kalender:",
+                            error
+                        );
+                    }}
+                }}
+
+                function prepareFormCalendarBackup() {{
+
+                    const form = document.querySelector(
+                        'form[action="/peminjaman"]'
+                    );
+
+                    if (!form) return;
+
+                    form.addEventListener("submit", function() {{
+
+                        const data = {{
+                            nama: form.elements.nama?.value || "",
+                            nomor_telepon: form.elements.nomor_telepon?.value || "",
+                            alat: form.elements.alat?.value || "",
+                            tanggal: form.elements.tanggal_mulai?.value || "",
+                            tanggal_mulai: form.elements.tanggal_mulai?.value || "",
+                            tanggal_selesai: form.elements.tanggal_selesai?.value || "",
+                            jam_mulai: form.elements.jam_mulai?.value || "",
+                            jam_selesai: form.elements.jam_selesai?.value || "",
+                            keperluan: form.elements.keperluan?.value || "",
+                            catatan: form.elements.catatan?.value || ""
+                        }};
+
+                        if (data.tanggal) {{
+                            saveLocalBooking(data);
+                        }}
+                    }});
+                }}
+
+                function setCalendarFromQuery() {{
+
+                    const params = new URLSearchParams(
+                        window.location.search
+                    );
+
+                    const selectedDate = params.get("calendar_date");
+
+                    if (!selectedDate) return;
+
+                    const parsed = parseDateLocal(selectedDate);
+
+                    if (parsed) {{
+                        calendarDate = new Date(
+                            parsed.getFullYear(),
+                            parsed.getMonth(),
+                            1
+                        );
+                    }}
+                }}
+
+                function changeCalendarMonth(amount) {{
+
+                    calendarDate = new Date(
+                        calendarDate.getFullYear(),
+                        calendarDate.getMonth() + amount,
+                        1
+                    );
+
+                    renderCalendar();
+                }}
+
+                function daysLeft(bookingDate) {{
+
+                    const today = new Date();
+
+                    today.setHours(0, 0, 0, 0);
+                    bookingDate.setHours(0, 0, 0, 0);
+
+                    return Math.round(
+                        (bookingDate - today) / 86400000
+                    );
+                }}
+
+                function statusText(left) {{
+
+                    if (left === 0) {{
+                        return "🔴 HARI INI";
+                    }}
+
+                    if (left &gt; 0) {{
+                        return left + " hari lagi";
+                    }}
+
+                    return "⚠️ Terlewat";
+                }}
+
+                function statusClass(left) {{
+
+                    if (left === 0) return "today";
+                    if (left &lt; 0) return "past";
+                    if (left &lt;= 3) return "soon";
+
+                    return "normal";
+                }}
+
+                let currentBookingForDelete = null;
+
+                function showBookingDetail(booking) {{
+
+                    currentBookingForDelete = booking;
+
+                    const modal = document.getElementById(
+                        "bookingModal"
+                    );
+
+                    const content = document.getElementById(
+                        "bookingModalContent"
+                    );
+
+                    const title = document.getElementById(
+                        "bookingModalTitle"
+                    );
+
+                    if (!modal || !content || !title) return;
+
+                    title.textContent =
+                        "Detail Booking - " +
+                        (booking.alat || "Alat");
+
+                    content.textContent = [
+                        "Nama: " + (booking.nama || "-"),
+                        "Nomor Telepon: " +
+                            (booking.nomor_telepon || "-"),
+                        "Alat: " + (booking.alat || "-"),
+                        "Waktu Peminjaman: " +
+                            formatBookingRange(booking),
+                        "Keperluan: " +
+                            (booking.keperluan || "-"),
+                        "Catatan: " +
+                            (booking.catatan || "-")
+                    ].join("\\n");
+
+                    modal.classList.add("show");
+                    modal.setAttribute("aria-hidden", "false");
+                }}
+
+                function closeBookingModal() {{
+
+                    const modal = document.getElementById(
+                        "bookingModal"
+                    );
+
+                    if (modal) {{
+                        modal.classList.remove("show");
+                        modal.setAttribute(
+                            "aria-hidden",
+                            "true"
+                        );
+                    }}
+
+                    currentBookingForDelete = null;
+                }}
+
+                async function deleteCurrentBooking() {{
+
+                    if (!currentBookingForDelete) return;
+
+                    const booking = currentBookingForDelete;
+                    const id = booking.id;
+
+                    if (!id) {{
+                        alert(
+                            "Booking lama tidak memiliki ID yang valid. " +
+                            "Silakan refresh kalender terlebih dahulu."
+                        );
+                        return;
+                    }}
+
+                    const label =
+                        (booking.alat || "Alat") +
+                        " - " +
+                        (booking.tanggal || "");
+
+                    const confirmed = confirm(
+                        "Hapus booking berikut?\\n\\n" +
+                        label +
+                        "\\n" +
+                        (booking.nama || "Tanpa nama") +
+                        "\\n\\nData yang sudah dihapus tidak dapat " +
+                        "dikembalikan dari kalender."
+                    );
+
+                    if (!confirmed) return;
+
+                    const button = document.getElementById(
+                        "bookingDeleteButton"
+                    );
+
+                    if (button) {{
+                        button.disabled = true;
+                        button.textContent = "Menghapus...";
+                    }}
+
+                    try {{
+                        const response = await fetch(
+                            "/api/bookings?id=" +
+                            encodeURIComponent(id),
+                            {{
+                                method: "DELETE",
+                                cache: "no-store",
+                                credentials: "same-origin",
+                                headers: {{
+                                    "Accept": "application/json"
+                                }}
+                            }}
+                        );
+
+                        const result = await response.json();
+
+                        if (!response.ok || !result.success) {{
+                            throw new Error(
+                                result.error ||
+                                "Booking gagal dihapus."
+                            );
+                        }}
+
+                        /*
+                         * Server adalah sumber data utama.
+                         * Setelah delete berhasil, localStorage langsung
+                         * disinkronkan agar booking lama tidak muncul lagi
+                         * ketika masuk kembali ke halaman peminjaman.
+                         */
+                        const serverData =
+                            Array.isArray(result.bookings)
+                                ? result.bookings
+                                : [];
+
+                        calendarBookings = serverData;
+
+                        try {{
+                            localStorage.setItem(
+                                LOCAL_BOOKING_KEY,
+                                JSON.stringify(serverData)
+                            );
+                        }} catch (storageError) {{
+                            console.warn(
+                                "Gagal sinkronisasi localStorage:",
+                                storageError
+                            );
+                        }}
+
+                        closeBookingModal();
+                        renderCalendar();
+
+                    }} catch (error) {{
+                        console.error(
+                            "Gagal menghapus booking:",
+                            error
+                        );
+
+                        alert(
+                            "Booking gagal dihapus.\\n\\n" +
+                            error.message
+                        );
+
+                    }} finally {{
+                        if (button) {{
+                            button.disabled = false;
+                            button.textContent = "Hapus Booking";
+                        }}
+                    }}
+                }}
+
+
+
+                function renderCalendar() {{
+
+                    const title = document.getElementById(
+                        "calendarTitle"
+                    );
+
+                    const body = document.getElementById(
+                        "calendarBody"
+                    );
+
+                    if (!title || !body) return;
+
+                    title.textContent = formatMonth(calendarDate);
+
+                    body.innerHTML = "";
+
+                    const year = calendarDate.getFullYear();
+                    const month = calendarDate.getMonth();
+
+                    const firstDay = new Date(year, month, 1);
+                    const firstWeekday = firstDay.getDay();
+                    const daysInMonth = new Date(
+                        year,
+                        month + 1,
+                        0
+                    ).getDate();
+
+                    const previousMonthDays = new Date(
+                        year,
+                        month,
+                        0
+                    ).getDate();
+
+                    const totalCells = Math.ceil(
+                        (firstWeekday + daysInMonth) / 7
+                    ) * 7;
+
+                    const today = new Date();
+
+                    for (
+                        let index = 0;
+                        index &lt; totalCells;
+                        index++
+                    ) {{
+
+                        if (index % 7 === 0) {{
+                            var row = document.createElement("tr");
+                            body.appendChild(row);
+                        }}
+
+                        const offset = index - firstWeekday + 1;
+
+                        let cellDate;
+                        let otherMonth = false;
+
+                        if (offset &lt; 1) {{
+
+                            cellDate = new Date(
+                                year,
+                                month - 1,
+                                previousMonthDays + offset
+                            );
+
+                            otherMonth = true;
+
+                        }} else if (offset &gt; daysInMonth) {{
+
+                            cellDate = new Date(
+                                year,
+                                month + 1,
+                                offset - daysInMonth
+                            );
+
+                            otherMonth = true;
+
+                        }} else {{
+
+                            cellDate = new Date(
+                                year,
+                                month,
+                                offset
+                            );
+                        }}
+
+                        const cell = document.createElement("td");
+
+                        if (otherMonth) {{
+                            cell.classList.add("other-month");
+                        }}
+
+                        if (sameDate(cellDate, today)) {{
+                            cell.classList.add("today-cell");
+                        }}
+
+                        const date = document.createElement("div");
+                        date.className = "calendar-date";
+                        date.textContent = cellDate.getDate();
+                        cell.appendChild(date);
+
+                        if (!otherMonth) {{
+
+                            const bookings = calendarBookings.filter(item =&gt; {{
+                                return dateRangeContains(item, cellDate);
+                            }});
+
+                            bookings.forEach(booking =&gt; {{
+
+                                // Untuk booking multi-hari, status mengikuti
+                                // tanggal yang sedang ditampilkan.
+                                const bookingDate = dateOnly(cellDate);
+
+                                const left = daysLeft(bookingDate);
+
+                                const event = document.createElement("div");
+
+                                event.className =
+                                    "booking-deadline " +
+                                    statusClass(left);
+
+                                event.setAttribute(
+                                    "role",
+                                    "button"
+                                );
+
+                                event.tabIndex = 0;
+
+                                event.onclick = function() {{
+                                    showBookingDetail(booking);
+                                }};
+
+                                event.onkeydown = function(e) {{
+                                    if (e.key === "Enter" || e.key === " ") {{
+                                        showBookingDetail(booking);
+                                    }}
+                                }};
+
+                                const nama = escapeHTML(
+                                    booking.nama || "Tanpa nama"
+                                );
+
+                                const alat = escapeHTML(
+                                    booking.alat || "Alat"
+                                );
+
+                                const waktu = escapeHTML(
+                                    formatBookingTime(booking)
+                                );
+
+                                // Booking multi-hari harus tetap mempunyai
+                                // label pada SETIAP tanggal yang termasuk
+                                // dalam rentang peminjaman.
+                                const posisiTanggal =
+                                    escapeHTML(
+                                        formatBookingDateForCell(
+                                            booking,
+                                            cellDate
+                                        )
+                                    );
+
+                                const startDate = getBookingStartDate(booking);
+                                const endDate = getBookingEndDate(booking);
+                                const isRange =
+                                    startDate &amp;&amp;
+                                    endDate &amp;&amp;
+                                    !sameDate(startDate, endDate);
+
+                                let rangeLabel = "";
+
+                                if (isRange) {{
+                                    rangeLabel =
+                                        '&lt;div class="booking-detail"&gt;📅 ' +
+                                        escapeHTML(formatBookingRange(booking)) +
+                                        '&lt;/div&gt;';
+                                }}
+
+                                event.innerHTML = `
+                                    &lt;div class="booking-person"&gt;
+                                        ${{nama}}
+                                    &lt;/div&gt;
+                                    &lt;div class="booking-detail"&gt;
+                                        ${{alat}}
+                                    &lt;/div&gt;
+                                    &lt;div class="booking-detail"&gt;
+                                        🕐 ${{waktu}}
+                                    &lt;/div&gt;
+                                    &lt;div class="booking-detail"&gt;
+                                        ${{posisiTanggal}}
+                                    &lt;/div&gt;
+                                    ${{rangeLabel}}
+                                    &lt;div class="booking-status"&gt;
+                                        ${{statusText(left)}}
+                                    &lt;/div&gt;
+                                `;
+
+                                cell.appendChild(event);
+                            }});
+                        }}
+
+                        row.appendChild(cell);
+                    }}
+                }}
+
+                async function loadCalendarBookings() {{
+
+                    /*
+                     * SERVER ADALAH SUMBER DATA UTAMA.
+                     *
+                     * localStorage hanya dipakai sebagai fallback jika
+                     * server/API sedang tidak dapat diakses.
+                     *
+                     * Versi lama melakukan merge server + localStorage.
+                     * Akibatnya booking yang sudah dihapus dari server
+                     * bisa muncul lagi dari localStorage. Itu sekarang
+                     * sengaja dihilangkan.
+                     */
+                    const localData = readLocalBookings();
+
+                    try {{
+
+                        const response = await fetch(
+                            "/api/bookings?_=" + Date.now(),
+                            {{
+                                method: "GET",
+                                cache: "no-store",
+                                credentials: "same-origin",
+                                headers: {{
+                                    "Accept": "application/json",
+                                    "Cache-Control": "no-cache"
+                                }}
+                            }}
+                        );
+
+                        if (!response.ok) {{
+                            throw new Error(
+                                "API kalender HTTP " +
+                                response.status
+                            );
+                        }}
+
+                        const result = await response.json();
+
+                        if (!result.success) {{
+                            throw new Error(
+                                result.error ||
+                                "API kalender gagal"
+                            );
+                        }}
+
+                        const serverData =
+                            Array.isArray(result.bookings)
+                                ? result.bookings
+                                : [];
+
+                        /*
+                         * Server authoritative.
+                         * Ini yang menjamin setelah kembali dari menu,
+                         * booking tetap tampil dan booking yang dihapus
+                         * tidak hidup kembali.
+                         */
+                        calendarBookings = serverData;
+
+                        /*
+                         * Sinkronkan cache lokal dengan server.
+                         * Jangan merge.
+                         */
+                        try {{
+                            localStorage.setItem(
+                                LOCAL_BOOKING_KEY,
+                                JSON.stringify(serverData)
+                            );
+                        }} catch (storageError) {{
+                            console.warn(
+                                "Gagal menyimpan sinkronisasi kalender:",
+                                storageError
+                            );
+                        }}
+
+                        renderCalendar();
+
+                    }} catch (error) {{
+
+                        console.error(
+                            "API kalender gagal, menggunakan backup lokal:",
+                            error
+                        );
+
+                        calendarBookings = localData;
+                        renderCalendar();
+                    }}
+                }}
+
+
+                async function refreshCalendar() {{
+
+                    const button = document.querySelector(
+                        ".calendar-refresh"
+                    );
+
+                    if (button) {{
+                        button.disabled = true;
+                        button.textContent = "⟳";
+                    }}
+
+                    try {{
+                        await loadCalendarBookings();
+                    }} finally {{
+                        if (button) {{
+                            button.disabled = false;
+                            button.textContent = "↻";
+                        }}
+                    }}
+                }}
+
+                document.addEventListener(
+                    "DOMContentLoaded",
+                    function() {{
+
+                        const startDateInput =
+                            document.getElementById("tanggal_mulai");
+                        const endDateInput =
+                            document.getElementById("tanggal_selesai");
+
+                        if (startDateInput &amp;&amp; endDateInput) {{
+                            startDateInput.addEventListener("change", function() {{
+                                if (!endDateInput.value) {{
+                                    endDateInput.value = startDateInput.value;
+                                }}
+
+                                endDateInput.min = startDateInput.value || "";
+                            }});
+
+                            endDateInput.addEventListener("change", function() {{
+                                if (
+                                    startDateInput.value &amp;&amp;
+                                    endDateInput.value &amp;&amp;
+                                    endDateInput.value &lt; startDateInput.value
+                                ) {{
+                                    alert(
+                                        "Tanggal selesai tidak boleh lebih awal " +
+                                        "daripada tanggal mulai."
+                                    );
+                                    endDateInput.value = startDateInput.value;
+                                }}
+                            }});
+
+                            endDateInput.min = startDateInput.value || "";
+                        }}
+
+                        setCalendarFromQuery();
+                        prepareFormCalendarBackup();
+                        renderCalendar();
+                        loadCalendarBookings();
+
+                        const modal = document.getElementById(
+                            "bookingModal"
+                        );
+
+                        if (modal) {{
+                            modal.addEventListener(
+                                "click",
+                                function(event) {{
+                                    if (event.target === modal) {{
+                                        closeBookingModal();
+                                    }}
+                                }}
+                            );
+                        }}
+
+                        document.addEventListener(
+                            "keydown",
+                            function(event) {{
+                                if (event.key === "Escape") {{
+                                    closeBookingModal();
+                                }}
+                            }}
+                        );
+                    }}
+                );
+
+            &lt;/script&gt;
+
+            &lt;a
+                class="back"
+                href="/menu"
+            &gt;
+                ← Kembali ke Menu Utama
+            &lt;/a&gt;
+
+        &lt;/div&gt;
+
+    &lt;/body&gt;
+
+    &lt;/html&gt;
+    """
+
+
+# ============================================================
+# API DATA BOOKING UNTUK KALENDER
+# ============================================================
+
+@app.route("/api/bookings", methods=["GET", "DELETE", "POST"])
+def api_bookings():
+
+    if not session.get("logged_in"):
+        return (
+            {
+                "success": False,
+                "error": "Unauthorized"
+            },
+            401
+        )
+
+    # ========================================================
+    # HAPUS BOOKING MANUAL
+    # ========================================================
+    if request.method in ("DELETE", "POST"):
+        data = request.get_json(silent=True) or {}
+
+        booking_id_value = (
+            request.args.get("id")
+            or request.form.get("id")
+            or data.get("id")
+        )
+
+        booking_id_value = str(
+            booking_id_value or ""
+        ).strip()
+
+        if not booking_id_value:
+            return {
+                "success": False,
+                "error": "ID booking tidak ditemukan."
+            }, 400
+
+        bookings = load_bookings()
+
+        remaining = []
+        deleted = 0
+
+        for item in bookings:
+            if booking_id(item) == booking_id_value:
+                deleted += 1
+            else:
+                remaining.append(item)
+
+        if deleted == 0:
+            return {
+                "success": False,
+                "error": "Booking tidak ditemukan atau sudah dihapus."
+            }, 404
+
+        try:
+            write_bookings(remaining)
+
+            print("==========================================")
+            print("BOOKING DIHAPUS MANUAL")
+            print("ID:", booking_id_value)
+            print("JUMLAH:", deleted)
+            print("==========================================")
+
+            return {
+                "success": True,
+                "deleted": deleted,
+                "bookings": remaining
+            }
+
+        except Exception as e:
+            print("Gagal menghapus booking:", e)
+
+            return {
+                "success": False,
+                "error": "Gagal menyimpan perubahan kalender."
+            }, 500
+
+    # ========================================================
+    # GET DATA KALENDER
+    # ========================================================
+    response = app.response_class(
+        response=json.dumps(
+            {
+                "success": True,
+                "bookings": load_bookings()
+            },
+            ensure_ascii=False
+        ),
+        status=200,
+        mimetype="application/json"
+    )
+
+    # Jangan izinkan browser menggunakan cache lama.
+    response.headers["Cache-Control"] = (
+        "no-store, no-cache, must-revalidate, max-age=0"
+    )
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+
+    return response
+
+
+# ============================================================
+# STOCK
+# ============================================================
+
+@app.route("/stock")
+def stock():
+
+    if not session.get("logged_in"):
+        return redirect(
+            url_for("login")
+        )
+
+    return render_template(
+        "stock.html"
+    )
+
+# ============================================================
+# DAFTAR ANGGOTA
+# ============================================================
+
+@app.route("/anggota")
+def daftar_anggota():
+
+    if not session.get("logged_in"):
+
+        return redirect(
+            url_for("login")
+        )
+
+    members = get_members()
+
+    return render_template(
+        "anggota.html",
+        members=members
+    )
+
+
+# ============================================================
+# TAMBAH ANGGOTA
+# ============================================================
+
+@app.route(
+    "/tambah_anggota",
+    methods=["POST"]
+)
+def tambah_anggota():
+
+    if not session.get("logged_in"):
+
+        return redirect(
+            url_for("login")
+        )
+
+    nama = request.form.get(
+        "nama",
+        ""
+    ).strip()
+
+    if nama:
+
+        members = get_members()
+
+        if nama not in members:
+
+            members.append(nama)
+
+            save_members(members)
+
+            create_member_csv(nama)
+
+            create_member_upload_folder(nama)
+
+    return redirect(
+        url_for("daftar_anggota")
+    )
+
+
+# ============================================================
+# HALAMAN FILE
+# ============================================================
+
+@app.route("/file")
+def file():
+
+    if not session.get("logged_in"):
+
+        return redirect(
+            url_for("login")
+        )
+
+    return render_template(
+        "file.html"
+    )
+
+
+# ============================================================
+# GOOGLE DRIVE UTAMA
+# ============================================================
+
+@app.route("/gdrive")
+def gdrive():
+
+    if not session.get("logged_in"):
+
+        return redirect(
+            url_for("login")
+        )
+
+    return redirect(
+        GOOGLE_DRIVE_URL
+    )
+
+
+# ============================================================
+# GOOGLE DRIVE DARI DASHBOARD ANGGOTA
+# ============================================================
+
+@app.route("/anggota/&lt;path:nama&gt;/gdrive")
+def anggota_gdrive(nama):
+    """
+    Route kompatibilitas untuk tombol Google Drive anggota.
+
+    Route ini sengaja menggunakan &lt;path:nama&gt; agar nama anggota yang
+    memiliki spasi/karakter URL tidak menyebabkan route Flask 404.
+    Setelah route ditemukan, pengguna langsung diarahkan ke Google Drive.
+    """
+    if not session.get("logged_in"):
+        return redirect(url_for("login"))
+
+    return redirect(GOOGLE_DRIVE_URL)
+
+
+# Alias tambahan untuk dashboard/template versi lama.
+# Semua alias diarahkan ke Google Drive yang sama.
+@app.route("/anggota/&lt;path:nama&gt;/google-drive")
+def anggota_google_drive(nama):
+    if not session.get("logged_in"):
+        return redirect(url_for("login"))
+
+    return redirect(GOOGLE_DRIVE_URL)
+
+
+@app.route("/anggota/gdrive/&lt;path:nama&gt;")
+def anggota_gdrive_terbalik(nama):
+    if not session.get("logged_in"):
+        return redirect(url_for("login"))
+
+    return redirect(GOOGLE_DRIVE_URL)
+
+
+# ============================================================
+# GOOGLE DRIVE - REDIRECT KHUSUS
+# ============================================================
+
+@app.route("/anggota/&lt;nama&gt;/drive")
+def anggota_drive(nama):
+
+    if not session.get("logged_in"):
+
+        return redirect(
+            url_for("login")
+        )
+
+    members = get_members()
+
+    nama_decoded = str(nama).strip()
+
+    found = False
+
+    for member in members:
+
+        if isinstance(member, dict):
+
+            member_name = (
+                member.get("nama")
+                or member.get("name")
+                or member.get("Nama")
+                or ""
+            )
+
+        else:
+
+            member_name = str(member)
+
+        if (
+            str(member_name).strip()
+            == nama_decoded
+        ):
+
+            found = True
+            break
+
+    if not found:
+
+        return (
+            "Anggota tidak ditemukan",
+            404
+        )
+
+    return redirect(
+        GOOGLE_DRIVE_URL
+    )
+
+
+# ============================================================
+# DASHBOARD ANGGOTA
+# ============================================================
+
+@app.route("/anggota/&lt;nama&gt;")
+def dashboard_anggota(nama):
+
+    if not session.get("logged_in"):
+
+        return redirect(
+            url_for("login")
+        )
+
+    members = get_members()
+
+    nama_decoded = str(nama).strip()
+
+    found_member = None
+
+    for member in members:
+
+        if isinstance(member, dict):
+
+            member_name = (
+                member.get("nama")
+                or member.get("name")
+                or member.get("Nama")
+                or ""
+            )
+
+        else:
+
+            member_name = str(member)
+
+        if (
+            str(member_name).strip()
+            == nama_decoded
+        ):
+
+            found_member = member_name
+
+            break
+
+    if found_member is None:
+
+        return (
+            "Anggota tidak ditemukan",
+            404
+        )
+
+    data = get_logbook(
+        found_member
+    )
+
+    return render_template(
+        "dashboard.html",
+        nama=found_member,
+        data=data,
+        # LANGSUNG KE GOOGLE DRIVE UTAMA.
+        # Tidak lagi melewati route Flask, sehingga tombol Google Drive
+        # dari dashboard anggota tidak terkena 404 akibat URL route.
+        google_drive_url=GOOGLE_DRIVE_URL,
+        booking_url=url_for(
+            "peminjaman"
+        )
+    )
+
+
+# ============================================================
+# LOGBOOK
+# ============================================================
+
+@app.route("/anggota/&lt;nama&gt;/logbook")
+def logbook_anggota(nama):
+
+    if not session.get("logged_in"):
+
+        return redirect(
+            url_for("login")
+        )
+
+    members = get_members()
+
+    nama_decoded = str(nama).strip()
+
+    found_member = None
+
+    for member in members:
+
+        if isinstance(member, dict):
+
+            member_name = (
+                member.get("nama")
+                or member.get("name")
+                or member.get("Nama")
+                or ""
+            )
+
+        else:
+
+            member_name = str(member)
+
+        if (
+            str(member_name).strip()
+            == nama_decoded
+        ):
+
+            found_member = member_name
+
+            break
+
+    if found_member is None:
+
+        return (
+            "Anggota tidak ditemukan",
+            404
+        )
+
+    data = get_logbook(
+        found_member
+    )
+
+    return render_template(
+        "logbook.html",
+        nama=found_member,
+        data=data
+    )
+
+
+# ============================================================
+# HAPUS LAPORAN
+# ============================================================
+
+@app.route(
+    "/anggota/&lt;nama&gt;/logbook/hapus/&lt;no&gt;",
+    methods=["POST"]
+)
+def hapus_laporan(nama, no):
+
+    if not session.get("logged_in"):
+
+        return redirect(
+            url_for("login")
+        )
+
+    members = get_members()
+
+    nama_decoded = str(nama).strip()
+
+    found_member = None
+
+    for member in members:
+
+        if isinstance(member, dict):
+
+            member_name = (
+                member.get("nama")
+                or member.get("name")
+                or member.get("Nama")
+                or ""
+            )
+
+        else:
+
+            member_name = str(member)
+
+        if (
+            str(member_name).strip()
+            == nama_decoded
+        ):
+
+            found_member = member_name
+
+            break
+
+    if found_member is None:
+
+        return (
+            "Anggota tidak ditemukan",
+            404
+        )
+
+    data = get_logbook(
+        found_member
+    )
+
+    data_baru = []
+
+    laporan_dihapus = None
+
+    ditemukan = False
+
+    for row in data:
+
+        nomor_row = str(
+            row.get(
+                "No",
+                ""
+            )
+        ).strip()
+
+        if nomor_row == str(no).strip():
+
+            ditemukan = True
+
+            laporan_dihapus = row
+
+            continue
+
+        data_baru.append(row)
+
+    if not ditemukan:
+
+        return (
+            "Laporan tidak ditemukan",
+            404
+        )
+
+    # ========================================================
+    # HAPUS FILE LOKAL
+    # ========================================================
+
+    if laporan_dihapus:
+
+        file_name = laporan_dihapus.get(
+            "File",
+            ""
+        ).strip()
+
+        if (
+            file_name
+            and not file_name.startswith("http://")
+            and not file_name.startswith("https://")
+        ):
+
+            local_files = file_name.split("||")
+
+            upload_folder = (
+                create_member_upload_folder(
+                    found_member
+                )
+            )
+
+            for local_file in local_files:
+
+                local_file = local_file.strip()
+
+                if not local_file:
+                    continue
+
+                safe_file = secure_filename(
+                    local_file
+                )
+
+                uploaded_path = os.path.join(
+                    upload_folder,
+                    safe_file
+                )
+
+                if os.path.exists(
+                    uploaded_path
+                ):
+
+                    try:
+
+                        os.remove(
+                            uploaded_path
+                        )
+
+                    except Exception as e:
+
+                        print(
+                            "Gagal menghapus file lokal:",
+                            e
+                        )
+
+    # ========================================================
+    # TULIS ULANG CSV
+    # ========================================================
+
+    file_path = create_member_csv(
+        found_member
+    )
+
+    with open(
+        file_path,
+        "w",
+        encoding="utf-8-sig",
+        newline=""
+    ) as file:
+
+        writer = csv.writer(file)
+
+        writer.writerow([
+            "No",
+            "Tanggal",
+            "Keterangan",
+            "Deadline",
+            "Status",
+            "File"
+        ])
+
+        for nomor, row in enumerate(
+            data_baru,
+            start=1
+        ):
+
+            writer.writerow([
+
+                nomor,
+
+                row.get(
+                    "Tanggal",
+                    ""
+                ),
+
+                row.get(
+                    "Keterangan",
+                    ""
+                ),
+
+                row.get(
+                    "Deadline",
+                    ""
+                ),
+
+                row.get(
+                    "Status",
+                    ""
+                ),
+
+                row.get(
+                    "File",
+                    ""
+                )
+
+            ])
+
+    return redirect(
+        url_for(
+            "logbook_anggota",
+            nama=found_member
+        )
+    )
+
+
+# ============================================================
+# FORM LAPORAN
+# ============================================================
+
+@app.route(
+    "/anggota/&lt;nama&gt;/form",
+    methods=["GET", "POST"]
+)
+def form_anggota(nama):
+
+    if not session.get("logged_in"):
+
+        return redirect(
+            url_for("login")
+        )
+
+    members = get_members()
+
+    nama_decoded = str(nama).strip()
+
+    found_member = None
+
+    for member in members:
+
+        if isinstance(member, dict):
+
+            member_name = (
+                member.get("nama")
+                or member.get("name")
+                or member.get("Nama")
+                or ""
+            )
+
+        else:
+
+            member_name = str(member)
+
+        if (
+            str(member_name).strip()
+            == nama_decoded
+        ):
+
+            found_member = member_name
+
+            break
+
+    if found_member is None:
+
+        return (
+            "Anggota tidak ditemukan",
+            404
+        )
+
+    if request.method == "POST":
+
+        tanggal = request.form.get(
+            "tanggal",
+            ""
+        )
+
+        keterangan = request.form.get(
+            "keterangan",
+            ""
+        )
+
+        deadline = request.form.get(
+            "deadline",
+            ""
+        )
+
+        status = request.form.get(
+            "status",
+            "Pending"
+        )
+
+        uploaded_files = request.files.getlist(
+            "files"
+        )
+
+        drive_links = []
+
+        for uploaded_file in uploaded_files:
+
+            if not uploaded_file:
+                continue
+
+            if not uploaded_file.filename:
+                continue
+
+            drive_file = upload_to_google_drive(
+
+                uploaded_file,
+
+                found_member,
+
+                tanggal
+
+            )
+
+            if drive_file:
+
+                file_url = drive_file.get(
+                    "fileUrl",
+                    ""
+                )
+
+                if file_url:
+
+                    drive_links.append(
+                        file_url
+                    )
+
+        file_value = "||".join(
+            drive_links
+        )
+
+        add_logbook(
+
+            found_member,
+
+            tanggal,
+
+            keterangan,
+
+            deadline,
+
+            status,
+
+            file_value
+
+        )
+
+        return redirect(
+
+            url_for(
+
+                "logbook_anggota",
+
+                nama=found_member
+
+            )
+
+        )
+
+    return render_template(
+
+        "form_laporan.html",
+
+        nama=found_member
+
+    )
+
+
+# ============================================================
+# FILE UPLOAD LOKAL
+# ============================================================
+
+@app.route(
+    "/uploads/&lt;nama&gt;/&lt;filename&gt;"
+)
+def uploaded_file(
+    nama,
+    filename
+):
+
+    if not session.get("logged_in"):
+
+        return redirect(
+            url_for("login")
+        )
+
+    folder = create_member_upload_folder(
+        nama
+    )
+
+    return send_from_directory(
+        folder,
+        filename
+    )
+
+
+# ============================================================
+# FORM LAMA
+# ============================================================
+
+@app.route("/form")
+def form_laporan():
+
+    if not session.get("logged_in"):
+
+        return redirect(
+            url_for("login")
+        )
+
+    members = get_members()
+
+    if members:
+
+        first_member = members[0]
+
+        if isinstance(first_member, dict):
+
+            first_member = (
+                first_member.get("nama")
+                or first_member.get("name")
+                or first_member.get("Nama")
+                or ""
+            )
+
+        return redirect(
+
+            url_for(
+
+                "form_anggota",
+
+                nama=first_member
+
+            )
+
+        )
+
+    return "Belum ada anggota."
+
+
+# ============================================================
+# LOGOUT
+# ============================================================
+
+@app.route("/logout")
+def logout():
+
+    session.clear()
+
+    return redirect(
+        url_for("login")
+    )
+
+
+# ============================================================
+# DOWNLOAD LOGBOOK SEBAGAI PDF
+# ============================================================
+
+@app.route(
+    "/anggota/&lt;nama&gt;/logbook/pdf"
+)
+def download_logbook_pdf(nama):
+
+    if not session.get("logged_in"):
+
+        return redirect(
+            url_for("login")
+        )
+
+    members = get_members()
+
+    nama_decoded = str(nama).strip()
+
+    found_member = None
+
+    for member in members:
+
+        if isinstance(member, dict):
+
+            member_name = (
+                member.get("nama")
+                or member.get("name")
+                or member.get("Nama")
+                or ""
+            )
+
+        else:
+
+            member_name = str(member)
+
+        if (
+            str(member_name).strip()
+            == nama_decoded
+        ):
+
+            found_member = member_name
+
+            break
+
+    if found_member is None:
+
+        return (
+            "Anggota tidak ditemukan",
+            404
+        )
+
+    data = get_logbook(
+        found_member
+    )
+
+    nama_file = safe_filename(
+        found_member
+    )
+
+    pdf_path = os.path.join(
+
+        PDF_FOLDER,
+
+        "Logbook_"
+        + nama_file
+        + ".pdf"
+
+    )
+
+    document = SimpleDocTemplate(
+
+        pdf_path,
+
+        pagesize=landscape(A4),
+
+        rightMargin=25,
+
+        leftMargin=25,
+
+        topMargin=25,
+
+        bottomMargin=25
+
+    )
+
+    styles = getSampleStyleSheet()
+
+    title_style = styles["Title"]
+
+    title_style.alignment = TA_CENTER
+
+    normal_style = styles["Normal"]
+
+    elements = []
+
+    elements.append(
+
+        Paragraph(
+
+            "LOGBOOK LAPORAN",
+
+            title_style
+
+        )
+
+    )
+
+    elements.append(
+        Spacer(
+            1,
+            10
+        )
+    )
+
+    elements.append(
+
+        Paragraph(
+
+            f"&lt;b&gt;Nama Anggota:&lt;/b&gt; "
+            f"{html.escape(found_member)}",
+
+            normal_style
+
+        )
+
+    )
+
+    elements.append(
+        Spacer(
+            1,
+            15
+        )
+    )
+
+    table_data = [
+
+        [
+
+            "No",
+
+            "Tanggal",
+
+            "Keterangan",
+
+            "Deadline",
+
+            "Status",
+
+            "Bukti / File"
+
+        ]
+
+    ]
+
+    for row in data:
+
+        table_data.append(
+
+            [
+
+                row.get(
+                    "No",
+                    ""
+                ),
+
+                row.get(
+                    "Tanggal",
+                    ""
+                ),
+
+                row.get(
+                    "Keterangan",
+                    ""
+                ),
+
+                row.get(
+                    "Deadline",
+                    ""
+                ),
+
+                row.get(
+                    "Status",
+                    ""
+                ),
+
+                row.get(
+                    "File",
+                    ""
+                )
+
+            ]
+
+        )
+
+    table = Table(
+
+        table_data,
+
+        repeatRows=1,
+
+        colWidths=[
+
+            35,
+
+            75,
+
+            330,
+
+            75,
+
+            80,
+
+            150
+
+        ]
+
+    )
+
+    table.setStyle(
+
+        TableStyle(
+
+            [
+
+                (
+
+                    "BACKGROUND",
+
+                    (0, 0),
+
+                    (-1, 0),
+
+                    colors.lightgrey
+
+                ),
+
+                (
+
+                    "TEXTCOLOR",
+
+                    (0, 0),
+
+                    (-1, 0),
+
+                    colors.black
+
+                ),
+
+                (
+
+                    "FONTNAME",
+
+                    (0, 0),
+
+                    (-1, 0),
+
+                    "Helvetica-Bold"
+
+                ),
+
+                (
+
+                    "FONTNAME",
+
+                    (0, 1),
+
+                    (-1, -1),
+
+                    "Helvetica"
+
+                ),
+
+                (
+
+                    "FONTSIZE",
+
+                    (0, 0),
+
+                    (-1, -1),
+
+                    8
+
+                ),
+
+                (
+
+                    "GRID",
+
+                    (0, 0),
+
+                    (-1, -1),
+
+                    0.5,
+
+                    colors.black
+
+                ),
+
+                (
+
+                    "VALIGN",
+
+                    (0, 0),
+
+                    (-1, -1),
+
+                    "TOP"
+
+                ),
+
+                (
+
+                    "ALIGN",
+
+                    (0, 0),
+
+                    (0, -1),
+
+                    "CENTER"
+
+                ),
+
+                (
+
+                    "ALIGN",
+
+                    (4, 1),
+
+                    (4, -1),
+
+                    "CENTER"
+
+                ),
+
+                (
+
+                    "LEFTPADDING",
+
+                    (0, 0),
+
+                    (-1, -1),
+
+                    5
+
+                ),
+
+                (
+
+                    "RIGHTPADDING",
+
+                    (0, 0),
+
+                    (-1, -1),
+
+                    5
+
+                ),
+
+                (
+
+                    "TOPPADDING",
+
+                    (0, 0),
+
+                    (-1, -1),
+
+                    5
+
+                ),
+
+                (
+
+                    "BOTTOMPADDING",
+
+                    (0, 0),
+
+                    (-1, -1),
+
+                    5
+
+                )
+
+            ]
+
+        )
+
+    )
+
+    elements.append(
+        table
+    )
+
+    document.build(
+        elements
+    )
+
+    return send_file(
+
+        pdf_path,
+
+        as_attachment=True,
+
+        download_name=(
+
+            "Logbook_"
+
+            + nama_file
+
+            + ".pdf"
+
+        ),
+
+        mimetype="application/pdf"
+
+    )
+
+
+# ============================================================
+# ERROR HANDLER
+# ============================================================
+
+@app.errorhandler(404)
+def halaman_tidak_ditemukan(error):
+
+    return """
+    &lt;!DOCTYPE html&gt;
+
+    &lt;html lang="id"&gt;
+
+    &lt;head&gt;
+
+        &lt;meta charset="UTF-8"&gt;
+
+        &lt;title&gt;Halaman Tidak Ditemukan&lt;/title&gt;
+
+    &lt;/head&gt;
+
+    &lt;body style="
+        font-family:Arial;
+        padding:40px;
+    "&gt;
+
+        &lt;h1&gt;
+            404
+        &lt;/h1&gt;
+
+        &lt;p&gt;
+            Halaman yang Anda cari tidak ditemukan.
+        &lt;/p&gt;
+
+        &lt;a href="/menu"&gt;
+            ← Kembali ke Menu Utama
+        &lt;/a&gt;
+
+    &lt;/body&gt;
+
+    &lt;/html&gt;
+    """, 404
+
+
+# ============================================================
+# ERROR HANDLER 500
+# ============================================================
+
+@app.errorhandler(500)
+def server_error(error):
+
+    return """
+    &lt;!DOCTYPE html&gt;
+
+    &lt;html lang="id"&gt;
+
+    &lt;head&gt;
+
+        &lt;meta charset="UTF-8"&gt;
+
+        &lt;title&gt;Server Error&lt;/title&gt;
+
+    &lt;/head&gt;
+
+    &lt;body style="
+        font-family:Arial;
+        padding:40px;
+    "&gt;
+
+        &lt;h1&gt;
+            500
+        &lt;/h1&gt;
+
+        &lt;p&gt;
+            Terjadi kesalahan pada server Flask.
+        &lt;/p&gt;
+
+        &lt;a href="/menu"&gt;
+            ← Kembali ke Menu Utama
+        &lt;/a&gt;
+
+    &lt;/body&gt;
+
+    &lt;/html&gt;
+    """, 500
+
+
+# ============================================================
+# GIT / GITHUB
+# ============================================================
+
+import subprocess
+
+
+def run_git_command(command):
+    """
+    Menjalankan perintah Git dari Python.
+    """
+    try:
+        print()
+        print("=" * 70)
+        print("GIT COMMAND")
+        print("=" * 70)
+        print(" ".join(command))
+
+        result = subprocess.run(
+            command,
+            cwd=os.path.dirname(
+                os.path.abspath(__file__)
+            ),
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace"
+        )
+
+        if result.stdout:
+            print(result.stdout)
+
+        if result.stderr:
+            print(result.stderr)
+
+        if result.returncode != 0:
+            print(
+                "Git command gagal dengan code:",
+                result.returncode
+            )
+            return False
+
+        return True
+
+    except Exception as e:
+        print("Gagal menjalankan Git:")
+        print(e)
+        return False
+
+
+def setup_github():
+    """
+    Menginisialisasi repository Git dan menghubungkannya
+    dengan repository GitHub nsgapp.
+    """
+
+    project_folder = os.path.dirname(
+        os.path.abspath(__file__)
+    )
+
+    print()
+    print("=" * 70)
+    print("SETUP GITHUB")
+    print("=" * 70)
+    print("PROJECT:")
+    print(project_folder)
+    print("=" * 70)
+
+    # --------------------------------------------------------
+    # 1. Git init
+    # --------------------------------------------------------
+
+    git_folder = os.path.join(
+        project_folder,
+        ".git"
+    )
+
+    if not os.path.exists(git_folder):
+
+        if not run_git_command([
+            "git",
+            "init"
+        ]):
+            return False
+
+    else:
+        print("Repository Git sudah ada.")
+
+    # --------------------------------------------------------
+    # 2. Buat README.md jika belum ada
+    # --------------------------------------------------------
+
+    readme_file = os.path.join(
+        project_folder,
+        "README.md"
+    )
+
+    if not os.path.exists(readme_file):
+
+        try:
+
+            with open(
+                readme_file,
+                "w",
+                encoding="utf-8"
+            ) as file:
+
+                file.write(
+                    "# nsgapp\n"
+                )
+
+            print(
+                "README.md berhasil dibuat."
+            )
+
+        except Exception as e:
+
+            print(
+                "Gagal membuat README.md:"
+            )
+            print(e)
+
+    # --------------------------------------------------------
+    # 3. git add
+    # --------------------------------------------------------
+
+    if not run_git_command([
+        "git",
+        "add",
+        "."
+    ]):
+        return False
+
+    # --------------------------------------------------------
+    # 4. git commit
+    # --------------------------------------------------------
+
+    commit_result = subprocess.run(
+        [
+            "git",
+            "commit",
+            "-m",
+            "update nsgapp"
+        ],
+        cwd=project_folder,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace"
+    )
+
+    print(commit_result.stdout)
+
+    if commit_result.stderr:
+        print(commit_result.stderr)
+
+    # --------------------------------------------------------
+    # 5. Pastikan branch = main
+    # --------------------------------------------------------
+
+    if not run_git_command([
+        "git",
+        "branch",
+        "-M",
+        "main"
+    ]):
+        return False
+
+    # --------------------------------------------------------
+    # 6. Tambahkan remote GitHub
+    # --------------------------------------------------------
+
+    remote_check = subprocess.run(
+        [
+            "git",
+            "remote",
+            "get-url",
+            "origin"
+        ],
+        cwd=project_folder,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace"
+    )
+
+    github_url = (
+        "https://github.com/"
+        "gladethelord01-droid/"
+        "nsgapp.git"
+    )
+
+    if remote_check.returncode != 0:
+
+        if not run_git_command([
+            "git",
+            "remote",
+            "add",
+            "origin",
+            github_url
+        ]):
+            return False
+
+    else:
+
+        current_remote = (
+            remote_check.stdout.strip()
+        )
+
+        print(
+            "Remote origin sudah ada:"
+        )
+        print(current_remote)
+
+    # --------------------------------------------------------
+    # 7. Push ke GitHub
+    # --------------------------------------------------------
+
+    if not run_git_command([
+        "git",
+        "push",
+        "-u",
+        "origin",
+        "main"
+    ]):
+        return False
+
+    print()
+    print("=" * 70)
+    print("GITHUB PUSH BERHASIL")
+    print("=" * 70)
+
+    return True
+
+
+# ============================================================
+# SERVER
+# ============================================================
+
+if __name__ == "__main__":
+
+    # Jalankan setup GitHub
+    setup_github()
+
+    # Jalankan Flask
+    app.run(
+        host="127.0.0.1",
+        port=5000,
+        debug=True
+    )
+</template>
+</body>
+</html>
