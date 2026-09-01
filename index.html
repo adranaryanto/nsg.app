@@ -280,6 +280,35 @@ function bookingCoversDate(b,d){const s=bookingStart(b),e=bookingEnd(b);if(!s||!
 function bookingClass(b){const e=bookingEnd(b);if(!e)return"";const diff=daysDiff(nowDateOnly(),e);if(diff<0)return"past";if(diff===0)return"today";if(diff<=3)return"soon";return""}
 function allowedFile(name){const p=String(name||"").toLowerCase().split(".");return p.length>1&&CONFIG.ALLOWED_EXTENSIONS.includes(p.pop())}
 
+// Jika CSV sudah terhubung, CSV per anggota menjadi sumber utama logbook.
+// Ini mencegah browser A melihat data lama dari localStorage ketika browser B
+// sudah menambahkan/mengubah laporan pada file CSV yang sama.
+const _getLogbookBeforeCSV=getLogbook;
+getLogbook=async function(){
+  if(CSV_STORE.dir&&currentMember){
+    const filename=memberCSVName(currentMember);
+    if(await csvExists(filename)){
+      const raw=await readCSVFile(filename);
+      const rows=raw.map((r,i)=>({
+        id:r.id||("csv_"+safeFilename(currentMember)+"_"+i),
+        nama:currentMember,
+        No:r.No||String(i+1),
+        tanggal:r.Tanggal||r.tanggal||"",
+        keterangan:r.Keterangan||r.keterangan||"",
+        deadline:isCompletedStatus(r.Status||r.status||"")?"":(r.Deadline||r.deadline||""),
+        status:canonicalStatus(r.Status||r.status||"Pending"),
+        file:r.File||r.file||""
+      }));
+      const all=originalSetJSON&&getJSON(KEYS.logbook,[])||[];
+      const memberKey=normalizeMember(currentMember);
+      const kept=all.filter(x=>normalizeMember(x.nama||x.member)!==memberKey);
+      originalSetJSON(KEYS.logbook,kept.concat(rows));
+      return rows;
+    }
+  }
+  return _getLogbookBeforeCSV();
+};
+
 async function loadInitialData(){
   // Versi baru dimulai dengan daftar Anggota dan Stock kosong, seperti web baru.
   // Reset satu kali untuk menghapus data contoh/seed dari versi app.html sebelumnya.
@@ -817,6 +846,100 @@ $("stockSearch")?.addEventListener("input",renderStock)
 async function downloadLogbookPDF(){if(!currentMember){alert("Pilih anggota terlebih dahulu.");return}const rows=await getLogbook();if(!rows.length){alert("Belum ada data logbook.");return}if(!window.jspdf?.jsPDF){alert("Library PDF belum termuat. Periksa koneksi internet lalu coba lagi.");return}const {jsPDF}=window.jspdf;const doc=new jsPDF({orientation:"landscape",unit:"pt",format:"a4"});doc.setFontSize(18);doc.text("LOGBOOK LAPORAN",421,35,{align:"center"});doc.setFontSize(11);doc.text("Nama Anggota: "+currentMember,40,60);const body=rows.map((r,i)=>[r.No||i+1,r.tanggal||r.Tanggal||"",r.keterangan||r.Keterangan||"",r.deadline||r.Deadline||"",r.status||r.Status||"",r.file||r.File||""]);doc.autoTable({startY:75,head:[["No","Tanggal","Keterangan","Deadline","Status","Bukti / File"]],body,styles:{fontSize:8,cellPadding:4,valign:"top"},headStyles:{fillColor:[211,211,211],textColor:[0,0,0]},columnStyles:{0:{cellWidth:35},1:{cellWidth:75},2:{cellWidth:300},3:{cellWidth:75},4:{cellWidth:75},5:{cellWidth:160}}});doc.save("Logbook_"+safeFilename(currentMember)+".pdf")}
 
 function setLogo(){const src="static/logo.png";["loginLogo","reportLogo","appHeaderLogo"].forEach(id=>{const im=$(id);if(im)im.src=src})}
+
+/* ============================================================
+   CSV PERSISTENCE LAYER
+   - localStorage tetap menjadi fallback.
+   - Jika folder data dihubungkan sekali, data bersama disimpan sebagai CSV:
+       data/members.csv
+       data/stock.csv
+       data/bookings.csv
+       data/<nama anggota>.csv
+   - File System Access API dipakai agar HTML statis dapat membaca/menulis
+     file CSV secara langsung setelah pengguna memberi izin.
+   ============================================================ */
+const CSV_STORE={dir:null,dbName:"nsg_csv_storage_v1",pollTimer:null,busy:false,queue:Promise.resolve()};
+function csvEscape(v){const s=String(v??"");return /[",\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}
+function toCSV(rows,headers){const h=headers||[];return h.join(",")+"\n"+(rows||[]).map(r=>h.map(k=>csvEscape(r?.[k]??"")).join(",")).join("\n")+"\n"}
+function openCSVDB(){return new Promise((resolve,reject)=>{const r=indexedDB.open(CSV_STORE.dbName,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains("handles"))r.result.createObjectStore("handles")};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
+async function saveCSVDirHandle(handle){try{const db=await openCSVDB();await new Promise((res,rej)=>{const tx=db.transaction("handles","readwrite");tx.objectStore("handles").put(handle,"data");tx.oncomplete=res;tx.onerror=()=>rej(tx.error)});db.close()}catch(e){console.warn("Handle folder CSV tidak tersimpan",e)}}
+async function restoreCSVDirHandle(){try{if(!window.indexedDB)return null;const db=await openCSVDB();const h=await new Promise((res,rej)=>{const tx=db.transaction("handles","readonly");const q=tx.objectStore("handles").get("data");q.onsuccess=()=>res(q.result||null);q.onerror=()=>rej(q.error)});db.close();if(!h)return null;const p=await h.queryPermission({mode:"readwrite"});if(p==="granted")return h;const r=await h.requestPermission({mode:"readwrite"});return r==="granted"?h:null}catch(e){console.warn("Folder CSV belum dapat dipulihkan",e);return null}}
+async function connectCSVFolder(){
+  if(!window.showDirectoryPicker){alert("Browser ini belum mendukung penyimpanan CSV langsung. Gunakan Google Chrome atau Microsoft Edge versi terbaru.");return}
+  try{
+    const h=await window.showDirectoryPicker({mode:"readwrite",id:"nsg-logbook-data"});
+    CSV_STORE.dir=h;await saveCSVDirHandle(h);
+    await ensureCSVFiles();
+    updateCSVIndicator();
+    alert("Folder data CSV berhasil terhubung. Data sekarang disimpan per anggota ke file CSV di folder tersebut.");
+    await syncAllFromCSV();
+  }catch(e){if(e?.name!=="AbortError")alert("Folder CSV gagal dihubungkan: "+e.message)}
+}
+async function csvFile(name,create=false){if(!CSV_STORE.dir)return null;return await CSV_STORE.dir.getFileHandle(name,{create})}
+async function csvExists(name){if(!CSV_STORE.dir)return false;try{await CSV_STORE.dir.getFileHandle(name,{create:false});return true}catch{return false}}
+async function readCSVFile(name){try{const fh=await csvFile(name,false);const f=await fh.getFile();return parseCSV(await f.text())}catch{return []}}
+async function writeCSVFile(name,text){if(!CSV_STORE.dir)return false;try{const fh=await csvFile(name,true);const w=await fh.createWritable();await w.write(text);await w.close();return true}catch(e){console.warn("Gagal menulis CSV",name,e);return false}}
+function memberCSVName(name){return safeFilename(name)+".csv"}
+async function writeMembersCSV(list){return writeCSVFile("members.csv",toCSV((list||[]).map(n=>({Nama:n})),["Nama"]))}
+async function writeStockCSV(list){return writeCSVFile("stock.csv",toCSV(list||[],["id","nama","kode","jumlah"]))}
+async function writeBookingsCSV(list){return writeCSVFile("bookings.csv",toCSV((list||[]).map(normalizeBooking),["id","nama","nomor_telepon","alat","tanggal_mulai","tanggal_selesai","jam_mulai","jam_selesai","keperluan","catatan"]))}
+function logbookCSVRows(list){return (list||[]).map((r,i)=>({id:r.id??("r_"+i),No:r.No??i+1,Tanggal:r.tanggal??r.Tanggal??"",Keterangan:r.keterangan??r.Keterangan??"",Deadline:isCompletedStatus(r.status??r.Status)?"":(r.deadline??r.Deadline??""),Status:canonicalStatus(r.status??r.Status??"Pending"),File:r.file??r.File??"",nama:r.nama??r.member??currentMember}))}
+async function writeMemberCSV(name,list){return writeCSVFile(memberCSVName(name),toCSV(logbookCSVRows(list),["id","No","Tanggal","Keterangan","Deadline","Status","File","nama"]))}
+async function ensureCSVFiles(){if(!CSV_STORE.dir)return;if(!(await csvExists("members.csv")))await writeMembersCSV(members);if(!(await csvExists("stock.csv")))await writeStockCSV(stockRows);if(!(await csvExists("bookings.csv")))await writeBookingsCSV(calendarBookings)}
+async function syncAllFromCSV(){
+  if(!CSV_STORE.dir)return;
+  const mr=await readCSVFile("members.csv");if(await csvExists("members.csv")){members=mr.map(r=>String(r.Nama||r.nama||"").trim()).filter(Boolean);originalSetJSON(KEYS.members,members)}
+  const sr=await readCSVFile("stock.csv");if(await csvExists("stock.csv")){stockRows=sr.map(r=>({id:r.id||("stock_"+Math.random().toString(36).slice(2)),nama:r.nama||"",kode:r.kode||"atk-01",jumlah:Number(r.jumlah)||0}));originalSetJSON(KEYS.stock,stockRows)}
+  const br=await readCSVFile("bookings.csv");if(await csvExists("bookings.csv")){calendarBookings=ensureUniqueBookingIds(br);originalSetJSON(KEYS.bookings,calendarBookings)}
+  renderMembers();renderStock();renderCalendar();
+  if(currentMember&&currentPage==="dashboard")await renderDashboard();
+  if(currentMember&&currentPage==="logbook")await renderLogbook();
+}
+function updateCSVIndicator(){const el=$("csvStorageIndicator");if(el)el.textContent=CSV_STORE.dir?"CSV: TERHUBUNG":"CSV: belum terhubung"}
+async function persistCSVKey(key,value){if(!CSV_STORE.dir)return;
+  if(key===KEYS.members)await writeMembersCSV(value);
+  else if(key===KEYS.stock)await writeStockCSV(value);
+  else if(key===KEYS.bookings)await writeBookingsCSV(value);
+  else if(key===KEYS.logbook){const groups={};(value||[]).forEach(r=>{const n=normalizeMember(r.nama||r.member);if(n)(groups[n]??=[]).push(r)});const names=new Set([...(members||[]),...Object.keys(groups)]);for(const n of names)await writeMemberCSV(n,groups[n]||[])}
+}
+const originalSetJSON=setJSON;
+setJSON=function(key,value){originalSetJSON(key,value);CSV_STORE.queue=CSV_STORE.queue.then(()=>persistCSVKey(key,value)).catch(e=>console.warn("CSV sync",e));};
+
+async function loadInitialData(){
+  // Tidak pernah mereset data saat logout/login. localStorage hanya fallback;
+  // CSV menjadi sumber bersama bila folder data sudah dihubungkan.
+  members=getJSON(KEYS.members,[]);if(!Array.isArray(members))members=[];
+  stockRows=getJSON(KEYS.stock,[]);if(!Array.isArray(stockRows))stockRows=[];
+  calendarBookings=ensureUniqueBookingIds(getJSON(KEYS.bookings,[]));setJSON(KEYS.bookings,calendarBookings);
+  try{CSV_STORE.dir=await restoreCSVDirHandle()}catch{CSV_STORE.dir=null}
+  if(CSV_STORE.dir){
+    await ensureCSVFiles();
+    const mr=await readCSVFile("members.csv");if(mr.length){members=mr.map(r=>String(r.Nama||r.nama||"").trim()).filter(Boolean);originalSetJSON(KEYS.members,members)}
+    const sr=await readCSVFile("stock.csv");if(sr.length){stockRows=sr.map(r=>({id:r.id||("stock_"+Math.random().toString(36).slice(2)),nama:r.nama||"",kode:r.kode||"atk-01",jumlah:Number(r.jumlah)||0}));originalSetJSON(KEYS.stock,stockRows)}
+    const br=await readCSVFile("bookings.csv");if(br.length){calendarBookings=ensureUniqueBookingIds(br);originalSetJSON(KEYS.bookings,calendarBookings)}
+  }
+  updateCSVIndicator();renderMembers();renderStock();
+  if(!CSV_STORE.pollTimer){CSV_STORE.pollTimer=setInterval(async()=>{if(CSV_STORE.dir&&!CSV_STORE.busy){try{await syncAllFromCSV()}catch(e){console.warn(e)}}},5000)}
+}
+
+// Saat pengguna menambah/menghapus anggota, setJSON di atas otomatis menulis
+// members.csv. Ini wrapper khusus untuk menghapus file CSV anggota bila API
+// tersedia; jika tidak, file tetap aman dan data anggota tidak ikut hilang.
+const _addMemberFromButton=addMemberFromButton;
+addMemberFromButton=function(){_addMemberFromButton();if(CSV_STORE.dir)updateCSVIndicator()};
+const _deleteMember=deleteMember;
+deleteMember=function(i){const name=members[i];_deleteMember(i);if(CSV_STORE.dir&&name)CSV_STORE.dir.removeEntry(memberCSVName(name)).catch(()=>{});};
+
+// UI kecil untuk memilih folder data CSV. Tidak mengubah fitur aplikasi.
+function injectCSVControl(){
+  const sec=$("page-members")?.querySelector(".section");if(!sec||$("csvStorageBox"))return;
+  const box=document.createElement("div");box.id="csvStorageBox";box.className="notice";box.style.marginTop="18px";
+  box.innerHTML='<strong>Penyimpanan Data</strong><br><span id="csvStorageIndicator">CSV: belum terhubung</span><br><button type="button" class="button green-button" style="margin-top:8px" onclick="connectCSVFolder()">Hubungkan Folder Data CSV</button><div style="margin-top:6px;font-size:12px">Setelah terhubung, setiap anggota memiliki file CSV sendiri di folder data. Data tetap ada walaupun logout atau anggota lain masuk.</div>';
+  sec.appendChild(box);updateCSVIndicator();
+}
+const _showPage=showPage;
+showPage=function(name){_showPage(name);if(name==="members")injectCSVControl();updateCSVIndicator()};
+
 function init(){setLogo();loadInitialData().then(()=>{showLogin();refreshCalendar()})}
 // Bersihkan status lama dari localStorage sekali setiap membuka aplikasi.
 (function migrateLegacyStatusesOnStartup(){
