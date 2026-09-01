@@ -1034,6 +1034,202 @@ async function connectDataFolder(){
   }catch(e){alert("Gagal sinkronisasi GitHub.\n\n"+e.message);return false}
 }
 
+
+/* ============================================================
+   FINAL SHARED STORAGE MODEL
+   members.json = ONLY member names
+   data.csv     = ALL member dashboard/report data in ONE shared file
+   This override intentionally sits last so every previous storage
+   implementation is superseded without changing the UI.
+   ============================================================ */
+const NSG_SHARED_DATA_FILE = "data.csv";
+const NSG_SHARED_HEADERS = ["id","No","Tanggal","Keterangan","Deadline","Status","File","nama","completion_report","completion_of_id","completion_report_id"];
+
+async function readSharedDataCSV(){
+  const f=await ghGet(NSG_SHARED_DATA_FILE);
+  if(!f)return {rows:[],sha:null,exists:false};
+  return {rows:parseCSV(f.text).map((r,i)=>normalizeReport({...r,No:r.No||i+1},r.nama||r.member||"")),sha:f.sha,exists:true};
+}
+
+async function writeSharedDataCSV(rows,message,sha){
+  const clean=(Array.isArray(rows)?rows:[]).map((r,i)=>{
+    const name=normalizeMember(r.nama||r.member||"");
+    const x=normalizeReport({...r,nama:name},name);
+    const st=canonicalStatus(x.status);
+    return {...x,id:String(x.id||("r_"+Date.now()+"_"+i)),No:i+1,nama:name,status:st,deadline:st==="Complete"?"":String(x.deadline||"")};
+  }).filter(r=>r.nama);
+  return ghPut(NSG_SHARED_DATA_FILE,csvString(clean,NSG_SHARED_HEADERS),message||"Update data.csv",sha||null);
+}
+
+function groupSharedRowsByMember(rows,names){
+  const out={};
+  for(const n of names||[])out[n]=[];
+  for(const raw of rows||[]){
+    const n=normalizeMember(raw.nama||raw.member||"");
+    if(!n)continue;
+    const key=(names||[]).find(x=>x.toLowerCase()===n.toLowerCase())||n;
+    if(!out[key])out[key]=[];
+    out[key].push(normalizeReport({...raw,nama:key},key));
+  }
+  return out;
+}
+
+/* Read members.json + one shared data.csv. Existing per-member CSVs are
+   imported once if data.csv does not exist, so old data is not lost. */
+async function rebuildMemberCache(){
+  const mr=await readMembersRegistry();
+  let shared=await readSharedDataCSV();
+  if(!shared.exists){
+    const legacy=[];
+    for(const n of mr.names){
+      try{
+        const old=await ghGet(memberPath(n));
+        if(old)legacy.push(...parseCSV(old.text).map((r,i)=>normalizeReport({...r,No:r.No||i+1},n)));
+      }catch(e){console.warn("Migrasi CSV lama gagal",n,e)}
+    }
+    if(legacy.length && ghToken()){
+      try{
+        const sh=await ghGet(NSG_SHARED_DATA_FILE);
+        await writeSharedDataCSV(legacy,"Migrasi data anggota ke data.csv",sh?.sha||null);
+        shared=await readSharedDataCSV();
+      }catch(e){console.warn("Gagal membuat data.csv",e)}
+    }
+  }
+  members=[...mr.names];
+  const all=(shared.rows||[]).map(r=>normalizeReport(r,r.nama||r.member||""));
+  logbookRows=all;
+  originalSetJSON(KEYS.members,members);
+  originalSetJSON(KEYS.logbook,all);
+  return true;
+}
+
+async function githubPullData(){
+  try{
+    await rebuildMemberCache();
+    renderMembers();
+    renderStock();
+    if(currentMember&&currentPage==="dashboard")await renderDashboard();
+    if(currentMember&&currentPage==="logbook")await renderLogbook();
+    updateCSVStatus("Tersinkron: members.json + data.csv",true);
+    return true;
+  }catch(e){
+    console.warn("Sinkronisasi GitHub gagal",e);
+    updateCSVStatus("Gagal sinkron: "+e.message,false);
+    return false;
+  }
+}
+
+/* One atomic logical transaction: latest members.json + latest data.csv are
+   read immediately before mutation. A SHA conflict is retried, preventing
+   one user's update from silently overwriting another user's update. */
+async function githubCommit(message,mutator){
+  if(!ghToken()&&!setGithubToken())throw new Error("GitHub token diperlukan untuk menyimpan data.");
+  for(let attempt=0;attempt<5;attempt++){
+    const mr=await readMembersRegistry();
+    const shared=await readSharedDataCSV();
+    const names=[...mr.names];
+    const state={version:1,members:names,logbooks:groupSharedRowsByMember(shared.rows,names)};
+    const beforeNames=JSON.stringify(state.members);
+    const beforeRows=JSON.stringify(shared.rows||[]);
+    await mutator(state);
+    state.members=[...new Set((state.members||[]).map(normalizeMember).filter(Boolean))];
+    const flat=[];
+    for(const n of state.members){
+      const list=Array.isArray(state.logbooks?.[n])?state.logbooks[n]:[];
+      for(const r of list)flat.push({...r,nama:n});
+    }
+    const registryChanged=!mr.exists||JSON.stringify(state.members)!==beforeNames;
+    const nextCSV=flat.map((r,i)=>({...normalizeReport(r,r.nama),No:i+1,status:canonicalStatus(r.status)}));
+    const dataChanged=JSON.stringify(nextCSV)!==JSON.stringify(shared.rows||[]);
+    try{
+      if(registryChanged)await writeMembersRegistry(state.members,message,mr.sha);
+      if(dataChanged||!shared.exists){
+        const latest=await readSharedDataCSV();
+        await writeSharedDataCSV(nextCSV,message,latest.sha);
+      }
+      /* Member CSV files are legacy only. Do not use them as a live source. */
+      await rebuildMemberCache();
+      return {state,sha:null};
+    }catch(e){
+      const m=String(e.message||e).toLowerCase();
+      if((m.includes("sha")||m.includes("409")||m.includes("conflict"))&&attempt<4){
+        await new Promise(r=>setTimeout(r,300*(attempt+1)));
+        continue;
+      }
+      throw e;
+    }
+  }
+  throw new Error("Gagal sinkronisasi data.csv setelah beberapa percobaan.");
+}
+
+async function loadInitialData(){
+  stockRows=getJSON(KEYS.stock,[]);
+  calendarBookings=ensureUniqueBookingIds(getJSON(KEYS.bookings,[]));
+  const ok=await githubPullData();
+  if(!ok){members=[];logbookRows=[];originalSetJSON(KEYS.members,[]);originalSetJSON(KEYS.logbook,[]);}
+  renderMembers();renderStock();
+}
+
+async function getLogbook(){
+  if(!currentMember)return[];
+  try{
+    const shared=await readSharedDataCSV();
+    const key=normalizeMember(currentMember).toLowerCase();
+    return (shared.rows||[]).filter(r=>normalizeMember(r.nama||r.member).toLowerCase()===key).map(r=>normalizeReport(r,currentMember));
+  }catch{return[]}
+}
+
+async function addMemberFromButton(){
+  const input=$("memberName"),n=normalizeMember(input?.value||"");
+  if(!n)return;
+  if(members.some(x=>x.toLowerCase()===n.toLowerCase())){$("memberError").textContent="Anggota sudah ada.";return;}
+  try{
+    await githubCommit("Tambah anggota "+n,state=>{
+      if(!state.members.some(x=>x.toLowerCase()===n.toLowerCase())){
+        state.members.push(n);
+        state.logbooks[n]=[];
+      }
+    });
+    input.value="";$('memberError').textContent="";renderMembers();
+  }catch(e){$('memberError').textContent=e.message}
+}
+
+async function deleteMember(i){
+  const name=members[i];
+  if(!name||!confirm("Hapus anggota ini?"))return;
+  try{
+    await githubCommit("Hapus anggota "+name,state=>{
+      state.members=state.members.filter(x=>x.toLowerCase()!==name.toLowerCase());
+      delete state.logbooks[name];
+    });
+    if(currentMember&&currentMember.toLowerCase()===name.toLowerCase())currentMember="";
+    renderMembers();
+  }catch(e){alert(e.message)}
+}
+
+/* Live synchronization. Every tab reloads members.json and data.csv so a
+   logout/login or another user's edit does not clear existing data. */
+let nsgSharedSyncBusy=false;
+async function autoSyncGithub(){
+  if(nsgSharedSyncBusy)return;
+  if(document.visibilityState==="hidden")return;
+  nsgSharedSyncBusy=true;
+  try{await githubPullData()}finally{nsgSharedSyncBusy=false}
+}
+setInterval(autoSyncGithub,10000);
+window.addEventListener("focus",()=>autoSyncGithub());
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")autoSyncGithub()});
+
+/* Existing UI button remains compatible: it now means "sync GitHub data". */
+async function connectDataFolder(){
+  try{
+    if(!ghToken()&&!setGithubToken())return false;
+    const ok=await githubPullData();
+    if(ok)updateCSVStatus("Tersinkron: members.json + data.csv",true);
+    return ok;
+  }catch(e){alert("Gagal sinkronisasi GitHub.\n\n"+e.message);return false}
+}
+
 </script>
 
 <!-- ============================================================
