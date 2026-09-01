@@ -756,6 +756,196 @@ async function getLogbook(){
 function setLogo(){const src="static/logo.png";["loginLogo","reportLogo","appHeaderLogo"].forEach(id=>{const im=$(id);if(im)im.src=src})}
 function init(){setLogo();loadInitialData().then(()=>{showLogin();refreshCalendar()})}
 document.addEventListener("DOMContentLoaded",()=>{init();initDropzone()});
+
+/* ============================================================
+   FINAL MEMBER STORAGE OVERRIDE
+   members.json  -> HANYA registry / daftar nama anggota
+   <nama>.csv    -> seluruh data/logbook milik anggota tersebut
+   ============================================================ */
+async function dataTextRead(name){
+  const fh=await csvFile(name,false);
+  if(!fh)return null;
+  try{return await (await fh.getFile()).text()}catch{return null}
+}
+async function dataTextWrite(name,text){
+  const fh=await csvFile(name,true);
+  if(!fh)throw new Error("Folder data belum terhubung atau izin tulis ditolak.");
+  const w=await fh.createWritable();
+  await w.write(text);
+  await w.close();
+}
+async function readMembersJSON(){
+  const text=await dataTextRead("members.json");
+  if(text===null)return null;
+  try{
+    const parsed=JSON.parse(text);
+    const arr=Array.isArray(parsed)?parsed:(Array.isArray(parsed.members)?parsed.members:[]);
+    return [...new Set(arr.map(x=>normalizeMember(typeof x==="string"?x:(x?.nama||x?.name||""))).filter(Boolean))];
+  }catch(e){throw new Error("members.json rusak/tidak valid: "+e.message)}
+}
+async function writeMembersJSON(list){
+  const clean=[...new Set((list||[]).map(normalizeMember).filter(Boolean))];
+  await dataTextWrite("members.json",JSON.stringify(clean,null,2)+"\n");
+}
+async function loadMemberRegistry(){
+  if(!dataDirHandle||!(await csvEnsurePermission(dataDirHandle,false)))return false;
+  let names=await readMembersJSON();
+  /* Migrasi satu kali dari members.csv lama jika members.json belum ada. */
+  if(names===null){
+    const old=await readMembersCSV();
+    names=old===null?[]:old;
+    await writeMembersJSON(names);
+  }
+  members=[...new Set(names.map(normalizeMember).filter(Boolean))];
+  /* Pastikan setiap anggota selalu memiliki CSV sendiri. */
+  for(const name of members){
+    if((await readMemberCSV(name))===null)await writeMemberCSV(name,[]);
+  }
+  const all=[];
+  for(const name of members){
+    const rows=await readMemberCSV(name);
+    if(rows)all.push(...rows.map(r=>normalizeReport(r,name)));
+  }
+  logbookRows=all;
+  originalSetJSON(KEYS.members,members);
+  originalSetJSON(KEYS.logbook,all);
+  return true;
+}
+async function syncMembersFromDisk(){
+  if(!dataDirHandle||!(await csvEnsurePermission(dataDirHandle,false)))return false;
+  const ok=await loadMemberRegistry();
+  if(ok){
+    renderMembers();
+    if(currentMember&&currentPage==="dashboard")await renderDashboard();
+    if(currentMember&&currentPage==="logbook")await renderLogbook();
+  }
+  return ok;
+}
+/* Ganti tombol hubungkan folder agar setelah refresh sumber data selalu members.json. */
+async function connectDataFolder(){
+  if(!window.showDirectoryPicker){
+    alert("Browser ini tidak mendukung penyimpanan folder langsung. Gunakan Google Chrome atau Microsoft Edge.");
+    return false;
+  }
+  try{
+    const handle=await window.showDirectoryPicker({mode:"readwrite",id:"nsg-data-folder"});
+    if(!(await csvEnsurePermission(handle,true)))throw new Error("Izin tulis ke folder ditolak.");
+    dataDirHandle=handle;
+    await csvSaveHandle(handle);
+    csvReady=true;
+    await loadMemberRegistry();
+    updateCSVStatus("CSV/JSON terhubung: "+handle.name,true);
+    renderMembers();renderStock();
+    if(currentMember&&currentPage==="dashboard")await renderDashboard();
+    if(currentMember&&currentPage==="logbook")await renderLogbook();
+    return true;
+  }catch(e){
+    if(e?.name!=="AbortError")alert("Gagal menghubungkan folder data.\n\n"+e.message);
+    return false;
+  }
+}
+/* Sumber data anggota/logbook tidak lagi GitHub/localStorage. */
+async function githubPullData(){
+  if(!dataDirHandle||!(await csvEnsurePermission(dataDirHandle,false)))return false;
+  return await syncMembersFromDisk();
+}
+/* Kompatibilitas dengan seluruh pemanggil lama githubCommit().
+   Mutasi dilakukan terhadap members.json + CSV anggota yang relevan. */
+async function githubCommit(message,mutator){
+  if(!dataDirHandle||!(await csvEnsurePermission(dataDirHandle,true))){
+    throw new Error("Hubungkan folder data terlebih dahulu melalui tombol 'Hubungkan Folder Data'.");
+  }
+  let names=await readMembersJSON();
+  if(names===null){
+    const old=await readMembersCSV();
+    names=old===null?members.slice():old;
+  }
+  names=[...new Set((names||[]).map(normalizeMember).filter(Boolean))];
+  const state={version:1,members:names,logbooks:{}};
+  for(const n of names)state.logbooks[n]=(await readMemberCSV(n))||[];
+  await mutator(state);
+  state.members=[...new Set((state.members||[]).map(normalizeMember).filter(Boolean))];
+  /* Buat CSV untuk member baru sebelum menulis isinya. */
+  await writeMembersJSON(state.members);
+  for(const n of state.members){
+    await writeMemberCSV(n,state.logbooks?.[n]||[]);
+  }
+  /* Hapus CSV milik member yang benar-benar dihapus. */
+  for(const old of names){
+    if(!state.members.some(x=>x.toLowerCase()===old.toLowerCase())){
+      try{await dataDirHandle.removeEntry(memberCsvName(old))}catch{}
+    }
+  }
+  await loadMemberRegistry();
+  return {state,sha:null};
+}
+async function loadInitialData(){
+  dataDirHandle=await csvLoadHandle();
+  if(dataDirHandle&&await csvEnsurePermission(dataDirHandle,false)){
+    csvReady=true;
+    try{
+      await loadMemberRegistry();
+      updateCSVStatus("Penyimpanan aktif: members.json + CSV per anggota",true);
+    }catch(e){
+      console.error(e);
+      members=[];logbookRows=[];
+      updateCSVStatus("Gagal membaca members.json: "+e.message,false);
+    }
+  }else{
+    dataDirHandle=null;csvReady=false;
+    /* Jangan pernah memuat members.json/GitHub/localStorage sebagai daftar anggota
+       ketika folder data belum tersambung. Data bersama harus berasal dari folder. */
+    members=[];logbookRows=[];
+    originalSetJSON(KEYS.members,[]);originalSetJSON(KEYS.logbook,[]);
+    updateCSVStatus("Folder data belum terhubung. Hubungkan folder data untuk memuat anggota.",false);
+  }
+  stockRows=getJSON(KEYS.stock,[]);
+  calendarBookings=ensureUniqueBookingIds(getJSON(KEYS.bookings,[]));
+  renderMembers();renderStock();
+}
+async function getLogbook(){
+  if(!currentMember)return[];
+  if(dataDirHandle&&await csvEnsurePermission(dataDirHandle,false)){
+    const rows=await readMemberCSV(currentMember);
+    if(rows!==null)return rows.map(r=>normalizeReport(r,currentMember));
+  }
+  return [];
+}
+/* Pastikan status lama tetap dinormalisasi tanpa membuat status ke-4. */
+function canonicalStatus(status){
+  const v=String(status??"").trim().toLowerCase().replace(/[\s_-]+/g,"");
+  if(["complete","completed","selesai","sudahselesai","done","finish","finished","complated","complate","complite"].includes(v))return "Complete";
+  if(v==="progress"||v==="inprogress"||v==="proses")return "Progress";
+  return "Pending";
+}
+/* Setelah login/refresh, registry selalu berasal dari members.json. */
+async function addMemberFromButton(){
+  const input=$("memberName"),n=normalizeMember(input?.value||"");
+  if(!n)return;
+  if(members.some(x=>x.toLowerCase()===n.toLowerCase())){
+    $("memberError").textContent="Anggota sudah ada.";return;
+  }
+  try{
+    await githubCommit("Tambah anggota "+n,state=>{
+      if(!state.members.some(x=>x.toLowerCase()===n.toLowerCase()))state.members.push(n);
+      if(!state.logbooks[n])state.logbooks[n]=[];
+    });
+    input.value="";$("memberError").textContent="";renderMembers();
+  }catch(e){$("memberError").textContent=e.message}
+}
+async function deleteMember(i){
+  const name=members[i];
+  if(!name||!confirm("Hapus anggota ini?"))return;
+  try{
+    await githubCommit("Hapus anggota "+name,state=>{
+      state.members=state.members.filter(x=>x.toLowerCase()!==name.toLowerCase());
+      delete state.logbooks[name];
+    });
+    if(currentMember.toLowerCase()===name.toLowerCase())currentMember="";
+    renderMembers();
+  }catch(e){alert(e.message)}
+}
+
 </script>
 
 <!-- ============================================================
