@@ -136,7 +136,7 @@ body.stock-body{background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:
     <section id="page-members" class="app-section hidden">
       <div class="section">
         <div class="section-title">Daftar Anggota</div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px"><button class="button green-button" type="button" onclick="connectDataFolder()">📁 Hubungkan Folder Data</button><span id="dataStorageStatus" style="font-size:12px;color:#555">Penyimpanan CSV belum terhubung.</span></div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px"><button class="button green-button" type="button" onclick="connectDataFolder()">🔄 Sinkronkan GitHub</button><span id="dataStorageStatus" style="font-size:12px;color:#555">Penyimpanan CSV belum terhubung.</span></div>
         <div id="membersBody" class="member-list"></div>
         <div class="form-group" style="margin-top:28px">
           <label>Tambah Anggota</label>
@@ -944,6 +944,94 @@ async function deleteMember(i){
     if(currentMember.toLowerCase()===name.toLowerCase())currentMember="";
     renderMembers();
   }catch(e){alert(e.message)}
+}
+
+/* ===== FINAL GITHUB STORAGE: members.json + data/<member>.csv ===== */
+const NSG_GH_TOKEN_KEY="nsg_github_token_v2";
+const NSG_DATA_DIR="data";
+const NSG_MEMBER_HEADERS=["id","No","Tanggal","Keterangan","Deadline","Status","File","nama","completion_report","completion_of_id","completion_report_id"];
+function ghToken(){return localStorage.getItem(NSG_GH_TOKEN_KEY)||sessionStorage.getItem("nsg_github_token_v1")||""}
+function setGithubToken(){const old=ghToken();const t=prompt("GitHub Personal Access Token (Fine-grained)\nRepository: nsg.app\nPermission: Contents → Read and write",old);if(t===null)return false;const v=t.trim();if(v)localStorage.setItem(NSG_GH_TOKEN_KEY,v);else localStorage.removeItem(NSG_GH_TOKEN_KEY);return !!v}
+function ghHeaders(){const h={Accept:"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"};const t=ghToken();if(t)h.Authorization="Bearer "+t;return h}
+function ghPath(path){return "https://api.github.com/repos/"+encodeURIComponent(CONFIG.GITHUB_OWNER)+"/"+encodeURIComponent(CONFIG.GITHUB_REPO)+"/contents/"+path.split("/").map(encodeURIComponent).join("/")}
+function ghDecode(content){const raw=String(content||"").replace(/\n/g,"");const b=Uint8Array.from(atob(raw),c=>c.charCodeAt(0));return new TextDecoder().decode(b)}
+async function ghGet(path){const r=await fetch(ghPath(path)+"?ref="+encodeURIComponent(CONFIG.GITHUB_BRANCH)+"&_="+Date.now(),{cache:"no-store",headers:ghHeaders()});if(r.status===404)return null;const d=await r.json().catch(()=>null);if(!r.ok)throw new Error(d?.message||("GitHub GET "+path+" HTTP "+r.status));return {text:ghDecode(d.content),sha:d.sha||null}}
+async function ghPut(path,text,message,sha){if(!ghToken()&&!setGithubToken())throw new Error("GitHub token diperlukan untuk menyimpan data.");const body={message:message||"Update NSG data",content:encodeUTF8Base64(text),branch:CONFIG.GITHUB_BRANCH};if(sha)body.sha=sha;const r=await fetch(ghPath(path),{method:"PUT",headers:{...ghHeaders(),"Content-Type":"application/json"},body:JSON.stringify(body)});const d=await r.json().catch(()=>null);if(!r.ok)throw new Error(d?.message||("GitHub PUT "+path+" HTTP "+r.status));return d?.content?.sha||null}
+async function ghDelete(path,message,sha){const r=await fetch(ghPath(path),{method:"DELETE",headers:{...ghHeaders(),"Content-Type":"application/json"},body:JSON.stringify({message,sha,branch:CONFIG.GITHUB_BRANCH})});const d=await r.json().catch(()=>null);if(!r.ok)throw new Error(d?.message||("GitHub DELETE "+path+" HTTP "+r.status));return d}
+function memberPath(name){return NSG_DATA_DIR+"/"+safeFilename(name)+".csv"}
+async function readMembersRegistry(){const f=await ghGet(CONFIG.MEMBER_FILE);if(!f)return {names:[],sha:null,exists:false};let a;try{a=JSON.parse(f.text)}catch(e){throw new Error("members.json tidak valid: "+e.message)};const raw=Array.isArray(a)?a:(Array.isArray(a.members)?a.members:[]);return {names:[...new Set(raw.map(normalizeMember).filter(Boolean))],sha:f.sha,exists:true}}
+async function readMemberCSV(name){const f=await ghGet(memberPath(name));if(!f)return {rows:[],sha:null,exists:false};return {rows:parseCSV(f.text).map((r,i)=>normalizeReport({...r,No:r.No||i+1},name)),sha:f.sha,exists:true}}
+async function writeMemberCSV(name,rows,message,sha){const clean=(rows||[]).map((r,i)=>{const x=normalizeReport(r,name),st=canonicalStatus(x.status);return {...x,id:String(x.id||("r_"+Date.now()+"_"+i)),No:i+1,nama:name,status:st,deadline:st==="Complete"?"":String(x.deadline||"")}});return ghPut(memberPath(name),csvString(clean,NSG_MEMBER_HEADERS),message,sha)}
+async function writeMembersRegistry(names,message,sha){const clean=[...new Set((names||[]).map(normalizeMember).filter(Boolean))];return ghPut(CONFIG.MEMBER_FILE,JSON.stringify(clean,null,2)+"\n",message,sha)}
+async function rebuildMemberCache(){
+  const mr=await readMembersRegistry();
+  members=mr.names;
+  const all=[];
+  for(const n of members){
+    const f=await readMemberCSV(n);
+    if(f.exists){
+      all.push(...f.rows.map(r=>normalizeReport(r,n)));
+    }else if(ghToken()){
+      try{await writeMemberCSV(n,[],"Buat CSV anggota "+n,null)}catch(e){console.warn("Gagal membuat CSV "+n,e)}
+    }
+  }
+  logbookRows=all;
+  originalSetJSON(KEYS.members,members);
+  originalSetJSON(KEYS.logbook,all);
+  return true;
+}
+async function githubPullData(){try{await rebuildMemberCache();renderMembers();if(currentMember&&currentPage==="dashboard")await renderDashboard();if(currentMember&&currentPage==="logbook")await renderLogbook();updateCSVStatus("Tersinkron: members.json + data/NAMA.csv",true);return true}catch(e){console.warn("GitHub sync gagal",e);updateCSVStatus("Gagal sinkron: "+e.message,false);return false}}
+async function githubCommit(message,mutator){
+  if(!ghToken()&&!setGithubToken())throw new Error("Penyimpanan dibatalkan.");
+  for(let attempt=0;attempt<4;attempt++){
+    const mr=await readMembersRegistry();
+    const state={version:1,members:[...mr.names],logbooks:{}};
+    const original={};
+    for(const n of state.members){const f=await readMemberCSV(n);state.logbooks[n]=f.rows;original[n]=JSON.stringify(f.rows)}
+    await mutator(state);
+    state.members=[...new Set(state.members.map(normalizeMember).filter(Boolean))];
+    try{
+      const registryChanged=JSON.stringify(mr.names)!==JSON.stringify(state.members)||!mr.exists;
+      if(registryChanged)await writeMembersRegistry(state.members,message,mr.sha);
+      /* Tulis hanya CSV anggota yang benar-benar berubah. */
+      for(const n of state.members){
+        const next=JSON.stringify(state.logbooks[n]||[]);
+        if(!original[n]||next!==original[n]){
+          const f=await readMemberCSV(n);
+          await writeMemberCSV(n,state.logbooks[n]||[],message,f.sha);
+        }
+      }
+      for(const old of mr.names){
+        if(!state.members.some(n=>n.toLowerCase()===old.toLowerCase())){
+          const f=await ghGet(memberPath(old));
+          if(f)await ghDelete(memberPath(old),message,f.sha);
+        }
+      }
+      await rebuildMemberCache();
+      return {state,sha:null};
+    }catch(e){
+      const m=String(e.message||e).toLowerCase();
+      if((m.includes("sha")||m.includes("409")||m.includes("conflict"))&&attempt<3){await new Promise(r=>setTimeout(r,400*(attempt+1)));continue}
+      throw e;
+    }
+  }
+  throw new Error("Gagal sinkronisasi GitHub.");
+}
+async function loadInitialData(){stockRows=getJSON(KEYS.stock,[]);calendarBookings=ensureUniqueBookingIds(getJSON(KEYS.bookings,[]));const ok=await githubPullData();if(!ok){members=[];logbookRows=[];originalSetJSON(KEYS.members,[]);originalSetJSON(KEYS.logbook,[])}renderMembers();renderStock()}
+async function getLogbook(){if(!currentMember)return[];try{const f=await readMemberCSV(currentMember);return f.rows.map(r=>normalizeReport(r,currentMember))}catch{return[]}}
+async function addMemberFromButton(){const input=$("memberName"),n=normalizeMember(input?.value||"");if(!n)return;if(members.some(x=>x.toLowerCase()===n.toLowerCase())){$("memberError").textContent="Anggota sudah ada.";return}try{if(!ghToken()&&!setGithubToken())return;const mr=await readMembersRegistry();if(mr.names.some(x=>x.toLowerCase()===n.toLowerCase()))throw new Error("Anggota sudah ada.");const names=[...mr.names,n];await writeMembersRegistry(names,"Tambah anggota "+n,mr.sha);await writeMemberCSV(n,[],"Buat CSV anggota "+n,null);await rebuildMemberCache();input.value="";$('memberError').textContent="";renderMembers()}catch(e){$("memberError").textContent=e.message}}
+async function deleteMember(i){const name=members[i];if(!name||!confirm("Hapus anggota ini?"))return;try{if(!ghToken()&&!setGithubToken())return;const mr=await readMembersRegistry(),names=mr.names.filter(x=>x.toLowerCase()!==name.toLowerCase());await writeMembersRegistry(names,"Hapus anggota "+name,mr.sha);const f=await readMemberCSV(name);if(f.exists)await ghDelete(memberPath(name),"Hapus CSV anggota "+name,f.sha);if(currentMember.toLowerCase()===name.toLowerCase())currentMember="";await rebuildMemberCache();renderMembers()}catch(e){alert(e.message)}}
+let nsgSyncBusy=false;async function autoSyncGithub(){if(nsgSyncBusy)return;nsgSyncBusy=true;try{await githubPullData()}finally{nsgSyncBusy=false}}
+setInterval(()=>{if(document.visibilityState!=="hidden")autoSyncGithub()},15000);
+
+/* Tombol sinkron sekarang tidak memakai folder lokal. GitHub adalah sumber data bersama. */
+async function connectDataFolder(){
+  try{
+    if(!ghToken()&&!setGithubToken())return false;
+    const ok=await githubPullData();
+    if(ok)updateCSVStatus("Tersinkron: members.json + data/NAMA.csv",true);
+    return ok;
+  }catch(e){alert("Gagal sinkronisasi GitHub.\n\n"+e.message);return false}
 }
 
 </script>
