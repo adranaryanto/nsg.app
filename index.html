@@ -136,6 +136,7 @@ body.stock-body{background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:
     <section id="page-members" class="app-section hidden">
       <div class="section">
         <div class="section-title">Daftar Anggota</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px"><button class="button green-button" type="button" onclick="connectDataFolder()">📁 Hubungkan Folder Data</button><span id="dataStorageStatus" style="font-size:12px;color:#555">Penyimpanan CSV belum terhubung.</span></div>
         <div id="membersBody" class="member-list"></div>
         <div class="form-group" style="margin-top:28px">
           <label>Tambah Anggota</label>
@@ -147,7 +148,7 @@ body.stock-body{background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:
         </div>
         <div class="notice" style="margin-top:18px">
           <strong>Penyimpanan bersama</strong><br>
-          <div style="font-size:12px;margin-top:6px">Anggota dan logbook disimpan bersama di <code>members.json</code> repository GitHub.</div>
+          <div style="font-size:12px;margin-top:6px">Anggota disimpan di <code>data/members.csv</code> dan setiap anggota mempunyai file CSV sendiri di folder <code>data</code>.</div>
         </div>
       </div>
       <div class="footer"><a class="button" onclick="showPage('menu')">← Kembali ke Menu Utama</a><a class="button logout" onclick="logout()">LOGOUT</a></div>
@@ -610,6 +611,147 @@ function deleteStock(i,keyOverride){
 $("stockSearch")?.addEventListener("input",renderStock)
 
 async function downloadLogbookPDF(){if(!currentMember){alert("Pilih anggota terlebih dahulu.");return}const rows=await getLogbook();if(!rows.length){alert("Belum ada data logbook.");return}if(!window.jspdf?.jsPDF){alert("Library PDF belum termuat. Periksa koneksi internet lalu coba lagi.");return}const {jsPDF}=window.jspdf;const doc=new jsPDF({orientation:"landscape",unit:"pt",format:"a4"});doc.setFontSize(18);doc.text("LOGBOOK LAPORAN",421,35,{align:"center"});doc.setFontSize(11);doc.text("Nama Anggota: "+currentMember,40,60);const body=rows.map((r,i)=>[r.No||i+1,r.tanggal||r.Tanggal||"",r.keterangan||r.Keterangan||"",r.deadline||r.Deadline||"",r.status||r.Status||"",r.file||r.File||""]);doc.autoTable({startY:75,head:[["No","Tanggal","Keterangan","Deadline","Status","Bukti / File"]],body,styles:{fontSize:8,cellPadding:4,valign:"top"},headStyles:{fillColor:[211,211,211],textColor:[0,0,0]},columnStyles:{0:{cellWidth:35},1:{cellWidth:75},2:{cellWidth:300},3:{cellWidth:75},4:{cellWidth:75},5:{cellWidth:160}}});doc.save("Logbook_"+safeFilename(currentMember)+".pdf")}
+
+
+/* ============================================================
+   CSV PERSISTENCE LAYER
+   - members.csv = daftar seluruh anggota
+   - data/<nama>.csv = logbook milik masing-masing anggota
+   - DirectoryHandle disimpan di IndexedDB agar tetap terhubung
+     setelah refresh/browser dibuka kembali.
+   ============================================================ */
+const CSV_DB_NAME="nsg_csv_storage_v1", CSV_DB_STORE="handles";
+let dataDirHandle=null, csvReady=false;
+
+function csvEscape(v){const x=String(v??"");return /[",\n\r]/.test(x)?'"'+x.replace(/"/g,'""')+'"':x}
+function csvString(rows,headers){return headers.join(",")+"\n"+rows.map(r=>headers.map(h=>csvEscape(r[h]??"")).join(",")).join("\n")+"\n"}
+function parseCSV(text){
+  const rows=[];let row=[],field="",quoted=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(quoted){if(c==='"'){if(text[i+1]==='"'){field+='"';i++}else quoted=false}else field+=c}
+    else if(c==='"')quoted=true;
+    else if(c===','){row.push(field);field=""}
+    else if(c==='\n'){row.push(field);field="";if(row.length>1||row[0]!=="")rows.push(row);row=[]}
+    else if(c!=='\r')field+=c;
+  }
+  if(field!==""||row.length){row.push(field);if(row.length>1||row[0]!=="")rows.push(row)}
+  if(!rows.length)return [];
+  const headers=rows[0].map(x=>String(x).trim());
+  return rows.slice(1).map(a=>{const o={};headers.forEach((h,i)=>o[h]=a[i]??"");return o}).filter(o=>Object.values(o).some(v=>String(v).trim()!==""));
+}
+function csvDbOpen(){return new Promise((resolve,reject)=>{const r=indexedDB.open(CSV_DB_NAME,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(CSV_DB_STORE))r.result.createObjectStore(CSV_DB_STORE)};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
+async function csvSaveHandle(handle){try{const db=await csvDbOpen();await new Promise((res,rej)=>{const tx=db.transaction(CSV_DB_STORE,"readwrite");tx.objectStore(CSV_DB_STORE).put(handle,"dataDir");tx.oncomplete=res;tx.onerror=()=>rej(tx.error)});db.close()}catch(e){console.warn("Gagal menyimpan folder CSV:",e)}}
+async function csvLoadHandle(){try{const db=await csvDbOpen();const h=await new Promise((res,rej)=>{const tx=db.transaction(CSV_DB_STORE,"readonly");const q=tx.objectStore(CSV_DB_STORE).get("dataDir");q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)});db.close();return h||null}catch{return null}}
+async function csvEnsurePermission(handle,write=false){if(!handle)return false;try{let p=await handle.queryPermission({mode:write?"readwrite":"read"});if(p!=="granted"&&write)p=await handle.requestPermission({mode:"readwrite"});return p==="granted"}catch{return false}}
+function updateCSVStatus(msg,ok=false){const el=$("dataStorageStatus");if(el){el.textContent=msg;el.style.color=ok?"#176b1b":"#555"}}
+async function connectDataFolder(){
+  if(!window.showDirectoryPicker){alert("Browser ini tidak mendukung penyimpanan folder langsung. Gunakan Google Chrome atau Microsoft Edge.");return false}
+  try{
+    const handle=await window.showDirectoryPicker({mode:"readwrite",id:"nsg-data-folder"});
+    const ok=await csvEnsurePermission(handle,true);if(!ok)throw new Error("Izin tulis ke folder ditolak.");
+    dataDirHandle=handle;await csvSaveHandle(handle);csvReady=true;
+    await csvSyncFromDisk();updateCSVStatus("CSV terhubung: "+handle.name,true);renderMembers();renderStock();
+    if(currentMember&&currentPage==="dashboard")await renderDashboard();
+    if(currentMember&&currentPage==="logbook")await renderLogbook();
+    return true;
+  }catch(e){if(e?.name!=="AbortError")alert("Gagal menghubungkan folder data.\n\n"+e.message);return false}
+}
+async function csvFile(name,create=false){
+  if(!dataDirHandle)return null;
+  const ok=await csvEnsurePermission(dataDirHandle,create);if(!ok)return null;
+  try{return await dataDirHandle.getFileHandle(name,{create})}catch{return null}
+}
+async function csvReadFile(name){
+  const fh=await csvFile(name,false);if(!fh)return null;try{return parseCSV(await (await fh.getFile()).text())}catch{return null}
+}
+async function csvWriteFile(name,text){
+  const fh=await csvFile(name,true);if(!fh)throw new Error("Folder CSV belum terhubung atau izin tulis ditolak.");
+  const w=await fh.createWritable();await w.write(text);await w.close();
+}
+function memberCsvName(name){return safeFilename(name)+".csv"}
+const MEMBER_CSV_HEADERS=["id","No","Tanggal","Keterangan","Deadline","Status","File","nama","completion_report","completion_of_id","completion_report_id"];
+async function readMembersCSV(){
+  const rows=await csvReadFile("members.csv");
+  if(rows!==null)return rows.map(r=>normalizeMember(r.nama||r.Nama||r.name||Object.values(r)[0])).filter(Boolean);
+  return null;
+}
+async function writeMembersCSV(list){
+  const rows=(list||[]).map((n,i)=>({id:"m_"+(i+1),nama:n}));
+  await csvWriteFile("members.csv",csvString(rows,["id","nama"]));
+}
+async function readMemberCSV(name){
+  const rows=await csvReadFile(memberCsvName(name));
+  return rows===null?null:rows.map((r,i)=>normalizeReport({...r,No:r.No||i+1},name));
+}
+async function writeMemberCSV(name,rows){
+  const clean=(rows||[]).map((r,i)=>({...normalizeReport(r,name),No:i+1,nama:name,status:canonicalStatus(r.status),deadline:canonicalStatus(r.status)==="Complete"?"":(r.deadline||"")}));
+  await csvWriteFile(memberCsvName(name),csvString(clean,MEMBER_CSV_HEADERS));
+}
+async function createMemberCSV(name){
+  const existing=await readMemberCSV(name);if(existing===null)await writeMemberCSV(name,[]);
+}
+async function csvLoadAll(){
+  if(!dataDirHandle)return false;
+  const ok=await csvEnsurePermission(dataDirHandle,false);if(!ok)return false;
+  const ms=await readMembersCSV();
+  if(ms===null){
+    members=[];
+    await writeMembersCSV([]);
+  }else members=ms;
+  members=[...new Set(members.map(normalizeMember).filter(Boolean))];
+  const all=[];
+  for(const name of members){const rows=await readMemberCSV(name);if(rows!==null)all.push(...rows);else await createMemberCSV(name)}
+  originalSetJSON(KEYS.members,members);originalSetJSON(KEYS.logbook,all);
+  members.forEach(name=>{const rows=all.filter(r=>normalizeMember(r.nama).toLowerCase()===name.toLowerCase());originalSetJSON("nsg_logbook_member_"+safeFilename(name),rows)});
+  return true;
+}
+async function csvSyncFromDisk(){
+  if(!dataDirHandle)return false;
+  const ok=await csvLoadAll();if(!ok)return false;
+  renderMembers();
+  return true;
+}
+async function csvMutate(mutator){
+  if(!dataDirHandle||!(await csvEnsurePermission(dataDirHandle,true)))throw new Error("Hubungkan folder data terlebih dahulu melalui tombol 'Hubungkan Folder Data'.");
+  const ms=(await readMembersCSV())||[];
+  const names=[...new Set(ms.map(normalizeMember).filter(Boolean))];
+  const state={version:1,members:names,logbooks:{}};
+  for(const n of names)state.logbooks[n]=(await readMemberCSV(n))||[];
+  await mutator(state);
+  state.members=[...new Set((state.members||[]).map(normalizeMember).filter(Boolean))];
+  await writeMembersCSV(state.members);
+  for(const n of state.members)await writeMemberCSV(n,state.logbooks?.[n]||[]);
+  for(const old of names.filter(n=>!state.members.some(x=>x.toLowerCase()===n.toLowerCase()))){try{const fh=await csvFile(memberCsvName(old),false);if(fh&&dataDirHandle.removeEntry)await dataDirHandle.removeEntry(memberCsvName(old))}catch{}}
+  await csvLoadAll();
+  return state;
+}
+
+// Override the old GitHub/localStorage data path with real CSV files.
+async function githubPullData(){
+  if(dataDirHandle){try{return await csvSyncFromDisk()}catch(e){console.warn(e)}}
+  return false;
+}
+async function githubCommit(message,mutator){return {state:await csvMutate(mutator),sha:null}}
+async function loadInitialData(){
+  dataDirHandle=await csvLoadHandle();
+  if(dataDirHandle&&await csvEnsurePermission(dataDirHandle,false)){
+    csvReady=true;await csvSyncFromDisk();updateCSVStatus("CSV terhubung: "+dataDirHandle.name,true);
+  }else{
+    dataDirHandle=null;csvReady=false;
+    members=[];logbookRows=[];originalSetJSON(KEYS.members,[]);originalSetJSON(KEYS.logbook,[]);
+    updateCSVStatus("CSV belum terhubung. Klik 'Hubungkan Folder Data'.",false);
+  }
+  stockRows=getJSON(KEYS.stock,[]);calendarBookings=ensureUniqueBookingIds(getJSON(KEYS.bookings,[]));renderMembers();renderStock();
+}
+async function getLogbook(){
+  if(!currentMember)return[];
+  if(dataDirHandle&&await csvEnsurePermission(dataDirHandle,false)){
+    const rows=await readMemberCSV(currentMember);
+    if(rows!==null)return rows.map(normalizeReport);
+  }
+  return [];
+}
 
 function setLogo(){const src="static/logo.png";["loginLogo","reportLogo","appHeaderLogo"].forEach(id=>{const im=$(id);if(im)im.src=src})}
 function init(){setLogo();loadInitialData().then(()=>{showLogin();refreshCalendar()})}
