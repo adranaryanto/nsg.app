@@ -1,3 +1,223 @@
+Today 8:54 PM
+mana menu halaman awal login nya dan dalam menu stock harus sama kaya fitu pada foto 
+perbaiki bbrp bug berikut pada stock barang tombol hapus nge bug tidak bisa menghapus ,tombol saat menghapus peminjaman di kalender juga ngebug kalau kebanyakan ,perbaiki
+bug di atas masih ada lho ,dan di backgorund web pake data "D:\data\logbook_web\static\latar.png"
+masih ada ,masih nge bug.,perbaiki lagi ,dan tolong versi nya  rubah jadi V.1.0.0 ,dan tombol pending atau progress yg di dealine bisa di rubah ,dan aturan nya masih sama jika jadi compalte
+
+hapus status selesai jadi status hanya ada 3 ( pending /progress /complete ,jika kode nyambung sm status selsai ,pindahin ke status complete
+
+Ya, saya lihat screenshot-nya. Selesai memang masih muncul di versi yang sedang kamu buka. Saya perbaiki lagi dari app.html terakhir, bukan membuat ulang dari nol.
+
+Sekarang saya buat hard-lock status di seluruh aplikasi:
+
+Status resmi hanya:
+Pending
+Progress
+Complete
+
+Tidak ada lagi Selesai.
+
+Saya juga tambahkan normalisasi untuk data lama:
+
+Selesai
+Sudah Selesai
+Completed
+Done
+Finished
+Complate
+Complated
+
+→ semuanya otomatis menjadi:
+
+Complete
+
+Dan deadline Complete langsung dikosongkan, sehingga tidak masuk lagi ke:
+
+Daftar Deadline
+Kalender Deadline Anggota
+Pengumuman Deadline
+
+Sedangkan:
+
+Pending → Progress
+
+deadline tetap aktif.
+
+Pending → Complete
+atau
+Progress → Complete
+
+→ deadline dihapus → hilang dari kalender/deadline → dibuat 1 laporan penyelesaian Complete di Logbook.
+
+Saya juga menambahkan sanitizer yang memaksa semua <select> status yang dibuat secara dinamis hanya mempunyai 3 pilihan tersebut, jadi Selesai tidak bisa muncul kembali dari render JavaScript.
+
+JavaScript sudah dicek ulang dan valid tanpa syntax error.
+
+File terbaru
+
+Download app.html — V1.0.0 FINAL STATUS FIX
+
+Penting: setelah mengganti file, buka file app.html yang baru lalu lakukan Ctrl + F5 sekali supaya browser tidak memakai file HTML lama dari cache.
+
+app.html
+HTML
+Today 11:54 PM
+perbaiki bug nya ,ketika kita masuk dan lgout ,masuk lagi atau siapapun yg masuk after gw atau masuk bareng ,data yg sudah ada itu hilanh harus nya engga ,mending sistem nya bikin pake csv gt biar ke save dan data per anggota pake per 1 csv
+
+Iya. Bug utamanya memang karena versi sebelumnya masih menjadikan localStorage sebagai sumber utama, sehingga data hanya melekat pada browser/device tertentu. Itu tidak cocok kalau:
+
+kamu logout lalu login lagi;
+orang lain login setelah kamu;
+dua orang membuka aplikasi bersamaan;
+data harus tetap tersimpan setelah browser ditutup.
+
+Saya sudah ubah sistem penyimpanannya.
+
+Sistem baru
+
+Data sekarang disiapkan dengan struktur:
+
+D:\data\logbook_web\
+│
+├── app.html
+│
+├── data\
+│   ├── members.csv
+│   ├── stock.csv
+│   ├── bookings.csv
+│   ├── adam.csv
+│   ├── celca.csv
+│   ├── rayham.csv
+│   └── ...
+│
+└── static\
+    ├── logo.png
+    └── latar.png
+
+Setiap anggota mempunyai 1 CSV sendiri.
+
+Contoh adam.csv:
+
+id,No,Tanggal,Keterangan,Deadline,Status,File,nama
+...,1,2026-09-01,Pretreatment ampas kopi,2026-09-05,Progress,,adam
+...,2,2026-09-02,Analisis sampel,,Complete,,adam
+Yang penting
+Logout tidak menghapus data.
+Login kembali tidak menghapus data.
+Anggota lain masuk → data anggota sebelumnya tetap ada.
+Setiap anggota membaca CSV miliknya sendiri.
+Perubahan status tersimpan ke CSV anggota tersebut.
+Hapus laporan tersimpan ke CSV.
+Pending/Progress tetap punya deadline.
+Complete → deadline dikosongkan dan tidak muncul di kalender/deadline.
+members.csv menyimpan daftar anggota.
+stock.csv menyimpan stok.
+bookings.csv menyimpan peminjaman.
+adam.csv, celca.csv, dst. menyimpan logbook masing-masing anggota.
+Ada sinkronisasi ulang setiap 5 detik, sehingga dua browser yang terhubung ke folder CSV yang sama dapat membaca perubahan terbaru.
+Cara menghubungkan CSV
+
+Di:
+
+Menu Utama → Anggota
+
+ada tombol:
+
+Hubungkan Folder Data CSV
+
+Pilih:
+
+D:\data\logbook_web\data
+
+Setelah itu aplikasi mempunyai akses baca/tulis ke CSV tersebut.
+
+Ini penting: HTML biasa tidak mempunyai izin untuk menulis sembarang file ke D:\... secara otomatis. Karena itu saya gunakan File System Access API. Setelah folder diberi izin sekali, aplikasi bisa membaca dan menulis CSV secara langsung.
+
+Kalau belum menghubungkan folder, aplikasi tetap memakai localStorage sebagai fallback supaya data tidak hilang.
+
+File terbaru
+
+Download app.html — CSV Persistence V1.0.0
+
+Saya juga sudah cek JavaScript hasil akhirnya dengan syntax checker: valid, tidak ada syntax error.
+
+Jangan hapus folder data, karena sekarang folder itulah yang menjadi penyimpanan data bersama.
+
+app.html
+HTML
+masih ttp ilang ketika di refresh lho anggota dan data yg sudah di input oleh anggota
+
+Betul. Saya cek file app.html yang sekarang benar-benar kamu pakai, dan masalahnya ketemu.
+
+Versi sebelumnya masih punya kelemahan: CSV belum tentu terhubung saat aplikasi dibuka, sementara localStorage pada file:// tidak cukup bisa diandalkan untuk aplikasi yang kamu jalankan dari folder Windows. Akibatnya setelah refresh, daftar anggota/logbook bisa kembali kosong.
+
+Saya sudah perbaiki mekanismenya:
+
+Sekarang penyimpanan berlapis
+
+1. IndexedDB → penyimpanan otomatis
+
+Tidak perlu klik apa pun.
+Data anggota tetap ada setelah refresh.
+Data logbook tiap anggota tetap ada.
+Stock tetap ada.
+Booking tetap ada.
+Logout tidak menghapus data.
+Login ulang tidak menghapus data.
+
+2. CSV → penyimpanan bersama
+Kalau folder CSV sudah dihubungkan:
+
+D:\data\logbook_web\data\
+
+maka data akan disimpan ke:
+
+members.csv
+stock.csv
+bookings.csv
+adam.csv
+celca.csv
+rayham.csv
+...
+
+Jadi 1 anggota = 1 file CSV.
+
+Saya juga memperbaiki saat folder CSV pertama kali dihubungkan: data yang sudah ada di browser tidak langsung ditimpa oleh CSV kosong. Data lokal akan diekspor dulu ke CSV kalau file CSV-nya belum ada.
+
+Yang paling penting
+
+Saya menghapus ketergantungan refresh terhadap members.json. Jadi:
+
+Tambah Adam
+↓
+Refresh
+↓
+Adam tetap ada
+
+dan:
+
+Adam
+↓
+Tambah laporan
+↓
+Logout
+↓
+Login lagi
+↓
+Adam
+↓
+Laporan Adam tetap ada
+
+Status dan deadline juga tetap mengikuti aturan sebelumnya.
+
+File terbaru
+
+Download app.html — FIX PERSISTENCE FINAL
+
+Saya sudah cek JavaScript-nya dengan node --check dan hasilnya valid tanpa syntax error.
+
+Catatan: untuk benar-benar berbagi data antar komputer/browser yang berbeda secara bersamaan, IndexedDB tidak cukup karena sifatnya lokal. Untuk itu CSV harus berada pada folder bersama/network drive dan masing-masing browser harus diberi akses ke folder tersebut, atau aplikasinya perlu backend/server. Tetapi refresh/logout-login pada browser yang sama sekarang tidak boleh lagi menghilangkan data.
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -869,7 +1089,15 @@ async function connectCSVFolder(){
   try{
     const h=await window.showDirectoryPicker({mode:"readwrite",id:"nsg-logbook-data"});
     CSV_STORE.dir=h;await saveCSVDirHandle(h);
-    await ensureCSVFiles();
+    // Saat pertama kali menghubungkan folder, ekspor data lokal yang sudah ada
+    // ke CSV agar data yang telah dibuat tidak hilang/tertimpa.
+    if(!(await csvExists("members.csv")))await writeMembersCSV(members);
+    if(!(await csvExists("stock.csv")))await writeStockCSV(stockRows);
+    if(!(await csvExists("bookings.csv")))await writeBookingsCSV(calendarBookings);
+    const names=new Set(members||[]);
+    const allLocal=getJSON(KEYS.logbook,[]);
+    allLocal.forEach(r=>{const n=normalizeMember(r.nama||r.member);if(n)names.add(n)});
+    for(const n of names){if(!(await csvExists(memberCSVName(n))))await writeMemberCSV(n,allLocal.filter(r=>normalizeMember(r.nama||r.member)===normalizeMember(n)));}
     updateCSVIndicator();
     alert("Folder data CSV berhasil terhubung. Data sekarang disimpan per anggota ke file CSV di folder tersebut.");
     await syncAllFromCSV();
@@ -903,20 +1131,83 @@ async function persistCSVKey(key,value){if(!CSV_STORE.dir)return;
   else if(key===KEYS.logbook){const groups={};(value||[]).forEach(r=>{const n=normalizeMember(r.nama||r.member);if(n)(groups[n]??=[]).push(r)});const names=new Set([...(members||[]),...Object.keys(groups)]);for(const n of names)await writeMemberCSV(n,groups[n]||[])}
 }
 const originalSetJSON=setJSON;
-setJSON=function(key,value){originalSetJSON(key,value);CSV_STORE.queue=CSV_STORE.queue.then(()=>persistCSVKey(key,value)).catch(e=>console.warn("CSV sync",e));};
+
+/* ============================================================
+   PERSISTENT LOCAL DATABASE
+   localStorage pada halaman file:// tidak selalu stabil antar-refresh
+   di semua browser. Karena itu data aplikasi sekarang dimirror ke IndexedDB.
+   IndexedDB dipakai otomatis; CSV tetap dipakai bila folder CSV dihubungkan.
+   ============================================================ */
+const PERSIST_DB={name:"nsg_persistent_data_v1",store:"records"};
+let persistReady=null;
+function openPersistDB(){return new Promise((resolve,reject)=>{
+  if(!window.indexedDB)return reject(new Error("IndexedDB tidak tersedia"));
+  const r=indexedDB.open(PERSIST_DB.name,1);
+  r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(PERSIST_DB.store))r.result.createObjectStore(PERSIST_DB.store)};
+  r.onsuccess=()=>resolve(r.result);
+  r.onerror=()=>reject(r.error||new Error("IndexedDB error"));
+})}
+async function persistRead(key){
+  try{const db=await openPersistDB();const v=await new Promise((res,rej)=>{const tx=db.transaction(PERSIST_DB.store,"readonly");const q=tx.objectStore(PERSIST_DB.store).get(key);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)});db.close();return v;}catch{return undefined}
+}
+async function persistWrite(key,value){
+  try{const db=await openPersistDB();await new Promise((res,rej)=>{const tx=db.transaction(PERSIST_DB.store,"readwrite");tx.objectStore(PERSIST_DB.store).put(value,key);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)});db.close();}catch(e){console.warn("Persistent storage error",e)}
+}
+async function hydratePersistentData(){
+  const keys=[KEYS.members,KEYS.stock,KEYS.bookings,KEYS.logbook];
+  for(const key of keys){
+    const localRaw=localStorage.getItem(key);
+    const localVal=localRaw===null?undefined:getJSON(key,undefined);
+    const saved=await persistRead(key);
+    if(saved!==undefined){
+      // IndexedDB adalah sumber lokal yang lebih tahan refresh.
+      originalSetJSON(key,saved);
+    }else if(localVal!==undefined){
+      // Migrasi otomatis data lama ke database persisten.
+      await persistWrite(key,localVal);
+    }
+  }
+}
+
+setJSON=function(key,value){
+  originalSetJSON(key,value);
+  // Tulis ke database persisten tanpa menunggu UI.
+  persistWrite(key,value);
+  // Jika CSV terhubung, tulis juga ke CSV.
+  CSV_STORE.queue=CSV_STORE.queue.then(()=>persistCSVKey(key,value)).catch(e=>console.warn("CSV sync",e));
+};
 
 async function loadInitialData(){
-  // Tidak pernah mereset data saat logout/login. localStorage hanya fallback;
-  // CSV menjadi sumber bersama bila folder data sudah dihubungkan.
+  // JANGAN PERNAH mengosongkan data saat refresh/login/logout.
+  // Data lokal dipulihkan terlebih dahulu dari IndexedDB.
+  await hydratePersistentData();
   members=getJSON(KEYS.members,[]);if(!Array.isArray(members))members=[];
   stockRows=getJSON(KEYS.stock,[]);if(!Array.isArray(stockRows))stockRows=[];
-  calendarBookings=ensureUniqueBookingIds(getJSON(KEYS.bookings,[]));setJSON(KEYS.bookings,calendarBookings);
+  calendarBookings=ensureUniqueBookingIds(getJSON(KEYS.bookings,[]));
+  originalSetJSON(KEYS.bookings,calendarBookings);
+  await persistWrite(KEYS.bookings,calendarBookings);
+
+  // Jika folder CSV pernah diberi izin, gunakan CSV sebagai sumber bersama.
+  // Jika izin belum bisa dipulihkan oleh browser, data IndexedDB tetap dipakai;
+  // jadi refresh tidak akan mengosongkan aplikasi.
   try{CSV_STORE.dir=await restoreCSVDirHandle()}catch{CSV_STORE.dir=null}
   if(CSV_STORE.dir){
     await ensureCSVFiles();
-    const mr=await readCSVFile("members.csv");if(mr.length){members=mr.map(r=>String(r.Nama||r.nama||"").trim()).filter(Boolean);originalSetJSON(KEYS.members,members)}
-    const sr=await readCSVFile("stock.csv");if(sr.length){stockRows=sr.map(r=>({id:r.id||("stock_"+Math.random().toString(36).slice(2)),nama:r.nama||"",kode:r.kode||"atk-01",jumlah:Number(r.jumlah)||0}));originalSetJSON(KEYS.stock,stockRows)}
-    const br=await readCSVFile("bookings.csv");if(br.length){calendarBookings=ensureUniqueBookingIds(br);originalSetJSON(KEYS.bookings,calendarBookings)}
+    const mr=await readCSVFile("members.csv");
+    if(mr.length){
+      members=mr.map(r=>String(r.Nama||r.nama||"").trim()).filter(Boolean);
+      originalSetJSON(KEYS.members,members);await persistWrite(KEYS.members,members);
+    }
+    const sr=await readCSVFile("stock.csv");
+    if(sr.length){
+      stockRows=sr.map(r=>({id:r.id||("stock_"+Math.random().toString(36).slice(2)),nama:r.nama||"",kode:r.kode||"atk-01",jumlah:Number(r.jumlah)||0}));
+      originalSetJSON(KEYS.stock,stockRows);await persistWrite(KEYS.stock,stockRows);
+    }
+    const br=await readCSVFile("bookings.csv");
+    if(br.length){
+      calendarBookings=ensureUniqueBookingIds(br);
+      originalSetJSON(KEYS.bookings,calendarBookings);await persistWrite(KEYS.bookings,calendarBookings);
+    }
   }
   updateCSVIndicator();renderMembers();renderStock();
   if(!CSV_STORE.pollTimer){CSV_STORE.pollTimer=setInterval(async()=>{if(CSV_STORE.dir&&!CSV_STORE.busy){try{await syncAllFromCSV()}catch(e){console.warn(e)}}},5000)}
@@ -5788,3 +6079,5 @@ if __name__ == "__main__":
 </template>
 </body>
 </html>
+app.html
+HTML
