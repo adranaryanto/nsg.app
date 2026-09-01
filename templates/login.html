@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Login - Form Laporan</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+
+            margin: 0;
+
+            min-height: 100vh;
+
+            background-color: #b3b3b3;
+
+            font-family: "Times New Roman", serif;
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+        }
+
+
+        /* PANEL LOGIN */
+
+        .login-panel {
+
+            width: 380px;
+
+            background-color: white;
+
+            border: 1px solid black;
+
+        }
+
+
+        /* HEADER */
+
+        .login-header {
+
+            height: 65px;
+
+            background-color: #2f7d20;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 5px 10px;
+
+        }
+
+
+        /* JUDUL */
+
+        .login-title {
+
+            color: white;
+
+            font-size: 23px;
+
+            font-weight: bold;
+
+        }
+
+
+        /* LOGO */
+
+        .login-logo {
+
+            width: 70px;
+
+            height: 50px;
+
+            object-fit: contain;
+
+        }
+
+
+        /* ISI */
+
+        .login-content {
+
+            padding: 25px;
+
+        }
+
+
+        .login-row {
+
+            margin-bottom: 18px;
+
+        }
+
+
+        .login-row label {
+
+            display: block;
+
+            font-size: 16px;
+
+            margin-bottom: 5px;
+
+        }
+
+
+        .login-row input {
+
+            width: 100%;
+
+            height: 30px;
+
+            border: 1px solid #555;
+
+            background-color: #d9d9d9;
+
+            padding: 4px 7px;
+
+            font-family: "Times New Roman", serif;
+
+            font-size: 15px;
+
+        }
+
+
+        /* TOMBOL */
+
+        .login-button {
+
+            width: 100%;
+
+            height: 32px;
+
+            border: 1px solid #245d19;
+
+            background-color: #2f7d20;
+
+            color: white;
+
+            font-family: "Times New Roman", serif;
+
+            font-size: 16px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+        }
+
+
+        .login-button:hover {
+
+            background-color: #256619;
+
+        }
+
+
+        /* PESAN ERROR */
+
+        .error {
+
+            color: #b00000;
+
+            font-size: 14px;
+
+            margin-bottom: 15px;
+
+        }
+
+
+        /* =========================
+           VERSI WEB
+        ========================= */
+
+        .version {
+
+            text-align: center;
+
+            padding: 0 25px 18px 25px;
+
+            color: #777777;
+
+            font-size: 12px;
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <div class="login-panel">
+
+
+        <!-- HEADER -->
+
+        <div class="login-header">
+
+            <div class="login-title">
+
+                Form Laporan
+
+            </div>
+
+
+            <img
+                src="{{ url_for('static', filename='logo.png') }}"
+                class="login-logo"
+                alt="NSG"
+            >
+
+        </div>
+
+
+        <!-- ISI LOGIN -->
+
+        <div class="login-content">
+
+
+            {% if pesan %}
+
+                <div class="error">
+                    {{ pesan }}
+                </div>
+
+            {% endif %}
+
+
+            <form method="POST">
+
+
+                <!-- USERNAME -->
+
+                <div class="login-row">
+
+                    <label for="username">
+                        Username
+                    </label>
+
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        required
+                        autofocus
+                    >
+
+                </div>
+
+
+                <!-- PASSWORD -->
+
+                <div class="login-row">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- LOGIN -->
+
+                <button
+                    type="submit"
+                    class="login-button"
+                >
+                    LOGIN
+                </button>
+
+
+            </form>
+
+
+        </div>
+
+
+        <!-- VERSI WEB -->
+
+        <div class="version">
+
+            v.1.0.1
+
+        </div>
+
+
+    </div>
+
+
+</body>
+
+</html>

@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Menu Utama</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+
+            margin: 0;
+
+            min-height: 100vh;
+
+            background-color: #b3b3b3;
+
+            font-family: "Times New Roman", serif;
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+        }
+
+
+        /* =========================
+           PANEL
+        ========================= */
+
+        .panel {
+
+            width: 500px;
+
+            max-width: 95%;
+
+            background-color: white;
+
+            border: 1px solid black;
+
+        }
+
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .header {
+
+            height: 65px;
+
+            background-color: #2f7d20;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 5px 12px;
+
+        }
+
+
+        .title {
+
+            color: white;
+
+            font-size: 24px;
+
+            font-weight: bold;
+
+        }
+
+
+        .logo {
+
+            width: 70px;
+
+            height: 50px;
+
+            object-fit: contain;
+
+        }
+
+
+        /* =========================
+           CONTENT
+        ========================= */
+
+        .content {
+
+            padding: 25px;
+
+        }
+
+
+        .welcome {
+
+            text-align: center;
+
+            font-size: 21px;
+
+            font-weight: bold;
+
+            margin-bottom: 8px;
+
+        }
+
+
+        .subtitle {
+
+            text-align: center;
+
+            font-size: 16px;
+
+            color: #555555;
+
+            margin-bottom: 25px;
+
+        }
+
+
+        /* =========================
+           MENU
+        ========================= */
+
+        .menu-container {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 12px;
+
+        }
+
+
+        .menu-button {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            width: 100%;
+
+            min-height: 55px;
+
+            background-color: #2f7d20;
+
+            border: 1px solid #245d19;
+
+            color: white;
+
+            text-decoration: none;
+
+            font-size: 19px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+        }
+
+
+        .menu-button:hover {
+
+            background-color: #256619;
+
+        }
+
+
+        /* =========================
+           LOGOUT
+        ========================= */
+
+        .logout {
+
+            margin-top: 20px;
+
+            text-align: center;
+
+        }
+
+
+        .logout a {
+
+            color: #8b0000;
+
+            font-size: 15px;
+
+            text-decoration: none;
+
+        }
+
+
+        .logout a:hover {
+
+            text-decoration: underline;
+
+        }
+
+
+        /* =========================
+           VERSI
+        ========================= */
+
+        .version {
+
+            text-align: center;
+
+            padding: 0 25px 18px 25px;
+
+            color: #777777;
+
+            font-size: 12px;
+
+        }
+
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 600px) {
+
+            body {
+
+                padding: 10px;
+
+            }
+
+
+            .panel {
+
+                width: 100%;
+
+            }
+
+
+            .content {
+
+                padding: 20px;
+
+            }
+
+
+            .title {
+
+                font-size: 21px;
+
+            }
+
+
+            .menu-button {
+
+                min-height: 52px;
+
+                font-size: 18px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="panel">
+
+
+    <!-- =========================
+         HEADER
+    ========================= -->
+
+    <div class="header">
+
+        <div class="title">
+
+            Menu Utama
+
+        </div>
+
+
+        <img
+            src="{{ url_for('static', filename='logo.png') }}"
+            class="logo"
+            alt="NSG"
+        >
+
+    </div>
+
+
+    <!-- =========================
+         CONTENT
+    ========================= -->
+
+    <div class="content">
+
+
+        <div class="welcome">
+
+            Selamat Datang
+
+        </div>
+
+
+        <div class="subtitle">
+
+            Silakan pilih menu yang ingin digunakan
+
+        </div>
+
+
+        <!-- =========================
+             MENU
+        ========================= -->
+
+        <div class="menu-container">
+
+
+            <!-- ANGGOTA -->
+
+            <a
+                href="{{ url_for('daftar_anggota') }}"
+                class="menu-button"
+            >
+
+                Anggota
+
+            </a>
+
+
+            <!-- PEMINJAMAN -->
+
+            <a
+                href="{{ url_for('peminjaman') }}"
+                class="menu-button"
+            >
+
+                Peminjaman
+
+            </a>
+
+
+            <!-- STOCK -->
+
+            <a
+                href="{{ url_for('stock') }}"
+                class="menu-button"
+            >
+
+                Stock
+
+            </a>
+
+
+        </div>
+
+
+        <!-- =========================
+             LOGOUT
+        ========================= -->
+
+        <div class="logout">
+
+            <a href="{{ url_for('logout') }}">
+
+                Logout
+
+            </a>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =========================
+         VERSI
+    ========================= -->
+
+    <div class="version">
+
+        v.1.0.0
+
+    </div>
+
+
+</div>
+
+
+</body>
+
+</html>

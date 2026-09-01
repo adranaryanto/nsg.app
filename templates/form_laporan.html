@@ -1,0 +1,1030 @@
+```html
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Form Laporan {{ nama }}</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 15px;
+            min-height: 100vh;
+            background-color: #b3b3b3;
+            font-family: "Times New Roman", serif;
+        }
+
+        .panel {
+            width: 650px;
+            min-height: 650px;
+            margin: 0 auto;
+            background-color: white;
+            border: 1px solid black;
+        }
+
+        /* ==================================================
+           HEADER
+           ================================================== */
+
+        .header {
+            height: 55px;
+            background-color: #2f7d20;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 5px 10px;
+        }
+
+        .title {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .logo {
+            width: 70px;
+            height: 45px;
+            object-fit: contain;
+        }
+
+        /* ==================================================
+           CONTENT
+           ================================================== */
+
+        .content {
+            padding: 25px;
+        }
+
+        .page-title {
+            font-size: 23px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .member {
+            font-size: 18px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+
+            font-size: 17px;
+            font-weight: bold;
+
+            margin-bottom: 6px;
+        }
+
+        /* ==================================================
+           INPUT
+           ================================================== */
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+
+            border: 1px solid #555555;
+            background-color: #eeeeee;
+
+            padding: 8px;
+
+            font-family: "Times New Roman", serif;
+            font-size: 16px;
+        }
+
+        input {
+            height: 36px;
+        }
+
+        textarea {
+            height: 110px;
+            resize: vertical;
+        }
+
+        select {
+            height: 36px;
+        }
+
+        /* ==================================================
+           UPLOAD BUKTI
+           ================================================== */
+
+        .upload-box {
+
+            width: 100%;
+            min-height: 170px;
+
+            border: 2px dashed #555555;
+
+            background-color: #eeeeee;
+
+            display: flex;
+            flex-direction: column;
+
+            align-items: center;
+            justify-content: center;
+
+            text-align: center;
+
+            padding: 20px;
+
+            cursor: pointer;
+
+            transition:
+                background-color 0.2s,
+                border-color 0.2s;
+        }
+
+        .upload-box:hover {
+
+            background-color: #e3e3e3;
+
+        }
+
+        .upload-box.dragover {
+
+            background-color: #d7efd3;
+
+            border-color: #2f7d20;
+
+        }
+
+        .upload-icon {
+
+            font-size: 32px;
+
+            margin-bottom: 7px;
+
+        }
+
+        .upload-title {
+
+            font-size: 17px;
+
+            font-weight: bold;
+
+        }
+
+        .upload-or {
+
+            font-size: 14px;
+
+            color: #555555;
+
+            margin: 5px 0;
+
+        }
+
+        .choose-file-button {
+
+            background-color: #2f7d20;
+
+            border: 1px solid #245d19;
+
+            color: white;
+
+            padding: 7px 16px;
+
+            font-family: "Times New Roman", serif;
+
+            font-size: 15px;
+
+            cursor: pointer;
+
+        }
+
+        .choose-file-button:hover {
+
+            background-color: #256619;
+
+        }
+
+        .upload-info {
+
+            margin-top: 8px;
+
+            font-size: 13px;
+
+            color: #555555;
+
+        }
+
+        /* ==================================================
+           FILE LIST
+           ================================================== */
+
+        .file-list {
+
+            margin-top: 8px;
+
+        }
+
+        .file-item {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            border: 1px solid #999999;
+
+            background-color: #f5f5f5;
+
+            padding: 7px 9px;
+
+            margin-bottom: 5px;
+
+            font-size: 14px;
+
+        }
+
+        .file-name {
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+            white-space: nowrap;
+
+            max-width: 80%;
+
+        }
+
+        .remove-file {
+
+            border: none;
+
+            background: none;
+
+            color: #aa0000;
+
+            font-family: "Times New Roman", serif;
+
+            font-size: 13px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+        }
+
+        .remove-file:hover {
+
+            color: red;
+
+        }
+
+        /* ==================================================
+           BUTTON
+           ================================================== */
+
+        .buttons {
+
+            margin-top: 25px;
+
+            display: flex;
+
+            justify-content: space-between;
+        }
+
+        .button {
+
+            padding: 9px 18px;
+
+            background-color: #2f7d20;
+
+            border: 1px solid #245d19;
+
+            color: white;
+
+            text-decoration: none;
+
+            font-family: "Times New Roman", serif;
+
+            font-size: 15px;
+
+            cursor: pointer;
+        }
+
+        .button:hover {
+
+            background-color: #256619;
+
+        }
+
+        /* ==================================================
+           CATATAN
+           ================================================== */
+
+        .file-note {
+
+            margin-top: 10px;
+
+            text-align: right;
+
+            font-size: 13px;
+
+            color: #555555;
+
+            font-style: italic;
+
+        }
+
+        /* ==================================================
+           RESPONSIVE
+           ================================================== */
+
+        @media (max-width: 700px) {
+
+            body {
+
+                padding: 8px;
+
+            }
+
+            .panel {
+
+                width: 100%;
+
+            }
+
+            .header {
+
+                height: auto;
+
+                min-height: 55px;
+
+            }
+
+            .content {
+
+                padding: 18px;
+
+            }
+
+            .buttons {
+
+                gap: 10px;
+
+            }
+
+            .button {
+
+                padding: 9px 14px;
+
+            }
+
+            .file-note {
+
+                font-size: 12px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="panel">
+
+    <!-- ==================================================
+         HEADER
+         ================================================== -->
+
+    <div class="header">
+
+        <div class="title">
+            Form Laporan
+        </div>
+
+        <img
+            src="{{ url_for('static', filename='logo.png') }}"
+            class="logo"
+            alt="NSG"
+        >
+
+    </div>
+
+
+    <!-- ==================================================
+         CONTENT
+         ================================================== -->
+
+    <div class="content">
+
+        <div class="page-title">
+            Input Laporan
+        </div>
+
+        <div class="member">
+            Anggota:
+            <strong>{{ nama }}</strong>
+        </div>
+
+
+        <!-- ==================================================
+             FORM
+             ================================================== -->
+
+        <form
+            method="POST"
+            action="{{ url_for('form_anggota', nama=nama) }}"
+            enctype="multipart/form-data"
+        >
+
+
+            <!-- ==================================================
+                 TANGGAL
+                 ================================================== -->
+
+            <div class="form-group">
+
+                <label for="tanggal">
+                    Tanggal
+                </label>
+
+                <input
+                    type="date"
+                    id="tanggal"
+                    name="tanggal"
+                    required
+                >
+
+            </div>
+
+
+            <!-- ==================================================
+                 KETERANGAN
+                 ================================================== -->
+
+            <div class="form-group">
+
+                <label for="keterangan">
+                    Keterangan
+                </label>
+
+                <textarea
+                    id="keterangan"
+                    name="keterangan"
+                    placeholder="Masukkan keterangan laporan..."
+                    required
+                ></textarea>
+
+            </div>
+
+
+            <!-- ==================================================
+                 UPLOAD BUKTI
+                 ================================================== -->
+
+            <div class="form-group">
+
+                <label>
+                    Upload Bukti
+                </label>
+
+
+                <div
+                    class="upload-box"
+                    id="uploadBox"
+                >
+
+                    <div class="upload-icon">
+                        📎
+                    </div>
+
+                    <div class="upload-title">
+                        Drag & Drop file di sini Maximum: 10 MB per file.
+                    </div>
+
+                    <div class="upload-or">
+                        atau
+                    </div>
+
+                    <button
+                        type="button"
+                        class="choose-file-button"
+                        id="chooseFileButton"
+                    >
+                        PILIH FILE
+                    </button>
+
+                    <div class="upload-info">
+                        Bisa upload satu atau beberapa file
+                    </div>
+
+
+                    <input
+                        type="file"
+                        id="fileInput"
+                        name="files"
+                        multiple
+                        hidden
+                    >
+
+                </div>
+
+
+                <!-- DAFTAR FILE -->
+
+                <div
+                    id="fileList"
+                    class="file-list"
+                ></div>
+
+            </div>
+
+
+            <!-- ==================================================
+                 DEADLINE
+                 ================================================== -->
+
+            <div class="form-group">
+
+                <label for="deadline">
+                    Deadline
+                </label>
+
+                <input
+                    type="date"
+                    id="deadline"
+                    name="deadline"
+                >
+
+            </div>
+
+
+            <!-- ==================================================
+                 STATUS
+                 ================================================== -->
+
+            <div class="form-group">
+
+                <label for="status">
+                    Status
+                </label>
+
+                <select
+                    id="status"
+                    name="status"
+                >
+
+                    <option value="Pending">
+                        Pending
+                    </option>
+
+                    <option value="Progress">
+                        Progress
+                    </option>
+
+                    <option value="Selesai">
+                        Selesai
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- ==================================================
+                 BUTTON
+                 ================================================== -->
+
+            <div class="buttons">
+
+                <a
+                    href="{{ url_for('dashboard_anggota', nama=nama) }}"
+                    class="button"
+                >
+                    BATAL
+                </a>
+
+
+                <button
+                    type="submit"
+                    class="button"
+                >
+                    SIMPAN KE LOGBOOK
+                </button>
+
+            </div>
+
+
+            <!-- CATATAN -->
+
+            <div class="file-note">
+                File bukti dapat berupa satu atau beberapa file.dan mohon tunggu saat mengupload
+            </div>
+
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- ==================================================
+     JAVASCRIPT
+     DRAG & DROP
+     ================================================== -->
+
+<script>
+
+    const uploadBox =
+        document.getElementById("uploadBox");
+
+    const fileInput =
+        document.getElementById("fileInput");
+
+    const fileList =
+        document.getElementById("fileList");
+
+    const chooseFileButton =
+        document.getElementById("chooseFileButton");
+
+
+    /*
+     * Array untuk menyimpan file
+     * yang dipilih oleh pengguna.
+     */
+
+    let selectedFiles = [];
+
+
+    /* ==================================================
+       TOMBOL PILIH FILE
+       ================================================== */
+
+    chooseFileButton.addEventListener(
+        "click",
+        function(event) {
+
+            event.stopPropagation();
+
+            fileInput.click();
+
+        }
+    );
+
+
+    /* ==================================================
+       KLIK AREA UPLOAD
+       ================================================== */
+
+    uploadBox.addEventListener(
+        "click",
+        function(event) {
+
+            if (
+                event.target === chooseFileButton
+            ) {
+
+                return;
+
+            }
+
+            fileInput.click();
+
+        }
+    );
+
+
+    /* ==================================================
+       FILE DIPILIH
+       ================================================== */
+
+    fileInput.addEventListener(
+        "change",
+        function() {
+
+            addFiles(fileInput.files);
+
+        }
+    );
+
+
+    /* ==================================================
+       DRAG OVER
+       ================================================== */
+
+    uploadBox.addEventListener(
+        "dragover",
+        function(event) {
+
+            event.preventDefault();
+
+            uploadBox.classList.add(
+                "dragover"
+            );
+
+        }
+    );
+
+
+    /* ==================================================
+       DRAG LEAVE
+       ================================================== */
+
+    uploadBox.addEventListener(
+        "dragleave",
+        function(event) {
+
+            /*
+             * Pastikan class hanya dihapus
+             * ketika benar-benar keluar
+             * dari area upload.
+             */
+
+            if (
+                !uploadBox.contains(
+                    event.relatedTarget
+                )
+            ) {
+
+                uploadBox.classList.remove(
+                    "dragover"
+                );
+
+            }
+
+        }
+    );
+
+
+    /* ==================================================
+       DROP
+       ================================================== */
+
+    uploadBox.addEventListener(
+        "drop",
+        function(event) {
+
+            event.preventDefault();
+
+            uploadBox.classList.remove(
+                "dragover"
+            );
+
+            addFiles(
+                event.dataTransfer.files
+            );
+
+        }
+    );
+
+
+    /* ==================================================
+       TAMBAHKAN FILE
+       ================================================== */
+
+    function addFiles(files) {
+
+        for (
+            let i = 0;
+            i < files.length;
+            i++
+        ) {
+
+            const file = files[i];
+
+
+            /*
+             * Cek apakah file sudah ada.
+             */
+
+            const alreadyExists =
+                selectedFiles.some(
+                    function(existingFile) {
+
+                        return (
+                            existingFile.name ===
+                                file.name &&
+
+                            existingFile.size ===
+                                file.size &&
+
+                            existingFile.lastModified ===
+                                file.lastModified
+                        );
+
+                    }
+                );
+
+
+            if (!alreadyExists) {
+
+                selectedFiles.push(file);
+
+            }
+
+        }
+
+
+        updateFileInput();
+
+        displayFiles();
+
+    }
+
+
+    /* ==================================================
+       TAMPILKAN FILE
+       ================================================== */
+
+    function displayFiles() {
+
+        fileList.innerHTML = "";
+
+
+        selectedFiles.forEach(
+            function(file, index) {
+
+                const fileItem =
+                    document.createElement("div");
+
+                fileItem.className =
+                    "file-item";
+
+
+                /*
+                 * Nama file
+                 */
+
+                const fileName =
+                    document.createElement("div");
+
+                fileName.className =
+                    "file-name";
+
+                fileName.textContent =
+                    file.name +
+                    " (" +
+                    formatFileSize(
+                        file.size
+                    ) +
+                    ")";
+
+
+                /*
+                 * Tombol hapus
+                 */
+
+                const removeButton =
+                    document.createElement("button");
+
+                removeButton.type =
+                    "button";
+
+                removeButton.className =
+                    "remove-file";
+
+                removeButton.textContent =
+                    "HAPUS";
+
+
+                removeButton.addEventListener(
+                    "click",
+                    function() {
+
+                        removeFile(index);
+
+                    }
+                );
+
+
+                fileItem.appendChild(
+                    fileName
+                );
+
+                fileItem.appendChild(
+                    removeButton
+                );
+
+
+                fileList.appendChild(
+                    fileItem
+                );
+
+            }
+        );
+
+    }
+
+
+    /* ==================================================
+       HAPUS FILE
+       ================================================== */
+
+    function removeFile(index) {
+
+        selectedFiles.splice(
+            index,
+            1
+        );
+
+        updateFileInput();
+
+        displayFiles();
+
+    }
+
+
+    /* ==================================================
+       UPDATE INPUT FILE
+       ================================================== */
+
+    function updateFileInput() {
+
+        const dataTransfer =
+            new DataTransfer();
+
+
+        selectedFiles.forEach(
+            function(file) {
+
+                dataTransfer.items.add(
+                    file
+                );
+
+            }
+        );
+
+
+        fileInput.files =
+            dataTransfer.files;
+
+    }
+
+
+    /* ==================================================
+       FORMAT UKURAN FILE
+       ================================================== */
+
+    function formatFileSize(bytes) {
+
+        if (bytes < 1024) {
+
+            return bytes + " B";
+
+        }
+
+
+        if (bytes < 1024 * 1024) {
+
+            return (
+                bytes / 1024
+            ).toFixed(1) + " KB";
+
+        }
+
+
+        if (
+            bytes <
+            1024 * 1024 * 1024
+        ) {
+
+            return (
+                bytes /
+                (1024 * 1024)
+            ).toFixed(1) + " MB";
+
+        }
+
+
+        return (
+            bytes /
+            (1024 * 1024 * 1024)
+        ).toFixed(1) + " GB";
+
+    }
+
+</script>
+
+</body>
+
+</html>
+```

@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Input Laporan</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+
+            margin: 0;
+
+            padding: 30px;
+
+            background-color: #b3b3b3;
+
+            font-family:
+                "Times New Roman",
+                serif;
+
+        }
+
+
+        /* =========================
+           PANEL UTAMA
+           ========================= */
+
+        .form-panel {
+
+            width: 650px;
+
+            min-height: 650px;
+
+            margin: 0 auto;
+
+            background-color: white;
+
+            border: 1px solid #000;
+
+        }
+
+
+        /* =========================
+           HEADER
+           ========================= */
+
+        .form-header {
+
+            width: 100%;
+
+            height: 55px;
+
+            background-color: #2f7d20;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding-left: 10px;
+
+            padding-right: 15px;
+
+        }
+
+
+        .form-title {
+
+            color: white;
+
+            font-size: 25px;
+
+            font-weight: bold;
+
+        }
+
+
+        .logo {
+
+            height: 42px;
+
+            width: 65px;
+
+            object-fit: contain;
+
+        }
+
+
+        /* =========================
+           ISI FORM
+           ========================= */
+
+        .form-content {
+
+            padding: 25px;
+
+        }
+
+
+        .form-content h2 {
+
+            margin: 0 0 5px 0;
+
+            font-size: 23px;
+
+        }
+
+
+        .anggota {
+
+            margin-bottom: 28px;
+
+            font-size: 17px;
+
+        }
+
+
+        /* =========================
+           BARIS FORM
+           ========================= */
+
+        .form-group {
+
+            margin-bottom: 18px;
+
+        }
+
+
+        .form-group label {
+
+            display: block;
+
+            margin-bottom: 6px;
+
+            font-size: 17px;
+
+        }
+
+
+        input[type="date"],
+        textarea,
+        select {
+
+            width: 100%;
+
+            border: 1px solid #555;
+
+            background-color: #eeeeee;
+
+            font-family:
+                "Times New Roman",
+                serif;
+
+            font-size: 15px;
+
+            padding: 8px;
+
+        }
+
+
+        input[type="date"] {
+
+            height: 36px;
+
+        }
+
+
+        textarea {
+
+            height: 110px;
+
+            resize: none;
+
+        }
+
+
+        select {
+
+            height: 36px;
+
+        }
+
+
+        /* =========================
+           PEMBERITAHUAN FILE
+           ========================= */
+
+        .file-notice {
+
+            margin-top: 7px;
+
+            padding: 6px 8px;
+
+            font-size: 13px;
+
+            line-height: 17px;
+
+            color: #444;
+
+            background-color: #f2f2f2;
+
+            border: 1px solid #bdbdbd;
+
+        }
+
+
+        /* =========================
+           TOMBOL
+           ========================= */
+
+        .button-area {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-top: 25px;
+
+        }
+
+
+        button {
+
+            border: 1px solid #1f5d17;
+
+            background-color: #2f7d20;
+
+            color: white;
+
+            font-family:
+                "Times New Roman",
+                serif;
+
+            font-size: 15px;
+
+            padding: 9px 20px;
+
+            cursor: pointer;
+
+        }
+
+
+        button:hover {
+
+            background-color: #256718;
+
+        }
+
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <div class="form-panel">
+
+
+        <!-- =========================
+             HEADER
+             ========================= -->
+
+        <div class="form-header">
+
+            <div class="form-title">
+
+                Form Laporan
+
+            </div>
+
+
+            <img
+                src="{{ url_for('tampilkan_logo') }}"
+                class="logo"
+                alt="Logo NSG"
+            >
+
+        </div>
+
+
+        <!-- =========================
+             ISI
+             ========================= -->
+
+        <div class="form-content">
+
+
+            <h2>
+                Input Laporan
+            </h2>
+
+
+            <div class="anggota">
+
+                Anggota:
+                <strong>
+                    {{ anggota }}
+                </strong>
+
+            </div>
+
+
+            <!-- =========================
+                 TANGGAL
+                 ========================= -->
+
+            <div class="form-group">
+
+                <label for="tanggal">
+
+                    Tanggal
+
+                </label>
+
+                <input
+                    type="date"
+                    id="tanggal"
+                    name="tanggal"
+                >
+
+            </div>
+
+
+            <!-- =========================
+                 KETERANGAN
+                 ========================= -->
+
+            <div class="form-group">
+
+                <label for="keterangan">
+
+                    Keterangan
+
+                </label>
+
+                <textarea
+                    id="keterangan"
+                    name="keterangan"
+                    placeholder="Masukkan keterangan laporan..."
+                ></textarea>
+
+
+                <!-- PEMBERITAHUAN FILE -->
+
+                <div class="file-notice">
+
+                    Jika ingin menambah file, masukkan langsung ke kolom file pada dashboard.
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 DEADLINE
+                 ========================= -->
+
+            <div class="form-group">
+
+                <label for="deadline">
+
+                    Deadline
+
+                </label>
+
+                <input
+                    type="date"
+                    id="deadline"
+                    name="deadline"
+                >
+
+            </div>
+
+
+            <!-- =========================
+                 STATUS
+                 ========================= -->
+
+            <div class="form-group">
+
+                <label for="status">
+
+                    Status
+
+                </label>
+
+                <select
+                    id="status"
+                    name="status"
+                >
+
+                    <option value="Pending">
+                        Pending
+                    </option>
+
+                    <option value="Progress">
+                        Progress
+                    </option>
+
+                    <option value="Selesai">
+                        Selesai
+                    </option>
+
+                    <option value="Terlambat">
+                        Terlambat
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- =========================
+                 TOMBOL
+                 ========================= -->
+
+            <div class="button-area">
+
+                <button
+                    type="button"
+                    onclick="history.back()"
+                >
+                    BATAL
+                </button>
+
+
+                <button
+                    type="submit"
+                >
+                    SIMPAN KE LOGBOOK
+                </button>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+</body>
+
+</html>

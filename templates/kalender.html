@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Kalender Deadline - {{ nama }}</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #b3b3b3;
+            font-family: "Times New Roman", serif;
+        }
+
+        .container {
+            width: 1000px;
+            max-width: 100%;
+            margin: auto;
+            background: white;
+            border: 1px solid #555;
+        }
+
+        .header {
+            background: #2f7d20;
+            color: white;
+            padding: 15px 20px;
+        }
+
+        .title {
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .member {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .calendar {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .calendar th {
+            background: #dddddd;
+            border: 1px solid #555;
+            padding: 10px;
+        }
+
+        .calendar td {
+            height: 100px;
+            border: 1px solid #777;
+            vertical-align: top;
+            padding: 6px;
+        }
+
+        .date {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .deadline {
+            background: #ffdddd;
+            border-left: 4px solid #cc0000;
+            padding: 5px;
+            margin-top: 5px;
+            font-size: 13px;
+        }
+
+        .deadline.today {
+            background: #ff9999;
+            border-left-color: #990000;
+        }
+
+        .deadline.soon {
+            background: #ffe0a3;
+            border-left-color: #d68a00;
+        }
+
+        .deadline.normal {
+            background: #ddf0d8;
+            border-left-color: #2f7d20;
+        }
+
+        .buttons {
+            margin-top: 20px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 9px 18px;
+            background: #2f7d20;
+            color: white;
+            text-decoration: none;
+            border: 1px solid #245d19;
+        }
+
+        .button:hover {
+            background: #256619;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <div class="header">
+
+        <div class="title">
+            Kalender Deadline
+        </div>
+
+    </div>
+
+
+    <div class="content">
+
+
+        <div class="member">
+
+            Anggota:
+            {{ nama }}
+
+        </div>
+
+
+        <table class="calendar">
+
+            <thead>
+
+                <tr>
+
+                    <th>Minggu</th>
+                    <th>Senin</th>
+                    <th>Selasa</th>
+                    <th>Rabu</th>
+                    <th>Kamis</th>
+                    <th>Jumat</th>
+                    <th>Sabtu</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+            {% for week in calendar %}
+
+                <tr>
+
+                {% for day in week %}
+
+                    <td>
+
+                        {% if day != 0 %}
+
+                            <div class="date">
+                                {{ day }}
+                            </div>
+
+
+                            {% for deadline in deadlines %}
+
+                                {% if deadline.day == day %}
+
+                                    <div
+                                        class="deadline
+                                        {% if deadline.days_left == 0 %}
+                                            today
+                                        {% elif deadline.days_left <= 3 %}
+                                            soon
+                                        {% else %}
+                                            normal
+                                        {% endif %}"
+                                    >
+
+                                        <b>
+                                            {{ deadline.keterangan }}
+                                        </b>
+
+                                        <br>
+
+                                        {% if deadline.days_left == 0 %}
+
+                                            🔴 HARI INI
+
+                                        {% elif deadline.days_left > 0 %}
+
+                                            {{ deadline.days_left }}
+                                            hari lagi
+
+                                        {% else %}
+
+                                            ⚠️ Terlewat
+
+                                        {% endif %}
+
+                                    </div>
+
+                                {% endif %}
+
+                            {% endfor %}
+
+
+                        {% endif %}
+
+                    </td>
+
+                {% endfor %}
+
+                </tr>
+
+            {% endfor %}
+
+
+            </tbody>
+
+        </table>
+
+
+        <div class="buttons">
+
+            <a
+                href="{{ url_for(
+                    'dashboard_anggota',
+                    nama=nama
+                ) }}"
+                class="button"
+            >
+
+                ← Kembali ke Dashboard
+
+            </a>
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+</body>
+
+</html>

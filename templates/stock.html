@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Stok Barang</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: #f4f6f8;
+            color: #222;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1200px;
+            margin: 30px auto;
+        }
+
+
+        /* =========================
+           TOMBOL KEMBALI
+        ========================= */
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            background: white;
+            color: #333;
+
+            border: 1px solid #ddd;
+            border-radius: 9px;
+
+            padding: 10px 16px;
+
+            font-size: 14px;
+            font-weight: bold;
+
+            text-decoration: none;
+
+            margin-bottom: 15px;
+
+            transition: 0.2s;
+
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .back-button:hover {
+            background: #222;
+            color: white;
+            border-color: #222;
+        }
+
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .header {
+            background: white;
+
+            padding: 22px 25px;
+
+            border-radius: 14px;
+
+            margin-bottom: 20px;
+
+            box-shadow:
+                0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .header h1 {
+            font-size: 27px;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            color: #777;
+            font-size: 14px;
+        }
+
+
+        /* =========================
+           TOOLBAR
+        ========================= */
+
+        .toolbar {
+            background: white;
+
+            padding: 18px;
+
+            border-radius: 14px;
+
+            display: flex;
+
+            gap: 12px;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 20px;
+
+            box-shadow:
+                0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .search-box {
+            flex: 1;
+        }
+
+        .search-box input {
+            width: 100%;
+
+            padding: 12px 15px;
+
+            border: 1px solid #ddd;
+
+            border-radius: 9px;
+
+            font-size: 14px;
+
+            outline: none;
+        }
+
+        .search-box input:focus {
+            border-color: #555;
+        }
+
+
+        /* =========================
+           TAMBAH BARANG
+        ========================= */
+
+        .add-btn {
+            border: none;
+
+            background: #222;
+
+            color: white;
+
+            padding: 12px 20px;
+
+            border-radius: 9px;
+
+            cursor: pointer;
+
+            font-weight: bold;
+
+            transition: 0.2s;
+        }
+
+        .add-btn:hover {
+            background: #444;
+        }
+
+
+        /* =========================
+           TABLE
+        ========================= */
+
+        .stock-box {
+            background: white;
+
+            border-radius: 14px;
+
+            overflow: hidden;
+
+            box-shadow:
+                0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        table {
+            width: 100%;
+
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f1f3f5;
+        }
+
+        th {
+            text-align: left;
+
+            padding: 16px;
+
+            font-size: 13px;
+
+            color: #555;
+        }
+
+        td {
+            padding: 15px 16px;
+
+            border-top: 1px solid #eee;
+
+            font-size: 14px;
+        }
+
+
+        /* =========================
+           NAMA BARANG
+        ========================= */
+
+        .item-name {
+            font-weight: bold;
+        }
+
+        .item-code {
+            color: #888;
+
+            font-size: 12px;
+
+            margin-top: 3px;
+        }
+
+
+        /* =========================
+           STATUS
+        ========================= */
+
+        .status-container {
+            display: flex;
+
+            gap: 6px;
+
+            flex-wrap: wrap;
+        }
+
+        .status-btn {
+            border: none;
+
+            padding: 7px 11px;
+
+            border-radius: 7px;
+
+            cursor: pointer;
+
+            font-size: 12px;
+
+            font-weight: bold;
+
+            opacity: 0.35;
+
+            transition: 0.2s;
+        }
+
+        .status-btn:hover {
+            opacity: 0.7;
+        }
+
+        .status-btn.active {
+            opacity: 1;
+
+            transform: scale(1.02);
+        }
+
+        .status-ada {
+            background: #d9f7df;
+
+            color: #16803c;
+        }
+
+        .status-habis {
+            background: #fff1c7;
+
+            color: #9a6a00;
+        }
+
+        .status-tidak {
+            background: #ffdada;
+
+            color: #c62828;
+        }
+
+
+        /* =========================
+           STOCK CONTROL
+        ========================= */
+
+        .stock-control {
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+        }
+
+        .stock-control button {
+            width: 30px;
+
+            height: 30px;
+
+            border: 1px solid #ddd;
+
+            background: white;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+
+            font-size: 16px;
+        }
+
+        .stock-control button:hover {
+            background: #f1f1f1;
+        }
+
+        .stock-number {
+            min-width: 30px;
+
+            text-align: center;
+
+            font-weight: bold;
+        }
+
+
+        /* =========================
+           DELETE
+        ========================= */
+
+        .delete-btn {
+            border: none;
+
+            background: #ffe5e5;
+
+            color: #c62828;
+
+            padding: 8px 11px;
+
+            border-radius: 7px;
+
+            cursor: pointer;
+
+            font-weight: bold;
+        }
+
+        .delete-btn:hover {
+            background: #ffd0d0;
+        }
+
+
+        /* =========================
+           EMPTY
+        ========================= */
+
+        .empty {
+            text-align: center;
+
+            padding: 50px 20px;
+
+            color: #888;
+        }
+
+
+        /* =========================
+           HARUS DIBELI
+        ========================= */
+
+        .buy-box {
+            background: white;
+
+            margin-top: 20px;
+
+            border-radius: 14px;
+
+            padding: 20px;
+
+            box-shadow:
+                0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .buy-header {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 15px;
+        }
+
+        .buy-header h2 {
+            font-size: 20px;
+
+            margin-bottom: 5px;
+        }
+
+        .buy-header p {
+            color: #888;
+
+            font-size: 13px;
+        }
+
+        .buy-count {
+            background: #fff1c7;
+
+            color: #9a6a00;
+
+            padding: 7px 12px;
+
+            border-radius: 20px;
+
+            font-size: 12px;
+
+            font-weight: bold;
+        }
+
+        .buy-item {
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 14px;
+
+            border: 1px solid #eee;
+
+            border-radius: 10px;
+
+            margin-bottom: 10px;
+        }
+
+        .buy-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .buy-info {
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+        }
+
+        .buy-icon {
+            width: 38px;
+
+            height: 38px;
+
+            border-radius: 9px;
+
+            background: #fff1c7;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 18px;
+        }
+
+        .buy-name {
+            font-weight: bold;
+
+            font-size: 14px;
+        }
+
+        .buy-code {
+            font-size: 12px;
+
+            color: #888;
+
+            margin-top: 3px;
+        }
+
+        .buy-stock {
+            text-align: right;
+        }
+
+        .buy-stock-number {
+            font-weight: bold;
+
+            font-size: 14px;
+        }
+
+        .buy-status {
+            font-size: 11px;
+
+            margin-top: 3px;
+
+            color: #c62828;
+        }
+
+        .no-buy {
+            text-align: center;
+
+            padding: 25px;
+
+            color: #888;
+
+            background: #fafafa;
+
+            border-radius: 10px;
+        }
+
+
+        /* =========================
+           MODAL
+        ========================= */
+
+        .modal {
+            display: none;
+
+            position: fixed;
+
+            inset: 0;
+
+            background: rgba(0,0,0,0.45);
+
+            align-items: center;
+
+            justify-content: center;
+
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-box {
+            background: white;
+
+            width: 90%;
+
+            max-width: 450px;
+
+            padding: 25px;
+
+            border-radius: 14px;
+
+            box-shadow:
+                0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .modal-box h2 {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+
+            font-size: 13px;
+
+            font-weight: bold;
+
+            margin-bottom: 7px;
+        }
+
+        .form-group input {
+            width: 100%;
+
+            padding: 11px;
+
+            border: 1px solid #ddd;
+
+            border-radius: 8px;
+
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: #555;
+        }
+
+        .modal-buttons {
+            display: flex;
+
+            justify-content: flex-end;
+
+            gap: 10px;
+
+            margin-top: 20px;
+        }
+
+        .cancel-btn,
+        .save-btn {
+            padding: 10px 17px;
+
+            border-radius: 8px;
+
+            cursor: pointer;
+
+            font-weight: bold;
+        }
+
+        .cancel-btn {
+            background: #eee;
+
+            border: none;
+        }
+
+        .save-btn {
+            background: #222;
+
+            color: white;
+
+            border: none;
+        }
+
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 800px) {
+
+            .toolbar {
+                flex-direction: column;
+
+                align-items: stretch;
+            }
+
+            .stock-box {
+                overflow-x: auto;
+            }
+
+            table {
+                min-width: 850px;
+            }
+
+            .buy-header {
+                align-items: flex-start;
+
+                gap: 10px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <!-- =========================
+         KEMBALI KE MENU UTAMA
+    ========================= -->
+
+    <a
+        href="/menu"
+        class="back-button"
+    >
+        ← Kembali ke Menu Utama
+    </a>
+
+
+
+    <!-- =========================
+         HEADER
+    ========================= -->
+
+    <div class="header">
+
+        <h1>
+            Stok Barang
+        </h1>
+
+        <p>
+            Kelola persediaan barang dan status ketersediaannya.
+        </p>
+
+    </div>
+
+
+
+    <!-- =========================
+         TOOLBAR
+    ========================= -->
+
+    <div class="toolbar">
+
+        <div class="search-box">
+
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Cari nama barang..."
+                oninput="renderItems()"
+            >
+
+        </div>
+
+
+        <button
+            class="add-btn"
+            onclick="openModal()"
+        >
+            + Tambah Barang
+        </button>
+
+    </div>
+
+
+
+    <!-- =========================
+         DAFTAR STOK
+    ========================= -->
+
+    <div class="stock-box">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th width="25%">
+                        Barang
+                    </th>
+
+                    <th width="15%">
+                        Jumlah
+                    </th>
+
+                    <th width="40%">
+                        Status
+                    </th>
+
+                    <th width="10%">
+                        Aksi
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody id="stockTable">
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+
+    <!-- =========================
+         HARUS DIBELI
+    ========================= -->
+
+    <div class="buy-box">
+
+        <div class="buy-header">
+
+            <div>
+
+                <h2>
+                    🛒 Harus Dibeli
+                </h2>
+
+                <p>
+                    Barang dengan stok mau habis atau sudah habis.
+                </p>
+
+            </div>
+
+
+            <div
+                class="buy-count"
+                id="buyCount"
+            >
+                0 barang
+            </div>
+
+        </div>
+
+
+        <div id="buyList">
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =========================
+     MODAL TAMBAH BARANG
+========================= -->
+
+<div
+    class="modal"
+    id="modal"
+>
+
+    <div class="modal-box">
+
+        <h2>
+            Tambah Barang
+        </h2>
+
+
+        <div class="form-group">
+
+            <label>
+                Nama Barang
+            </label>
+
+            <input
+                type="text"
+                id="itemName"
+                placeholder="Contoh: Kertas A4"
+            >
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Kode Barang
+            </label>
+
+            <input
+                type="text"
+                id="itemCode"
+                placeholder="Contoh: ATK-001"
+            >
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Jumlah Stok
+            </label>
+
+            <input
+                type="number"
+                id="itemStock"
+                value="0"
+                min="0"
+            >
+
+        </div>
+
+
+        <div class="modal-buttons">
+
+            <button
+                class="cancel-btn"
+                onclick="closeModal()"
+            >
+                Batal
+            </button>
+
+
+            <button
+                class="save-btn"
+                onclick="addItem()"
+            >
+                Simpan
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+
+/* =====================================================
+   DATA
+===================================================== */
+
+let items =
+    JSON.parse(
+        localStorage.getItem("stockItems")
+    ) || [];
+
+
+
+/* =====================================================
+   SIMPAN DATA
+===================================================== */
+
+function saveItems() {
+
+    localStorage.setItem(
+        "stockItems",
+        JSON.stringify(items)
+    );
+
+}
+
+
+
+/* =====================================================
+   RENDER BARANG
+===================================================== */
+
+function renderItems() {
+
+    const table =
+        document.getElementById(
+            "stockTable"
+        );
+
+
+    const search =
+        document
+        .getElementById(
+            "searchInput"
+        )
+        .value
+        .toLowerCase()
+        .trim();
+
+
+    const filteredItems =
+        items.filter(
+            item =>
+                item.name
+                .toLowerCase()
+                .includes(search)
+        );
+
+
+    table.innerHTML = "";
+
+
+    if (
+        filteredItems.length === 0
+    ) {
+
+        table.innerHTML = `
+
+            <tr>
+
+                <td colspan="4">
+
+                    <div class="empty">
+
+                        Belum ada barang.
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        `;
+
+    }
+
+
+    filteredItems.forEach(
+        item => {
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            row.innerHTML = `
+
+                <td>
+
+                    <div class="item-name">
+
+                        ${escapeHTML(item.name)}
+
+                    </div>
+
+
+                    <div class="item-code">
+
+                        ${escapeHTML(
+                            item.code || "-"
+                        )}
+
+                    </div>
+
+                </td>
+
+
+                <td>
+
+                    <div class="stock-control">
+
+
+                        <button
+                            onclick="
+                                changeStock(
+                                    '${item.id}',
+                                    -1
+                                )
+                            "
+                        >
+                            −
+                        </button>
+
+
+                        <span
+                            class="stock-number"
+                        >
+                            ${item.stock}
+                        </span>
+
+
+                        <button
+                            onclick="
+                                changeStock(
+                                    '${item.id}',
+                                    1
+                                )
+                            "
+                        >
+                            +
+                        </button>
+
+
+                    </div>
+
+                </td>
+
+
+                <td>
+
+                    <div
+                        class="status-container"
+                    >
+
+
+                        <button
+
+                            class="
+                                status-btn
+                                status-ada
+                                ${
+                                    item.status === "ada"
+                                    ? "active"
+                                    : ""
+                                }
+                            "
+
+                            onclick="
+                                changeStatus(
+                                    '${item.id}',
+                                    'ada'
+                                )
+                            "
+                        >
+                            Ada
+                        </button>
+
+
+                        <button
+
+                            class="
+                                status-btn
+                                status-habis
+                                ${
+                                    item.status === "habis"
+                                    ? "active"
+                                    : ""
+                                }
+                            "
+
+                            onclick="
+                                changeStatus(
+                                    '${item.id}',
+                                    'habis'
+                                )
+                            "
+                        >
+                            Mau Habis
+                        </button>
+
+
+                        <button
+
+                            class="
+                                status-btn
+                                status-tidak
+                                ${
+                                    item.status === "tidak"
+                                    ? "active"
+                                    : ""
+                                }
+                            "
+
+                            onclick="
+                                changeStatus(
+                                    '${item.id}',
+                                    'tidak'
+                                )
+                            "
+                        >
+                            Tidak Ada
+                        </button>
+
+
+                    </div>
+
+                </td>
+
+
+                <td>
+
+                    <button
+
+                        class="delete-btn"
+
+                        onclick="
+                            deleteItem(
+                                '${item.id}'
+                            )
+                        "
+                    >
+                        Hapus
+                    </button>
+
+                </td>
+
+            `;
+
+
+            table.appendChild(row);
+
+        }
+    );
+
+
+    renderBuyList();
+
+}
+
+
+
+/* =====================================================
+   TAMBAH BARANG
+===================================================== */
+
+function addItem() {
+
+    const name =
+        document
+        .getElementById(
+            "itemName"
+        )
+        .value
+        .trim();
+
+
+    const code =
+        document
+        .getElementById(
+            "itemCode"
+        )
+        .value
+        .trim();
+
+
+    const stock =
+        parseInt(
+            document
+            .getElementById(
+                "itemStock"
+            )
+            .value
+        ) || 0;
+
+
+    if (!name) {
+
+        alert(
+            "Nama barang wajib diisi."
+        );
+
+        return;
+
+    }
+
+
+    let status;
+
+
+    if (stock === 0) {
+
+        status = "tidak";
+
+    }
+
+    else if (stock <= 5) {
+
+        status = "habis";
+
+    }
+
+    else {
+
+        status = "ada";
+
+    }
+
+
+    const newItem = {
+
+        id:
+            Date.now().toString(),
+
+        name:
+            name,
+
+        code:
+            code,
+
+        stock:
+            stock,
+
+        status:
+            status
+
+    };
+
+
+    items.push(
+        newItem
+    );
+
+
+    saveItems();
+
+    renderItems();
+
+    closeModal();
+
+}
+
+
+
+/* =====================================================
+   UBAH STOK
+===================================================== */
+
+function changeStock(
+    id,
+    amount
+) {
+
+    const item =
+        items.find(
+            item =>
+                item.id === id
+        );
+
+
+    if (!item) return;
+
+
+    item.stock += amount;
+
+
+    if (
+        item.stock < 0
+    ) {
+
+        item.stock = 0;
+
+    }
+
+
+    if (
+        item.stock === 0
+    ) {
+
+        item.status =
+            "tidak";
+
+    }
+
+    else if (
+        item.stock <= 5
+    ) {
+
+        item.status =
+            "habis";
+
+    }
+
+    else {
+
+        item.status =
+            "ada";
+
+    }
+
+
+    saveItems();
+
+    renderItems();
+
+}
+
+
+
+/* =====================================================
+   UBAH STATUS
+===================================================== */
+
+function changeStatus(
+    id,
+    status
+) {
+
+    const item =
+        items.find(
+            item =>
+                item.id === id
+        );
+
+
+    if (!item) return;
+
+
+    item.status =
+        status;
+
+
+    if (
+        status === "tidak"
+    ) {
+
+        item.stock = 0;
+
+    }
+
+
+    saveItems();
+
+    renderItems();
+
+}
+
+
+
+/* =====================================================
+   HAPUS BARANG
+===================================================== */
+
+function deleteItem(id) {
+
+    const item =
+        items.find(
+            item =>
+                item.id === id
+        );
+
+
+    if (!item) return;
+
+
+    const confirmDelete =
+        confirm(
+            `Hapus barang "${item.name}"?`
+        );
+
+
+    if (!confirmDelete) {
+
+        return;
+
+    }
+
+
+    items =
+        items.filter(
+            item =>
+                item.id !== id
+        );
+
+
+    saveItems();
+
+    renderItems();
+
+}
+
+
+
+/* =====================================================
+   HARUS DIBELI
+===================================================== */
+
+function renderBuyList() {
+
+    const buyList =
+        document.getElementById(
+            "buyList"
+        );
+
+
+    const buyCount =
+        document.getElementById(
+            "buyCount"
+        );
+
+
+    const itemsToBuy =
+        items.filter(
+            item =>
+                item.stock <= 5
+        );
+
+
+    buyCount.textContent =
+        `${itemsToBuy.length} barang`;
+
+
+    if (
+        itemsToBuy.length === 0
+    ) {
+
+        buyList.innerHTML = `
+
+            <div class="no-buy">
+
+                ✓ Semua stok barang masih aman.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    buyList.innerHTML = "";
+
+
+    itemsToBuy.forEach(
+        item => {
+
+            const div =
+                document.createElement(
+                    "div"
+                );
+
+
+            div.className =
+                "buy-item";
+
+
+            let statusText;
+
+
+            if (
+                item.stock === 0
+            ) {
+
+                statusText =
+                    "STOK HABIS";
+
+            }
+
+            else {
+
+                statusText =
+                    "STOK MAU HABIS";
+
+            }
+
+
+            div.innerHTML = `
+
+                <div class="buy-info">
+
+
+                    <div class="buy-icon">
+
+                        🛒
+
+                    </div>
+
+
+                    <div>
+
+                        <div class="buy-name">
+
+                            ${escapeHTML(
+                                item.name
+                            )}
+
+                        </div>
+
+
+                        <div class="buy-code">
+
+                            ${escapeHTML(
+                                item.code || "-"
+                            )}
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="buy-stock">
+
+
+                    <div
+                        class="buy-stock-number"
+                    >
+
+                        Stok:
+                        ${item.stock}
+
+                    </div>
+
+
+                    <div class="buy-status">
+
+                        ${statusText}
+
+                    </div>
+
+
+                </div>
+
+            `;
+
+
+            buyList.appendChild(
+                div
+            );
+
+        }
+    );
+
+}
+
+
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+function openModal() {
+
+    document
+        .getElementById(
+            "modal"
+        )
+        .classList
+        .add("show");
+
+
+    document
+        .getElementById(
+            "itemName"
+        )
+        .focus();
+
+}
+
+
+
+function closeModal() {
+
+    document
+        .getElementById(
+            "modal"
+        )
+        .classList
+        .remove("show");
+
+
+    document
+        .getElementById(
+            "itemName"
+        )
+        .value = "";
+
+
+    document
+        .getElementById(
+            "itemCode"
+        )
+        .value = "";
+
+
+    document
+        .getElementById(
+            "itemStock"
+        )
+        .value = "0";
+
+}
+
+
+
+/* =====================================================
+   KLIK LUAR MODAL
+===================================================== */
+
+document
+    .getElementById(
+        "modal"
+    )
+    .addEventListener(
+        "click",
+        function(event) {
+
+            if (
+                event.target === this
+            ) {
+
+                closeModal();
+
+            }
+
+        }
+    );
+
+
+
+/* =====================================================
+   ENTER UNTUK SIMPAN
+===================================================== */
+
+document
+    .getElementById(
+        "itemStock"
+    )
+    .addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key === "Enter"
+            ) {
+
+                addItem();
+
+            }
+
+        }
+    );
+
+
+
+/* =====================================================
+   ESC UNTUK TUTUP MODAL
+===================================================== */
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (
+            event.key === "Escape"
+        ) {
+
+            closeModal();
+
+        }
+
+    }
+);
+
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHTML(text) {
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+
+    div.textContent =
+        text;
+
+
+    return div.innerHTML;
+
+}
+
+
+
+/* =====================================================
+   LOAD AWAL
+===================================================== */
+
+renderItems();
+
+
+</script>
+
+
+</body>
+
+</html>

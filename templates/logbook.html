@@ -1,0 +1,790 @@
+```html
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Logbook {{ nama }}</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+
+            margin: 0;
+
+            padding: 20px;
+
+            background: #b3b3b3;
+
+            font-family:
+                "Times New Roman",
+                serif;
+
+        }
+
+
+        .container {
+
+            width: 1100px;
+
+            max-width: 100%;
+
+            margin: auto;
+
+            background: white;
+
+            border: 1px solid #555;
+
+        }
+
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .header {
+
+            background: #2f7d20;
+
+            color: white;
+
+            padding: 12px 20px;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+        }
+
+
+        .title {
+
+            font-size: 25px;
+
+            font-weight: bold;
+
+        }
+
+
+        /* =========================
+           CONTENT
+        ========================= */
+
+        .content {
+
+            padding: 20px;
+
+        }
+
+
+        .member {
+
+            font-size: 20px;
+
+            font-weight: bold;
+
+            margin-bottom: 20px;
+
+        }
+
+
+        /* =========================
+           TABLE
+        ========================= */
+
+        .table-wrapper {
+
+            width: 100%;
+
+            overflow-x: auto;
+
+        }
+
+
+        table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+            min-width: 1000px;
+
+        }
+
+
+        th {
+
+            background: #dddddd;
+
+            border: 1px solid #555;
+
+            padding: 9px;
+
+            text-align: center;
+
+            font-weight: bold;
+
+        }
+
+
+        td {
+
+            border: 1px solid #555;
+
+            padding: 9px;
+
+            vertical-align: top;
+
+        }
+
+
+        /* =========================
+           KOLOM BUKTI
+        ========================= */
+
+        .bukti {
+
+            min-width: 130px;
+
+            text-align: center;
+
+            vertical-align: middle;
+
+        }
+
+
+        .bukti-link {
+
+            display: inline-block;
+
+            padding: 5px 9px;
+
+            margin: 2px;
+
+            background: #2f7d20;
+
+            color: white;
+
+            border: 1px solid #245d19;
+
+            text-decoration: none;
+
+            font-size: 13px;
+
+        }
+
+
+        .bukti-link:hover {
+
+            background: #256619;
+
+        }
+
+
+        .bukti-kosong {
+
+            color: #777777;
+
+            font-size: 13px;
+
+            font-style: italic;
+
+        }
+
+
+        /* =========================
+           KOLOM AKSI
+        ========================= */
+
+        .aksi {
+
+            width: 80px;
+
+            text-align: center;
+
+            vertical-align: middle;
+
+        }
+
+
+        .hapus-form {
+
+            margin: 0;
+
+        }
+
+
+        .hapus-button {
+
+            background: #8b0000;
+
+            color: white;
+
+            border: 1px solid #650000;
+
+            padding: 6px 10px;
+
+            font-family:
+                "Times New Roman",
+                serif;
+
+            font-size: 13px;
+
+            cursor: pointer;
+
+        }
+
+
+        .hapus-button:hover {
+
+            background: #650000;
+
+        }
+
+
+        /* =========================
+           EMPTY LOGBOOK
+        ========================= */
+
+        .empty {
+
+            text-align: center;
+
+            padding: 30px;
+
+            color: #555;
+
+            border: 1px solid #555;
+
+        }
+
+
+        /* =========================
+           BUTTON
+        ========================= */
+
+        .buttons {
+
+            margin-top: 20px;
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 10px;
+
+        }
+
+
+        .button {
+
+            display: inline-block;
+
+            padding: 9px 18px;
+
+            background: #2f7d20;
+
+            color: white;
+
+            text-decoration: none;
+
+            border: 1px solid #245d19;
+
+            cursor: pointer;
+
+        }
+
+
+        .button:hover {
+
+            background: #256619;
+
+        }
+
+
+        /* =========================
+           PDF
+        ========================= */
+
+        .pdf-button {
+
+            background: #8b0000;
+
+            border-color: #650000;
+
+        }
+
+
+        .pdf-button:hover {
+
+            background: #650000;
+
+        }
+
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 600px) {
+
+            body {
+
+                padding: 10px;
+
+            }
+
+
+            .content {
+
+                padding: 15px;
+
+            }
+
+
+            .title {
+
+                font-size: 21px;
+
+            }
+
+
+            .member {
+
+                font-size: 18px;
+
+            }
+
+
+            .buttons {
+
+                flex-direction: column;
+
+            }
+
+
+            .button {
+
+                width: 100%;
+
+                text-align: center;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <!-- =========================
+         HEADER
+    ========================= -->
+
+    <div class="header">
+
+        <div class="title">
+
+            Logbook Laporan
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         CONTENT
+    ========================= -->
+
+    <div class="content">
+
+
+        <!-- NAMA ANGGOTA -->
+
+        <div class="member">
+
+            Anggota:
+            {{ nama }}
+
+        </div>
+
+
+        <!-- =========================
+             TABEL
+        ========================= -->
+
+        <div class="table-wrapper">
+
+
+            {% if data %}
+
+
+            <table>
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            No
+                        </th>
+
+                        <th>
+                            Tanggal
+                        </th>
+
+                        <th>
+                            Keterangan
+                        </th>
+
+                        <th class="bukti">
+                            Bukti
+                        </th>
+
+                        <th>
+                            Deadline
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th class="aksi">
+                            Aksi
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                {% for row in data %}
+
+
+                    <tr>
+
+
+                        <!-- =========================
+                             NO
+                        ========================= -->
+
+                        <td>
+
+                            {{ row.get("No", "") }}
+
+                        </td>
+
+
+                        <!-- =========================
+                             TANGGAL
+                        ========================= -->
+
+                        <td>
+
+                            {{ row.get("Tanggal", "") }}
+
+                        </td>
+
+
+                        <!-- =========================
+                             KETERANGAN
+                        ========================= -->
+
+                        <td>
+
+                            {{ row.get("Keterangan", "") }}
+
+                        </td>
+
+
+                        <!-- =========================
+                             BUKTI
+                        ========================= -->
+
+                        <td class="bukti">
+
+                            <!--
+                                PENTING:
+
+                                app.py menyimpan URL Google Drive
+                                ke kolom CSV bernama "File".
+
+                                Jadi di sini harus membaca:
+
+                                row.get("File", "")
+
+                                BUKAN:
+
+                                row.get("Bukti", "")
+                            -->
+
+                            {% set bukti = row.get("File", "") | trim %}
+
+
+                            {% if bukti %}
+
+
+                                <!-- =========================
+                                     JIKA ADA LEBIH DARI SATU FILE
+                                ========================= -->
+
+                                {% if "||" in bukti %}
+
+
+                                    {% for link in bukti.split("||") %}
+
+
+                                        {% set link_bersih = link | trim %}
+
+
+                                        {% if link_bersih %}
+
+                                            <a
+                                                href="{{ link_bersih }}"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                class="bukti-link"
+                                            >
+
+                                                Lihat Bukti
+
+                                            </a>
+
+                                        {% endif %}
+
+
+                                    {% endfor %}
+
+
+                                <!-- =========================
+                                     JIKA HANYA SATU FILE
+                                ========================= -->
+
+                                {% else %}
+
+
+                                    <a
+                                        href="{{ bukti }}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="bukti-link"
+                                    >
+
+                                        Lihat Bukti
+
+                                    </a>
+
+
+                                {% endif %}
+
+
+                            {% else %}
+
+
+                                <span class="bukti-kosong">
+
+                                    Tidak ada
+
+                                </span>
+
+
+                            {% endif %}
+
+
+                        </td>
+
+
+                        <!-- =========================
+                             DEADLINE
+                        ========================= -->
+
+                        <td>
+
+                            {{ row.get("Deadline", "") }}
+
+                        </td>
+
+
+                        <!-- =========================
+                             STATUS
+                        ========================= -->
+
+                        <td>
+
+                            {{ row.get("Status", "") }}
+
+                        </td>
+
+
+                        <!-- =========================
+                             AKSI
+                        ========================= -->
+
+                        <td class="aksi">
+
+
+                            <form
+
+                                action="{{ url_for(
+                                    'hapus_laporan',
+                                    nama=nama,
+                                    no=row.get('No', '')
+                                ) }}"
+
+                                method="POST"
+
+                                class="hapus-form"
+
+                                onsubmit="return confirm(
+                                    'Yakin ingin menghapus laporan nomor {{ row.get("No", "") }}?'
+                                );"
+
+                            >
+
+
+                                <button
+
+                                    type="submit"
+
+                                    class="hapus-button"
+
+                                >
+
+                                    Hapus
+
+                                </button>
+
+
+                            </form>
+
+
+                        </td>
+
+
+                    </tr>
+
+
+                {% endfor %}
+
+
+                </tbody>
+
+
+            </table>
+
+
+            {% else %}
+
+
+                <div class="empty">
+
+                    Belum ada laporan
+                    untuk anggota ini.
+
+                </div>
+
+
+            {% endif %}
+
+
+        </div>
+
+
+        <!-- =========================
+             BUTTONS
+        ========================= -->
+
+        <div class="buttons">
+
+
+            <!-- KEMBALI -->
+
+            <a
+
+                href="{{ url_for(
+                    'dashboard_anggota',
+                    nama=nama
+                ) }}"
+
+                class="button"
+
+            >
+
+                ← Kembali ke Dashboard
+
+            </a>
+
+
+            <!-- TAMBAH LAPORAN -->
+
+            <a
+
+                href="{{ url_for(
+                    'form_anggota',
+                    nama=nama
+                ) }}"
+
+                class="button"
+
+            >
+
+                + Tambah Laporan
+
+            </a>
+
+
+            <!-- PDF -->
+
+            <a
+
+                href="{{ url_for(
+                    'download_logbook_pdf',
+                    nama=nama
+                ) }}"
+
+                class="button pdf-button"
+
+            >
+
+                ↓ Download PDF
+
+            </a>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+</body>
+
+</html>
+```

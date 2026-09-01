@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>File - {{ nama }}</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px 20px;
+            background: #b3b3b3;
+            font-family: "Times New Roman", serif;
+        }
+
+        .page {
+            width: 900px;
+            max-width: 100%;
+            margin: auto;
+            background: white;
+            border: 1px solid #555;
+            padding: 30px;
+        }
+
+        h1 {
+            margin: 0 0 8px 0;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            margin: 0 0 25px 0;
+            color: #555;
+            font-size: 16px;
+        }
+
+        .menus {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .file-menu {
+            border: 1px solid #555;
+            border-radius: 8px;
+            background: #fafafa;
+            text-decoration: none;
+            color: #222;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            text-align: center;
+
+            padding: 30px 24px;
+            min-height: 220px;
+
+            transition: .15s ease;
+        }
+
+        .file-menu:hover {
+            background: #f3f3f3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,.12);
+        }
+
+        .icon {
+            font-size: 52px;
+            margin-bottom: 14px;
+        }
+
+        .title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .desc {
+            font-size: 15px;
+            color: #666;
+            line-height: 1.45;
+        }
+
+        .back {
+            display: inline-block;
+
+            margin-top: 25px;
+            padding: 10px 18px;
+
+            background: #eee;
+            color: #222;
+
+            text-decoration: none;
+
+            border: 1px solid #bbb;
+            border-radius: 4px;
+        }
+
+        .back:hover {
+            background: #ddd;
+        }
+
+        @media (max-width: 650px) {
+            .menus {
+                grid-template-columns: 1fr;
+            }
+
+            .page {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="page">
+
+        <h1>📁 File</h1>
+
+        <p class="subtitle">
+            Pilih cara yang ingin digunakan untuk mengelola file.
+        </p>
+
+
+        <div class="menus">
+
+            <!-- =========================================
+                 MENU 1: DRAG AND DROP
+                 ========================================= -->
+            <a
+                class="file-menu"
+                href="/anggota/{{ nama | urlencode }}/form"
+            >
+
+                <div class="icon">
+                    📎
+                </div>
+
+                <div class="title">
+                    Drag and Drop
+                </div>
+
+                <div class="desc">
+                    Upload file melalui form laporan.
+                </div>
+
+            </a>
+
+
+            <!-- =========================================
+                 MENU 2: GOOGLE DRIVE
+                 ========================================= -->
+            <a
+                class="file-menu"
+                href="https://drive.google.com/drive/folders/1gfO_MPTcCMseNmuMUNvr8309xTin_GMc?usp=drive_link"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+
+                <div class="icon">
+                    ☁️
+                </div>
+
+                <div class="title">
+                    Google Drive
+                </div>
+
+                <div class="desc">
+                    Buka folder Google Drive.
+                </div>
+
+            </a>
+
+        </div>
+
+
+        <!-- =========================================
+             KEMBALI KE DASHBOARD
+             ========================================= -->
+        <a
+            class="back"
+            href="/anggota/{{ nama | urlencode }}"
+        >
+            ← Kembali ke Dashboard
+        </a>
+
+    </main>
+
+</body>
+</html>

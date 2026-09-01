@@ -1,0 +1,2905 @@
+<!DOCTYPE html>
+
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+
+          content="width=device-width, initial-scale=1.0">
+
+    <meta http-equiv="Cache-Control"
+
+          content="no-cache, no-store, must-revalidate">
+
+    <meta http-equiv="Pragma"
+
+          content="no-cache">
+
+    <meta http-equiv="Expires"
+
+          content="0">
+
+    <title>Dashboard {{ nama }}</title>
+
+
+
+    <style>
+
+        * {
+
+            box-sizing: border-box;
+
+        }
+
+        html {
+
+            scroll-behavior: smooth;
+
+        }
+
+        body {
+
+            margin: 0;
+
+            padding: 20px;
+
+            background: #b3b3b3;
+
+            font-family: "Times New Roman", serif;
+
+        }
+
+
+
+        .container {
+
+            width: 1100px;
+
+            max-width: 100%;
+
+            margin: auto;
+
+            background: white;
+
+            border: 1px solid #555;
+
+        }
+
+
+
+        /* ==============================
+
+           HEADER
+
+           ============================== */
+
+        .header {
+
+            background: #2f7d20;
+
+            color: white;
+
+            padding: 15px 20px;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+        }
+
+
+
+        .title {
+
+            font-size: 26px;
+
+            font-weight: bold;
+
+        }
+
+
+
+        .member-name {
+
+            font-size: 18px;
+
+            font-weight: bold;
+
+        }
+
+
+
+        .content {
+
+            padding: 20px;
+
+        }
+
+
+
+        .section {
+
+            border: 1px solid #777;
+
+            padding: 15px;
+
+            margin-bottom: 20px;
+
+            background: #fafafa;
+
+            scroll-margin-top: 15px;
+
+        }
+
+
+
+        .section-title {
+
+            font-size: 21px;
+
+            font-weight: bold;
+
+            margin-bottom: 12px;
+
+        }
+
+
+
+        /* ==============================
+
+           PENGUMUMAN
+
+           ============================== */
+
+        .announcement {
+
+            border-left: 6px solid #2f7d20;
+
+            padding: 12px;
+
+            margin-bottom: 8px;
+
+            background: white;
+
+        }
+
+
+
+        .announcement.today {
+
+            border-left-color: #d00000;
+
+            background: #fff0f0;
+
+        }
+
+
+
+        .announcement.soon {
+
+            border-left-color: #e67e00;
+
+            background: #fff7ed;
+
+        }
+
+
+
+        .announcement.week {
+
+            border-left-color: #d6a600;
+
+            background: #fffbea;
+
+        }
+
+
+
+        .announcement.overdue {
+
+            border-left-color: #8b0000;
+
+            background: #ffe5e5;
+
+        }
+
+
+
+        .empty-alert {
+
+            color: #555;
+
+            padding: 5px 0;
+
+        }
+
+
+
+        /* ==============================
+
+           MENU
+
+           ============================== */
+
+        .menu-grid {
+
+            display: grid;
+
+            grid-template-columns: repeat(5, 1fr);
+
+            gap: 15px;
+
+            margin-bottom: 25px;
+
+        }
+
+
+
+        .menu {
+
+            display: block;
+
+            padding: 20px;
+
+            text-align: center;
+
+            border: 1px solid #555;
+
+            background: #eeeeee;
+
+            color: black;
+
+            text-decoration: none;
+
+            font-size: 20px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+        }
+
+
+
+        .menu:hover {
+
+            background: #d7d7d7;
+
+        }
+
+
+
+        .menu.gdrive {
+
+            background: #eef6ff;
+
+        }
+
+
+
+        .menu.gdrive\:hover {
+
+            background: #dcecff;
+
+        }
+
+
+
+        /* ==============================
+
+           KALENDER
+
+           ============================== */
+
+        .calendar-header {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 15px;
+
+        }
+
+
+
+        .calendar-title {
+
+            font-size: 22px;
+
+            font-weight: bold;
+
+        }
+
+
+
+        .calendar-button {
+
+            border: 1px solid #555;
+
+            background: #eeeeee;
+
+            padding: 7px 14px;
+
+            cursor: pointer;
+
+            font-family: "Times New Roman", serif;
+
+            font-size: 16px;
+
+        }
+
+
+
+        .calendar-button:hover {
+
+            background: #dddddd;
+
+        }
+
+
+
+        .calendar-week,
+
+        .calendar-days {
+
+            display: grid;
+
+            grid-template-columns: repeat(7, 1fr);
+
+        }
+
+
+
+        .calendar-week {
+
+            text-align: center;
+
+            font-weight: bold;
+
+            background: #dddddd;
+
+        }
+
+
+
+        .calendar-week div {
+
+            padding: 8px;
+
+            border: 1px solid #aaa;
+
+        }
+
+
+
+        .day {
+
+            min-height: 90px;
+
+            border: 1px solid #aaa;
+
+            padding: 5px;
+
+            position: relative;
+
+            background: white;
+
+        }
+
+
+
+        .day.today {
+
+            background: #e9f5e5;
+
+        }
+
+
+
+        .day-number {
+
+            font-weight: bold;
+
+            font-size: 15px;
+
+        }
+
+
+
+        .deadline {
+
+            margin-top: 5px;
+
+            padding: 4px;
+
+            font-size: 12px;
+
+            border-radius: 3px;
+
+            background: #ffd966;
+
+            overflow-wrap: anywhere;
+
+        }
+
+
+
+        .deadline.today-deadline {
+
+            background: #ff6666;
+
+            color: white;
+
+        }
+
+
+
+        .deadline.soon-deadline {
+
+            background: #f6b26b;
+
+        }
+
+
+
+        .deadline.week-deadline {
+
+            background: #ffe599;
+
+        }
+
+
+
+        .deadline.overdue-deadline {
+
+            background: #d9a0a0;
+
+            color: #4a0000;
+
+        }
+
+
+
+        /* ==============================
+
+           LIST DEADLINE
+
+           ============================== */
+
+        .deadline-list-item {
+
+            padding: 12px;
+
+            margin-bottom: 10px;
+
+            border-left: 5px solid #2f7d20;
+
+            background: white;
+
+        }
+
+
+
+        .deadline-list-item.today {
+
+            border-left-color: #d00000;
+
+        }
+
+
+
+        .deadline-list-item.soon {
+
+            border-left-color: #e67e00;
+
+        }
+
+
+
+        .deadline-list-item.week {
+
+            border-left-color: #d6a600;
+
+        }
+
+
+
+        .deadline-list-item.overdue {
+
+            border-left-color: #8b0000;
+
+        }
+
+
+
+        .status {
+
+            display: inline-block;
+
+            margin-top: 5px;
+
+            padding: 3px 8px;
+
+            border: 1px solid #999;
+
+            background: #eee;
+
+            font-size: 13px;
+
+        }
+
+
+
+        .deadline-action {
+
+            margin-top: 12px;
+
+            padding-top: 10px;
+
+            border-top: 1px solid #ccc;
+
+        }
+
+
+
+        .deadline-action select {
+
+            padding: 7px;
+
+            font-family: "Times New Roman", serif;
+
+            border: 1px solid #888;
+
+            background: white;
+
+        }
+
+
+
+        .deadline-action button {
+
+            padding: 7px 12px;
+
+            margin-left: 5px;
+
+            border: 1px solid #245d19;
+
+            background: #2f7d20;
+
+            color: white;
+
+            cursor: pointer;
+
+            font-family: "Times New Roman", serif;
+
+        }
+
+
+
+        .deadline-action button:hover {
+
+            background: #256619;
+
+        }
+
+
+
+        .deadline-action button:disabled {
+
+            background: #888;
+
+            border-color: #777;
+
+            cursor: wait;
+
+        }
+
+
+
+
+        /* ==============================
+
+           FOOTER
+
+           ============================== */
+
+        .footer {
+
+            margin-top: 20px;
+
+            padding-top: 15px;
+
+            border-top: 1px solid #777;
+
+            display: flex;
+
+            justify-content: space-between;
+
+        }
+
+
+
+        .footer a {
+
+            color: #000;
+
+            text-decoration: none;
+
+        }
+
+
+
+        .logout {
+
+            color: #a00000 !important;
+
+        }
+
+
+
+        /* ==============================
+
+           MOBILE
+
+           ============================== */
+
+        @media (max-width: 700px) {
+
+            body {
+
+                padding: 8px;
+
+            }
+
+
+
+            .header {
+
+                flex-direction: column;
+
+                align-items: flex-start;
+
+                gap: 5px;
+
+            }
+
+
+
+            .menu-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+
+
+            .calendar-week div {
+
+                padding: 5px 2px;
+
+                font-size: 12px;
+
+            }
+
+
+
+            .day {
+
+                min-height: 70px;
+
+                padding: 3px;
+
+            }
+
+
+
+            .deadline {
+
+                font-size: 10px;
+
+            }
+
+
+
+            .deadline-action select,
+
+            .deadline-action button {
+
+                margin-top: 5px;
+
+                margin-left: 0;
+
+            }
+
+
+
+            .modal-box {
+
+                padding: 15px;
+
+            }
+}
+
+    </style>
+
+</head>
+
+
+
+<body>
+
+
+
+<div class="container">
+
+
+
+    <!-- ==============================
+
+         HEADER
+
+         ============================== -->
+
+    <div class="header">
+
+        <div class="title">
+
+            Dashboard Anggota
+
+        </div>
+
+        <div class="member-name">
+
+            {{ nama }}
+
+        </div>
+
+    </div>
+
+
+
+    <div class="content">
+
+
+
+        <!-- ==============================
+
+             PENGUMUMAN
+
+             ============================== -->
+
+        <div class="section"
+
+             id="pengumuman">
+
+            <div class="section-title">
+
+                🔔 Pengumuman Deadline
+
+            </div>
+
+            <div id="deadline-alerts">
+
+                Memeriksa deadline...
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ==============================
+
+             5 MENU
+
+             ============================== -->
+
+        <div class="menu-grid">
+
+
+
+            <a href="/anggota/{{ nama | urlencode }}/form"
+
+               class="menu">
+
+                📝<br>
+
+                Form Laporan
+
+            </a>
+
+
+
+            <a href="/anggota/{{ nama | urlencode }}/logbook"
+
+               class="menu">
+
+                📖<br>
+
+                Logbook
+
+            </a>
+
+
+
+            <a href="#kalender"
+
+               class="menu">
+
+                📅<br>
+
+                Kalender Deadline
+
+            </a>
+
+
+
+            <a href="#pengumuman"
+
+               class="menu">
+
+                🔔<br>
+
+                Pengumuman
+
+            </a>
+
+
+
+            <!-- FILE -->
+
+            <a href="https://drive.google.com/drive/folders/1gfO_MPTcCMseNmuMUNvr8309xTin_GMc?usp=drive_link"
+
+               class="menu gdrive"
+
+               target="_blank"
+
+               rel="noopener noreferrer">
+
+                ☁️<br>
+
+                Google Drive
+
+            </a>
+
+
+
+        </div>
+
+
+
+        <!-- ==============================
+
+             KALENDER
+
+             ============================== -->
+
+        <div class="section"
+
+             id="kalender">
+
+
+
+            <div class="calendar-header">
+
+
+
+                <button type="button"
+
+                        class="calendar-button"
+
+                        onclick="previousMonth()">
+
+                    ←
+
+                </button>
+
+
+
+                <div class="calendar-title"
+
+                     id="calendar-title">
+
+                </div>
+
+
+
+                <button type="button"
+
+                        class="calendar-button"
+
+                        onclick="nextMonth()">
+
+                    →
+
+                </button>
+
+
+
+            </div>
+
+
+
+            <div class="calendar-week">
+
+                <div>Min</div>
+
+                <div>Sen</div>
+
+                <div>Sel</div>
+
+                <div>Rab</div>
+
+                <div>Kam</div>
+
+                <div>Jum</div>
+
+                <div>Sab</div>
+
+            </div>
+
+
+
+            <div class="calendar-days"
+
+                 id="calendar-days">
+
+            </div>
+
+
+
+        </div>
+
+
+
+        <!-- ==============================
+
+             DAFTAR DEADLINE
+
+             ============================== -->
+
+        <div class="section"
+
+             id="deadline-list">
+
+
+
+            <div class="section-title">
+
+                📋 Daftar Deadline
+
+            </div>
+
+
+
+            <div id="deadline-items">
+
+            </div>
+
+
+
+        </div>
+
+
+
+        <!-- ==============================
+
+             FOOTER
+
+             ============================== -->
+
+        <div class="footer">
+
+
+
+            <a href="/anggota">
+
+                ← Daftar Anggota
+
+            </a>
+
+
+
+            <a href="/logout"
+
+               class="logout">
+
+                Keluar
+
+            </a>
+
+
+
+        </div>
+
+
+
+    </div>
+
+</div>
+
+
+
+
+<script>
+
+
+
+/* =================================================
+
+   DATA DARI FLASK
+
+   ================================================= */
+
+const logbookData =
+
+    {{ data | default([], true) | tojson }};
+
+
+
+const namaAnggota =
+
+    {{ nama | tojson }};
+
+
+
+let currentDate =
+
+    new Date();
+const monthNames = [
+
+    "Januari",
+
+    "Februari",
+
+    "Maret",
+
+    "April",
+
+    "Mei",
+
+    "Juni",
+
+    "Juli",
+
+    "Agustus",
+
+    "September",
+
+    "Oktober",
+
+    "November",
+
+    "Desember"
+
+];
+
+
+
+/* =================================================
+
+   PARSING TANGGAL
+
+   ================================================= */
+
+function parseDate(value) {
+
+    if (
+
+        value === null ||
+
+        value === undefined
+
+    ) {
+
+        return null;
+
+    }
+
+
+
+    let text =
+
+        String(value).trim();
+
+
+
+    if (!text) {
+
+        return null;
+
+    }
+
+
+
+    text =
+
+        text
+
+        .split("T")[0]
+
+        .split(" ")[0];
+
+
+
+    let match;
+
+
+
+    /* YYYY-MM-DD / YYYY/MM/DD */
+
+    match =
+
+        text.match(
+
+            /^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/
+
+        );
+
+
+
+    if (match) {
+
+        const y =
+
+            Number(match[1]);
+
+        const m =
+
+            Number(match[2]) - 1;
+
+        const d =
+
+            Number(match[3]);
+
+
+
+        const date =
+
+            new Date(y, m, d);
+
+
+
+        if (
+
+            date.getFullYear() === y &&
+
+            date.getMonth() === m &&
+
+            date.getDate() === d
+
+        ) {
+
+            return date;
+
+        }
+
+    }
+
+
+
+    /* DD-MM-YYYY / DD/MM/YYYY */
+
+    match =
+
+        text.match(
+
+            /^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/
+
+        );
+
+
+
+    if (match) {
+
+        const d =
+
+            Number(match[1]);
+
+        const m =
+
+            Number(match[2]) - 1;
+
+        const y =
+
+            Number(match[3]);
+
+
+
+        const date =
+
+            new Date(y, m, d);
+
+
+
+        if (
+
+            date.getFullYear() === y &&
+
+            date.getMonth() === m &&
+
+            date.getDate() === d
+
+        ) {
+
+            return date;
+
+        }
+
+    }
+
+
+
+    const fallback =
+
+        new Date(text);
+
+
+
+    return isNaN(
+
+        fallback.getTime()
+
+    )
+
+        ? null
+
+        : fallback;
+
+}
+
+
+
+/* =================================================
+
+   TANGGAL TANPA JAM
+
+   ================================================= */
+
+function dateOnly(date) {
+
+    return new Date(
+
+        date.getFullYear(),
+
+        date.getMonth(),
+
+        date.getDate()
+
+    );
+
+}
+
+
+
+/* =================================================
+
+   SELISIH HARI
+
+   ================================================= */
+
+function daysDifference(
+
+    target,
+
+    now
+
+) {
+
+    const oneDay =
+
+        24 * 60 * 60 * 1000;
+
+
+
+    return Math.round(
+
+        (
+
+            dateOnly(target) -
+
+            dateOnly(now)
+
+        ) / oneDay
+
+    );
+
+}
+
+
+
+/* =================================================
+
+   FORMAT TANGGAL
+
+   ================================================= */
+
+function formatDate(date) {
+
+    return (
+
+        String(
+
+            date.getDate()
+
+        ).padStart(2, "0")
+
+        +
+
+        " "
+
+        +
+
+        monthNames[
+
+            date.getMonth()
+
+        ]
+
+        +
+
+        " "
+
+        +
+
+        date.getFullYear()
+
+    );
+
+}
+
+
+
+/* =================================================
+
+   FORMAT YYYY-MM-DD
+
+   ================================================= */
+
+function formatDateForInput(date) {
+
+    return (
+
+        date.getFullYear()
+
+        +
+
+        "-"
+
+        +
+
+        String(
+
+            date.getMonth() + 1
+
+        ).padStart(2, "0")
+
+        +
+
+        "-"
+
+        +
+
+        String(
+
+            date.getDate()
+
+        ).padStart(2, "0")
+
+    );
+
+}
+
+
+
+/* =================================================
+
+   STATUS SELESAI
+
+   ================================================= */
+
+function isCompletedStatus(status) {
+
+    const value =
+
+        String(status || "")
+
+        .trim()
+
+        .toLowerCase();
+
+
+
+    return [
+
+        "selesai",
+
+        "complete",
+
+        "completed",
+
+        "done"
+
+    ].includes(value);
+
+}
+
+
+
+/* =================================================
+
+   AMBIL DEADLINE
+
+   ================================================= */
+
+function getDeadlines() {
+
+    const result = [];
+
+
+
+    if (
+
+        !Array.isArray(logbookData)
+
+    ) {
+
+        return result;
+
+    }
+
+
+
+    const completedKeys =
+
+        new Set();
+
+
+
+    logbookData.forEach(
+
+        function(row) {
+
+            if (!row) return;
+
+
+
+            const deadlineText =
+
+                String(
+
+                    row["Deadline"] ??
+
+                    row["deadline"] ??
+
+                    ""
+
+                ).trim();
+
+
+
+            const keteranganText =
+
+                String(
+
+                    row["Keterangan"] ??
+
+                    row["keterangan"] ??
+
+                    ""
+
+                ).trim();
+
+
+
+            const statusText =
+
+                String(
+
+                    row["Status"] ??
+
+                    row["status"] ??
+
+                    ""
+
+                ).trim();
+
+
+
+            if (
+
+                isCompletedStatus(
+
+                    statusText
+
+                )
+
+                &&
+
+                deadlineText
+
+            ) {
+
+                completedKeys.add(
+
+                    deadlineText.toLowerCase()
+
+                    +
+
+                    "||"
+
+                    +
+
+                    keteranganText.toLowerCase()
+
+                );
+
+            }
+
+        }
+
+    );
+
+
+
+    logbookData.forEach(
+
+        function(row) {
+
+            if (!row) return;
+
+
+
+            const rawDeadline =
+
+                row["Deadline"] ??
+
+                row["deadline"] ??
+
+                "";
+
+
+
+            const date =
+
+                parseDate(
+
+                    rawDeadline
+
+                );
+
+
+
+            if (!date) return;
+
+
+
+            const status =
+
+                String(
+
+                    row["Status"] ??
+
+                    row["status"] ??
+
+                    "Pending"
+
+                ).trim();
+
+
+
+            const text =
+
+                String(
+
+                    row["Keterangan"] ??
+
+                    row["keterangan"] ??
+
+                    "Deadline"
+
+                ).trim()
+
+                ||
+
+                "Deadline";
+
+
+
+            if (
+
+                isCompletedStatus(status)
+
+            ) {
+
+                return;
+
+            }
+
+
+
+            const key =
+
+                String(
+
+                    rawDeadline
+
+                )
+
+                .trim()
+
+                .toLowerCase()
+
+                +
+
+                "||"
+
+                +
+
+                text.toLowerCase();
+
+
+
+            if (
+
+                completedKeys.has(key)
+
+            ) {
+
+                return;
+
+            }
+
+
+
+            result.push({
+
+                date: date,
+
+                text: text,
+
+                status: status,
+
+                no:
+
+                    row["No"] ??
+
+                    row["no"] ??
+
+                    "",
+
+                tanggal:
+
+                    row["Tanggal"] ??
+
+                    row["tanggal"] ??
+
+                    "",
+
+                rawDeadline:
+
+                    String(
+
+                        rawDeadline
+
+                    ).trim()
+
+            });
+
+        }
+
+    );
+
+
+
+    return result;
+
+}
+
+
+
+/* =================================================
+
+   WARNA DEADLINE
+
+   ================================================= */
+
+function getDeadlineClass(diff) {
+
+    if (diff < 0) {
+
+        return "overdue-deadline";
+
+    }
+
+
+
+    if (diff === 0) {
+
+        return "today-deadline";
+
+    }
+
+
+
+    if (diff <= 3) {
+
+        return "soon-deadline";
+
+    }
+
+
+
+    if (diff <= 7) {
+
+        return "week-deadline";
+
+    }
+
+
+
+    return "";
+
+}
+
+
+
+/* =================================================
+
+   WARNA PENGUMUMAN
+
+   ================================================= */
+
+function getAlertClass(diff) {
+
+    if (diff < 0) {
+
+        return "overdue";
+
+    }
+
+
+
+    if (diff === 0) {
+
+        return "today";
+
+    }
+
+
+
+    if (diff <= 3) {
+
+        return "soon";
+
+    }
+
+
+
+    if (diff <= 7) {
+
+        return "week";
+
+    }
+
+
+
+    return "";
+
+}
+
+
+
+/* =================================================
+
+   TEKS ALARM
+
+   ================================================= */
+
+function alertText(diff) {
+
+    if (diff < 0) {
+
+        return (
+
+            "⚠️ DEADLINE TERLEWAT " +
+
+            Math.abs(diff) +
+
+            " HARI"
+
+        );
+
+    }
+
+
+
+    if (diff === 0) {
+
+        return "🔴 DEADLINE HARI INI";
+
+    }
+
+
+
+    if (diff === 1) {
+
+        return "🟠 1 HARI LAGI";
+
+    }
+
+
+
+    if (diff <= 3) {
+
+        return (
+
+            "🟠 " +
+
+            diff +
+
+            " HARI LAGI"
+
+        );
+
+    }
+
+
+
+    if (diff <= 7) {
+
+        return (
+
+            "🟡 " +
+
+            diff +
+
+            " HARI LAGI"
+
+        );
+
+    }
+
+
+
+    return (
+
+        "🟢 " +
+
+        diff +
+
+        " HARI LAGI"
+
+    );
+
+}
+
+
+
+/* =================================================
+
+   PENGUMUMAN
+
+   ================================================= */
+
+function renderAlerts() {
+
+    const container =
+
+        document.getElementById(
+
+            "deadline-alerts"
+
+        );
+
+
+
+    const deadlines =
+
+        getDeadlines();
+
+
+
+    const now =
+
+        new Date();
+
+
+
+    deadlines.sort(
+
+        function(a, b) {
+
+            return a.date - b.date;
+
+        }
+
+    );
+
+
+
+    let html = "";
+
+    let shown = 0;
+
+
+
+    deadlines.forEach(
+
+        function(item) {
+
+            const diff =
+
+                daysDifference(
+
+                    item.date,
+
+                    now
+
+                );
+
+
+
+            if (diff > 7) {
+
+                return;
+
+            }
+
+
+
+            const cls =
+
+                getAlertClass(
+
+                    diff
+
+                );
+
+
+
+            html += `
+
+                <div class="announcement ${cls}">
+
+                    <b>
+
+                        ${alertText(diff)}
+
+                    </b>
+
+                    <br>
+
+                    ${escapeHtml(item.text)}
+
+                    <br>
+
+                    Deadline:
+
+                    <b>
+
+                        ${formatDate(item.date)}
+
+                    </b>
+
+                    <br>
+
+                    Status:
+
+                    ${escapeHtml(item.status)}
+
+                </div>
+
+            `;
+
+
+
+            shown++;
+
+        }
+
+    );
+
+
+
+    if (shown === 0) {
+
+        html = `
+
+            <div class="empty-alert">
+
+                Tidak ada deadline
+
+                yang mendekat dalam
+
+                7 hari ke depan.
+
+            </div>
+
+        `;
+
+    }
+
+
+
+    container.innerHTML =
+
+        html;
+
+}
+
+
+
+/* =================================================
+
+   KALENDER
+
+   ================================================= */
+
+function renderCalendar() {
+
+    const year =
+
+        currentDate.getFullYear();
+
+
+
+    const month =
+
+        currentDate.getMonth();
+
+
+
+    document.getElementById(
+
+        "calendar-title"
+
+    ).innerText =
+
+        monthNames[month]
+
+        +
+
+        " "
+
+        +
+
+        year;
+
+
+
+    const calendar =
+
+        document.getElementById(
+
+            "calendar-days"
+
+        );
+
+
+
+    calendar.innerHTML = "";
+
+
+
+    const firstDay =
+
+        new Date(
+
+            year,
+
+            month,
+
+            1
+
+        );
+
+
+
+    const totalDays =
+
+        new Date(
+
+            year,
+
+            month + 1,
+
+            0
+
+        ).getDate();
+
+
+
+    const startDay =
+
+        firstDay.getDay();
+
+
+
+    for (
+
+        let i = 0;
+
+        i < startDay;
+
+        i++
+
+    ) {
+
+        const empty =
+
+            document.createElement(
+
+                "div"
+
+            );
+
+
+
+        empty.className =
+
+            "day";
+
+
+
+        calendar.appendChild(
+
+            empty
+
+        );
+
+    }
+
+
+
+    const deadlines =
+
+        getDeadlines();
+
+
+
+    const today =
+
+        new Date();
+
+
+
+    for (
+
+        let day = 1;
+
+        day <= totalDays;
+
+        day++
+
+    ) {
+
+        const cell =
+
+            document.createElement(
+
+                "div"
+
+            );
+
+
+
+        cell.className =
+
+            "day";
+
+
+
+        const number =
+
+            document.createElement(
+
+                "div"
+
+            );
+
+
+
+        number.className =
+
+            "day-number";
+
+
+
+        number.innerText =
+
+            day;
+
+
+
+        cell.appendChild(
+
+            number
+
+        );
+
+
+
+        if (
+
+            day === today.getDate()
+
+            &&
+
+            month === today.getMonth()
+
+            &&
+
+            year === today.getFullYear()
+
+        ) {
+
+            cell.classList.add(
+
+                "today"
+
+            );
+
+        }
+
+
+
+        deadlines.forEach(
+
+            function(item) {
+
+                if (
+
+                    item.date.getDate()
+
+                    ===
+
+                    day
+
+                    &&
+
+                    item.date.getMonth()
+
+                    ===
+
+                    month
+
+                    &&
+
+                    item.date.getFullYear()
+
+                    ===
+
+                    year
+
+                ) {
+
+                    const diff =
+
+                        daysDifference(
+
+                            item.date,
+
+                            today
+
+                        );
+
+
+
+                    const event =
+
+                        document.createElement(
+
+                            "div"
+
+                        );
+
+
+
+                    event.className =
+
+                        "deadline";
+
+
+
+                    const deadlineClass =
+
+                        getDeadlineClass(
+
+                            diff
+
+                        );
+
+
+
+                    if (
+
+                        deadlineClass
+
+                    ) {
+
+                        event.classList.add(
+
+                            deadlineClass
+
+                        );
+
+                    }
+
+
+
+                    event.innerText =
+
+                        item.text;
+
+
+
+                    event.title =
+
+                        "Deadline: "
+
+                        +
+
+                        formatDate(
+
+                            item.date
+
+                        )
+
+                        +
+
+                        " | Status: "
+
+                        +
+
+                        item.status;
+
+
+
+                    cell.appendChild(
+
+                        event
+
+                    );
+
+                }
+
+            }
+
+        );
+
+
+
+        calendar.appendChild(
+
+            cell
+
+        );
+
+    }
+
+}
+
+
+
+/* =================================================
+
+   DAFTAR DEADLINE
+
+   ================================================= */
+
+function renderDeadlineList() {
+
+    const container =
+
+        document.getElementById(
+
+            "deadline-items"
+
+        );
+
+
+
+    const deadlines =
+
+        getDeadlines();
+
+
+
+    const now =
+
+        new Date();
+
+
+
+    deadlines.sort(
+
+        function(a, b) {
+
+            return a.date - b.date;
+
+        }
+
+    );
+
+
+
+    let html = "";
+
+
+
+    deadlines.forEach(
+
+        function(item, index) {
+
+            const diff =
+
+                daysDifference(
+
+                    item.date,
+
+                    now
+
+                );
+
+
+
+            let cls = "";
+
+
+
+            if (diff < 0) {
+
+                cls = "overdue";
+
+            }
+
+            else if (diff === 0) {
+
+                cls = "today";
+
+            }
+
+            else if (diff <= 3) {
+
+                cls = "soon";
+
+            }
+
+            else if (diff <= 7) {
+
+                cls = "week";
+
+            }
+
+
+
+            let keterangan;
+
+
+
+            if (diff < 0) {
+
+                keterangan =
+
+                    "⚠️ Terlewat " +
+
+                    Math.abs(diff) +
+
+                    " hari";
+
+            }
+
+            else if (diff === 0) {
+
+                keterangan =
+
+                    "🔴 Hari ini";
+
+            }
+
+            else if (diff === 1) {
+
+                keterangan =
+
+                    "⏳ 1 hari lagi";
+
+            }
+
+            else {
+
+                keterangan =
+
+                    "⏳ " +
+
+                    diff +
+
+                    " hari lagi";
+
+            }
+
+
+
+            const safeId =
+
+                "deadline-status-" +
+
+                index;
+
+
+
+            html += `
+
+                <div class="deadline-list-item ${cls}">
+
+                    <b>
+
+                        ${formatDate(item.date)}
+
+                    </b>
+
+                    —
+
+                    ${keterangan}
+
+                    <br><br>
+
+                    <b>
+
+                        ${escapeHtml(item.text)}
+
+                    </b>
+
+                    <br>
+
+                    <span class="status">
+
+                        Status saat ini:
+
+                        ${escapeHtml(item.status)}
+
+                    </span>
+
+
+
+                    <div class="deadline-action">
+
+                        <label for="${safeId}">
+
+                            Ubah status:
+
+                        </label>
+
+
+
+                        <select id="${safeId}">
+
+                            ${statusOption(
+
+                                "Pending",
+
+                                item.status
+
+                            )}
+
+                            ${statusOption(
+
+                                "Progress",
+
+                                item.status
+
+                            )}
+
+                            ${statusOption(
+
+                                "Complete",
+
+                                item.status
+
+                            )}
+
+                        </select>
+
+
+
+                        <button
+
+                            type="button"
+
+                            onclick="makeDeadlineReport(${index})"
+
+                        >
+
+                            Jadikan Laporan Baru
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+
+    );
+
+
+
+    if (!html) {
+
+        html = `
+
+            <div class="empty-alert">
+
+                Tidak ada deadline aktif.
+
+            </div>
+
+        `;
+
+    }
+
+
+
+    container.innerHTML =
+
+        html;
+
+
+
+    window.currentDeadlineList =
+
+        deadlines;
+
+}
+
+
+
+/* =================================================
+
+   OPTION STATUS
+
+   ================================================= */
+
+function statusOption(
+
+    value,
+
+    current
+
+) {
+
+    const selected =
+
+        String(current || "")
+
+        .trim()
+
+        .toLowerCase()
+
+        ===
+
+        value.toLowerCase()
+
+            ? " selected"
+
+            : "";
+
+
+
+    return `
+
+        <option
+
+            value="${escapeHtml(value)}"
+
+            ${selected}
+
+        >
+
+            ${escapeHtml(value)}
+
+        </option>
+
+    `;
+
+}
+
+
+
+/* =================================================
+   JADIKAN DEADLINE SEBAGAI LAPORAN BARU
+   =================================================
+
+   Menggunakan endpoint FORM LAPORAN normal.
+   Data dikirim melalui endpoint FORM LAPORAN normal:
+
+   POST /anggota/<nama>/form
+
+   Hanya status Complete yang dapat dijadikan laporan baru.
+   Setelah berhasil, dashboard dimuat ulang sehingga deadline
+   dengan Keterangan + Deadline yang sama otomatis menghilang.
+   ================================================= */
+function makeDeadlineReport(index) {
+    const item = window.currentDeadlineList && window.currentDeadlineList[index];
+    if (!item) {
+        alert("Data deadline tidak ditemukan.");
+        return;
+    }
+
+    const select = document.getElementById("deadline-status-" + index);
+    const status = select ? select.value : item.status;
+
+    if (String(status).trim().toLowerCase() !== "complete") {
+        alert("Ubah status deadline menjadi Complete terlebih dahulu.");
+        return;
+    }
+
+    /* POST langsung ke form laporan normal. Tidak memakai fetch/AJAX. */
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = "/anggota/" + encodeURIComponent(namaAnggota) + "/form";
+    form.style.display = "none";
+
+    function addHidden(name, value) {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = name;
+        input.value = value == null ? "" : String(value);
+        form.appendChild(input);
+    }
+
+    addHidden("tanggal", item.tanggal || formatDateForInput(item.date));
+    addHidden("keterangan", item.text || "");
+    addHidden("deadline", formatDateForInput(item.date));
+    addHidden("status", "Complete");
+
+    document.body.appendChild(form);
+    form.submit();
+}
+
+/* =================================================
+
+   ESCAPE HTML
+
+   ================================================= */
+
+function escapeHtml(text) {
+
+    return String(text)
+
+        .replace(
+
+            /&/g,
+
+            "&amp;"
+
+        )
+
+        .replace(
+
+            /</g,
+
+            "&lt;"
+
+        )
+
+        .replace(
+
+            />/g,
+
+            "&gt;"
+
+        )
+
+        .replace(
+
+            /"/g,
+
+            "&quot;"
+
+        )
+
+        .replace(
+
+            /'/g,
+
+            "&#039;"
+
+        );
+
+}
+
+
+
+/* =================================================
+
+   BULAN SEBELUMNYA
+
+   ================================================= */
+
+function previousMonth() {
+
+    currentDate.setDate(1);
+
+
+
+    currentDate.setMonth(
+
+        currentDate.getMonth() - 1
+
+    );
+
+
+
+    renderCalendar();
+
+}
+
+
+
+/* =================================================
+
+   BULAN BERIKUTNYA
+
+   ================================================= */
+
+function nextMonth() {
+
+    currentDate.setDate(1);
+
+
+
+    currentDate.setMonth(
+
+        currentDate.getMonth() + 1
+
+    );
+
+
+
+    renderCalendar();
+
+}
+
+
+
+
+/* =================================================
+
+   JALANKAN
+
+   ================================================= */
+
+document.addEventListener(
+
+    "DOMContentLoaded",
+
+    function() {
+
+        renderCalendar();
+
+        renderAlerts();
+
+        renderDeadlineList();
+
+    }
+
+);
+
+</script>
+
+
+
+</body>
+
+</html>
