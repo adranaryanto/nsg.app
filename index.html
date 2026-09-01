@@ -145,6 +145,13 @@ body.stock-body{background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:
           </div>
           <div id="memberError" class="error"></div>
         </div>
+        <div class="notice" style="margin-top:18px">
+          <strong>Penyimpanan bersama</strong><br>
+          <span id="githubStorageStatus">GitHub: belum terhubung</span><br>
+          <button class="button green-button" type="button" style="margin-top:8px" onclick="setGithubToken()">Hubungkan GitHub</button>
+          <button class="button" type="button" style="margin-top:8px" onclick="githubPullData()">Muat members.json</button>
+          <div style="font-size:12px;margin-top:6px">Anggota dan logbook disimpan bersama di <code>members.json</code> repository GitHub.</div>
+        </div>
       </div>
       <div class="footer"><a class="button" onclick="showPage('menu')">← Kembali ke Menu Utama</a><a class="button logout" onclick="logout()">LOGOUT</a></div>
     </section>
@@ -253,16 +260,20 @@ const CONFIG={
   PASSWORD:"1234",
   MEMBER_FILE:"members.json",
   BOOKING_DATA_FILE:"data/bookings.json",
+  GITHUB_OWNER:"gladethelord01-droid",
+  GITHUB_REPO:"nsg.app",
+  GITHUB_BRANCH:"main",
   GOOGLE_DRIVE_FILE_URL:"https://drive.google.com/drive/folders/1gfO_MPTcCMseNmuMUNvr8309xTin_GMc?usp=drive_link",
   ALLOWED_EXTENSIONS:["jpg","jpeg","png","pdf","doc","docx","xls","xlsx","csv","txt"]
 };
-const KEYS={members:"nsg_members_v2",bookings:"nsg_bookings_v2",logbook:"nsg_logbook_v2",stock:"nsg_stock_v2",login:"nsg_logged_in",sourceMembers:"nsg_source_members_loaded",sourceBookings:"nsg_source_bookings_loaded",sourceLogbook:"nsg_source_logbook_loaded_v1",blankInit:"nsg_blank_data_initialized_v4"};
+const KEYS={members:"nsg_members_v2",bookings:"nsg_bookings_v2",logbook:"nsg_logbook_v2",stock:"nsg_stock_v2",login:"nsg_logged_in",sourceMembers:"nsg_source_members_loaded",sourceBookings:"nsg_source_bookings_loaded",sourceLogbook:"nsg_source_logbook_loaded_v1",blankInit:"nsg_blank_data_initialized_v3"};
 let currentPage="menu",currentMember="",currentBookingId="",filesReturnPage="menu",calendarDate=new Date(),calendarBookings=[],members=[],logbookRows=[],stockRows=[];
 
 function $(id){return document.getElementById(id)}
 function escapeHTML(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/'/g,"&#039;")}
 function getJSON(key,fallback){try{const raw=localStorage.getItem(key);return raw===null?fallback:JSON.parse(raw)}catch{return fallback}}
 function setJSON(key,value){localStorage.setItem(key,JSON.stringify(value))}
+const originalSetJSON=setJSON
 function safeFilename(name){return String(name??"").replace(/[<>:"/\\|?*]/g,"_").trim()}
 function dateKey(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function parseDateLocal(v){if(!v)return null;const m=String(v).trim().match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);return m?new Date(+m[1],+m[2]-1,+m[3]):null}
@@ -280,75 +291,35 @@ function bookingCoversDate(b,d){const s=bookingStart(b),e=bookingEnd(b);if(!s||!
 function bookingClass(b){const e=bookingEnd(b);if(!e)return"";const diff=daysDiff(nowDateOnly(),e);if(diff<0)return"past";if(diff===0)return"today";if(diff<=3)return"soon";return""}
 function allowedFile(name){const p=String(name||"").toLowerCase().split(".");return p.length>1&&CONFIG.ALLOWED_EXTENSIONS.includes(p.pop())}
 
-// Jika CSV sudah terhubung, CSV per anggota menjadi sumber utama logbook.
-// Ini mencegah browser A melihat data lama dari localStorage ketika browser B
-// sudah menambahkan/mengubah laporan pada file CSV yang sama.
-const _getLogbookBeforeCSV=getLogbook;
-getLogbook=async function(){
-  if(CSV_STORE.dir&&currentMember){
-    const filename=memberCSVName(currentMember);
-    if(await csvExists(filename)){
-      const raw=await readCSVFile(filename);
-      const rows=raw.map((r,i)=>({
-        id:r.id||("csv_"+safeFilename(currentMember)+"_"+i),
-        nama:currentMember,
-        No:r.No||String(i+1),
-        tanggal:r.Tanggal||r.tanggal||"",
-        keterangan:r.Keterangan||r.keterangan||"",
-        deadline:isCompletedStatus(r.Status||r.status||"")?"":(r.Deadline||r.deadline||""),
-        status:canonicalStatus(r.Status||r.status||"Pending"),
-        file:r.File||r.file||""
-      }));
-      const all=originalSetJSON&&getJSON(KEYS.logbook,[])||[];
-      const memberKey=normalizeMember(currentMember);
-      const kept=all.filter(x=>normalizeMember(x.nama||x.member)!==memberKey);
-      originalSetJSON(KEYS.logbook,kept.concat(rows));
-      return rows;
-    }
-  }
-  return _getLogbookBeforeCSV();
-};
-
-async function loadInitialData(){
-  // Versi baru dimulai dengan daftar Anggota dan Stock kosong, seperti web baru.
-  // Reset satu kali untuk menghapus data contoh/seed dari versi app.html sebelumnya.
-  if(localStorage.getItem(KEYS.blankInit)!=="1"){
-    // Mulai ulang data Anggota dan Stock agar versi ini benar-benar kosong.
-    // Data deadline/logbook/booking tidak disentuh.
-    localStorage.removeItem(KEYS.members);
-    localStorage.removeItem(KEYS.stock);
-    localStorage.removeItem(KEYS.sourceMembers);
-    localStorage.setItem(KEYS.blankInit,"1");
-  }
-
-  members=[];
-  // Jangan mengambil members.json otomatis: halaman Anggota harus kosong pada instalasi baru.
-
-  // Muat bookings.json hanya sebagai data awal. Setelah pengguna menghapus
-  // booking, localStorage menjadi sumber utama agar booking yang dihapus
-  // tidak muncul kembali ketika app.html dibuka ulang.
-  const storedBookings=localStorage.getItem(KEYS.bookings);
-  if(storedBookings!==null){
-    calendarBookings=ensureUniqueBookingIds(getJSON(KEYS.bookings,[]));
-    setJSON(KEYS.bookings,calendarBookings);
-  }else{
-    calendarBookings=[];
-    try{
-      const r=await fetch(CONFIG.BOOKING_DATA_FILE+"?_="+Date.now(),{cache:"no-store"});
-      if(r.ok){
-        const d=await r.json();
-        if(Array.isArray(d))calendarBookings=ensureUniqueBookingIds(d);
-      }
-    }catch{}
-    setJSON(KEYS.bookings,calendarBookings);
-    localStorage.setItem(KEYS.sourceBookings,"1");
-  }
-
-  stockRows=getJSON(KEYS.stock,[]);
-  // Tidak ada barang contoh/seed. Stock dimulai benar-benar kosong.
-  if(!Array.isArray(stockRows))stockRows=[];
-  renderStock();
+function canonicalStatus(status){
+  const v=String(status??"").trim().toLowerCase().replace(/[\s_-]+/g,"");
+  if(["complete","completed","selesai","sudahselesai","done","finish","finished","complate","complated"].includes(v))return "Complete";
+  if(v==="progress"||v==="proses"||v==="berjalan")return "Progress";
+  return "Pending";
 }
+function isCompletedStatus(status){return canonicalStatus(status)==="Complete"}
+function normalizeReport(r,name){const st=canonicalStatus(r?.status??r?.Status??"Pending");return {...r,id:String(r?.id??("r_"+Date.now()+"_"+Math.random().toString(36).slice(2,8))),nama:name||r?.nama||r?.member||"",status:st,deadline:st==="Complete"?"":String(r?.deadline??r?.Deadline??""),tanggal:r?.tanggal??r?.Tanggal??"",keterangan:r?.keterangan??r?.Keterangan??"",file:r?.file??r?.File??""}}
+function githubStateFromData(data){
+  if(Array.isArray(data))return {version:1,members:data.map(normalizeMember).filter(Boolean),logbooks:{}};
+  const members0=Array.isArray(data?.members)?data.members.map(normalizeMember).filter(Boolean):[];
+  const logs={};
+  for(const [name,rows] of Object.entries(data?.logbooks&&typeof data.logbooks==="object"?data.logbooks:{}))if(Array.isArray(rows))logs[name]=rows.map(r=>normalizeReport(r,name));
+  return {version:1,members:members0,logbooks:logs};
+}
+function githubStateFromLocal(){const all=getJSON(KEYS.logbook,[]);const st={version:1,members:[...(members||[])],logbooks:{}};for(const n of st.members)st.logbooks[n]=(Array.isArray(all)?all:[]).filter(r=>normalizeMember(r.nama||r.member).toLowerCase()===String(n).toLowerCase()).map(r=>normalizeReport(r,n));return st}
+function ghBase(path){return "https://api.github.com/repos/"+encodeURIComponent(CONFIG.GITHUB_OWNER)+"/"+encodeURIComponent(CONFIG.GITHUB_REPO)+"/contents/"+path.split("/").map(encodeURIComponent).join("/")}
+function ghHeaders(){const h={Accept:"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"};const t=sessionStorage.getItem("nsg_github_token_v1");if(t)h.Authorization="Bearer "+t;return h}
+function ghToken(){return sessionStorage.getItem("nsg_github_token_v1")||""}
+function encodeUTF8Base64(text){const b=new TextEncoder().encode(text);let x="";for(let i=0;i<b.length;i+=0x8000)x+=String.fromCharCode(...b.subarray(i,i+0x8000));return btoa(x)}
+async function githubRead(){const r=await fetch(ghBase(CONFIG.MEMBER_FILE)+"?ref="+encodeURIComponent(CONFIG.GITHUB_BRANCH)+"&_="+Date.now(),{cache:"no-store",headers:ghHeaders()});if(!r.ok)throw new Error("members.json tidak dapat dibaca (HTTP "+r.status+")");const d=await r.json();const raw=String(d.content||"").replace(/\n/g,"");const bytes=Uint8Array.from(atob(raw),c=>c.charCodeAt(0));return {state:githubStateFromData(JSON.parse(new TextDecoder().decode(bytes))),sha:d.sha||null}}
+async function githubWrite(state,message,sha){if(!ghToken())throw new Error("GitHub belum terhubung. Klik Hubungkan GitHub lalu masukkan token Contents: Read and write.");const body={message:message||"Update NSG data",content:encodeUTF8Base64(JSON.stringify(state,null,2)+"\n"),branch:CONFIG.GITHUB_BRANCH};if(sha)body.sha=sha;const r=await fetch(ghBase(CONFIG.MEMBER_FILE),{method:"PUT",headers:{...ghHeaders(),"Content-Type":"application/json"},body:JSON.stringify(body)});const d=await r.json().catch(()=>null);if(!r.ok)throw new Error(d?.message||("GitHub write HTTP "+r.status));return d?.content?.sha||null}
+async function githubCommit(message,mutator){if(!ghToken()&&!setGithubToken())throw new Error("Penyimpanan dibatalkan: GitHub belum terhubung.");for(let attempt=0;attempt<3;attempt++){const remote=await githubRead();const state=remote.state;await mutator(state);try{const sha=await githubWrite(state,message,remote.sha);return {state,sha}}catch(e){if(!String(e.message).toLowerCase().includes("sha")&&attempt===0)throw e;if(attempt===2)throw e}}}
+async function applyGithubState(state){members=[...(state.members||[])];const logs=[];for(const [name,rows] of Object.entries(state.logbooks||{}))for(const r of (rows||[]))logs.push(normalizeReport(r,name));originalSetJSON(KEYS.members,members);originalSetJSON(KEYS.logbook,logs);renderMembers();if(currentMember&&currentPage==="dashboard")await renderDashboard();if(currentMember&&currentPage==="logbook")await renderLogbook()}
+async function githubPullData(){try{const remote=await githubRead();await applyGithubState(remote.state);return true}catch(e){console.warn("GitHub members.json:",e);return false}}
+function setGithubToken(){const old=ghToken();const token=prompt("GitHub Personal Access Token — izin yang dibutuhkan: Contents Read and write",old);if(token===null)return false;if(token.trim())sessionStorage.setItem("nsg_github_token_v1",token.trim());else sessionStorage.removeItem("nsg_github_token_v1");updateGithubStatus();return !!ghToken()}
+function updateGithubStatus(){const el=$("githubStorageStatus");if(el)el.textContent=ghToken()?"GitHub: TERHUBUNG → members.json":"GitHub: belum terhubung"}
+
+async function loadInitialData(){const remoteOK=await githubPullData();if(!remoteOK){members=getJSON(KEYS.members,[]).map(normalizeMember).filter(Boolean);stockRows=getJSON(KEYS.stock,[]);const storedBookings=localStorage.getItem(KEYS.bookings);if(storedBookings!==null)calendarBookings=ensureUniqueBookingIds(getJSON(KEYS.bookings,[]));else{calendarBookings=[];try{const r=await fetch(CONFIG.BOOKING_DATA_FILE+"?_="+Date.now(),{cache:"no-store"});if(r.ok){const d=await r.json();if(Array.isArray(d))calendarBookings=ensureUniqueBookingIds(d)}}catch{}setJSON(KEYS.bookings,calendarBookings)}renderMembers();renderStock()}}
 
 function showPage(name){
   if(name!=="login"&&!isLoggedIn()){showLogin();return}
@@ -382,16 +353,43 @@ function goBackFromFiles(){showPage(filesReturnPage||"menu")}
 $("bookingForm").addEventListener("submit",async e=>{
   e.preventDefault();const err=$("bookingError");err.textContent="";
   const nama=$("bookingNama").value.trim(),nomor_telepon=$("bookingPhone").value.trim(),alat=$("bookingAlat").value.trim();let tanggal_mulai=$("tanggal_mulai").value.trim(),tanggal_selesai=$("tanggal_selesai").value.trim();const jam_mulai=$("jam_mulai").value.trim(),jam_selesai=$("jam_selesai").value.trim(),keperluan=$("bookingKeperluan").value.trim(),catatan=$("bookingCatatan").value.trim();
-  if(!nama){err.textContent="Nama peminjam wajib dipilih.";return}if(!alat){err.textContent="Nama alat wajib diisi.";return}if(!tanggal_mulai){err.textContent="Tanggal mulai wajib diisi.";return}if(!tanggal_selesai)tanggal_selesai=tanggal_mulai;const s=parseDateLocal(tanggal_mulai),z=parseDateLocal(tanggal_selesai);if(!s||!z){err.textContent="Format tanggal peminjaman tidak valid.";return}if(z<s){err.textContent="Tanggal selesai tidak boleh lebih awal daripada tanggal mulai.";return}if(!jam_mulai||!jam_selesai){err.textContent="Jam mulai dan jam selesai wajib diisi.";return}if(tanggal_mulai===tanggal_selesai&&jam_selesai<=jam_mulai){err.textContent="Untuk peminjaman 1 hari, jam selesai harus setelah jam mulai.";return}
-  const payload={nama,nomor_telepon,alat,tanggal:tanggal_mulai,tanggal_mulai,tanggal_selesai,jam_mulai,jam_selesai,keperluan,catatan};
-  try{const sr=await fetch("/api/bookings",{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},credentials:"same-origin",body:JSON.stringify(payload)});const saved=await sr.json().catch(()=>null);if(!sr.ok||!saved?.success)throw new Error(saved?.message||"Server gagal menyimpan peminjaman.");calendarBookings=ensureUniqueBookingIds(saved.bookings||[]);renderCalendar()}catch(ex){err.textContent=ex.message;return}
-  try{const r=await fetch(CONFIG.GOOGLE_APPS_SCRIPT_BOOKING_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8","Accept":"application/json"},body:JSON.stringify({...payload,action:"booking",type:"booking",spreadsheetId:CONFIG.GOOGLE_BOOKING_SPREADSHEET_ID,spreadsheetUrl:CONFIG.GOOGLE_BOOKING_SPREADSHEET_URL})});const text=(await r.text()).trim();let result=null;try{result=JSON.parse(text)}catch{}if(!r.ok)throw new Error("Google Apps Script HTTP "+r.status+"\n"+text);if(result&&String(result.success).toLowerCase()!=="true"&&result.success!==true&&!(text.toLowerCase().includes("success")&&text.toLowerCase().includes("true")))throw new Error(result?.message||result?.error||text||"Google Apps Script menolak data booking.");alert("Booking berhasil disimpan di server dan dikirim ke Google Apps Script.")}catch(ex){alert("Booking tersimpan di server, tetapi pengiriman ke Google Apps Script gagal.\n\n"+ex.message)}
-  e.target.reset();$("tanggal_selesai").min="";await refreshCalendar();
+  if(!nama){err.textContent="Nama peminjam wajib dipilih.";return}if(!alat){err.textContent="Nama alat wajib diisi.";return}if(!tanggal_mulai) {err.textContent="Tanggal mulai wajib diisi.";return}if(!tanggal_selesai)tanggal_selesai=tanggal_mulai;const s=parseDateLocal(tanggal_mulai),z=parseDateLocal(tanggal_selesai);if(!s||!z){err.textContent="Format tanggal peminjaman tidak valid.";return}if(z<s){err.textContent="Tanggal selesai tidak boleh lebih awal daripada tanggal mulai.";return}if(!jam_mulai||!jam_selesai){err.textContent="Jam mulai dan jam selesai wajib diisi.";return}if(tanggal_mulai===tanggal_selesai&&jam_selesai<=jam_mulai){err.textContent="Untuk peminjaman 1 hari, jam selesai harus setelah jam mulai.";return}
+  const payload={action:"booking",type:"booking",spreadsheetId:CONFIG.GOOGLE_BOOKING_SPREADSHEET_ID,spreadsheetUrl:CONFIG.GOOGLE_BOOKING_SPREADSHEET_URL,nama,nomor_telepon,alat,tanggal:tanggal_mulai,tanggal_mulai,tanggal_selesai,jam_mulai,jam_selesai,keperluan,catatan};
+  const local=normalizeBooking({...payload,id:"bk_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,8)});calendarBookings.push(local);setJSON(KEYS.bookings,calendarBookings);renderCalendar();
+  try{
+    const r=await fetch(CONFIG.GOOGLE_APPS_SCRIPT_BOOKING_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8","Accept":"application/json"},body:JSON.stringify(payload)});
+    const text=(await r.text()).trim();let result=null;try{result=JSON.parse(text)}catch{}
+    if(!r.ok)throw new Error("Google Apps Script HTTP "+r.status+"\n"+text);
+    if(result&&String(result.success).toLowerCase()!=="true"&&result.success!==true&&!(text.toLowerCase().includes("success")&&text.toLowerCase().includes("true")))throw new Error(result?.message||result?.error||text||"Google Apps Script menolak data booking.");
+    alert("Booking berhasil dikirim dan disimpan di kalender.");
+  }catch(ex){alert("Booking disimpan di browser, tetapi pengiriman ke Google Apps Script gagal.\n\n"+ex.message)}
+  e.target.reset();$("tanggal_selesai").min="";refreshCalendar();
 });
 $("tanggal_mulai").addEventListener("change",()=>{$("tanggal_selesai").min=$("tanggal_mulai").value||"";if(!$("tanggal_selesai").value)$("tanggal_selesai").value=$("tanggal_mulai").value})
 $("tanggal_selesai").addEventListener("change",()=>{if($("tanggal_mulai").value&&$("tanggal_selesai").value<$("tanggal_mulai").value){alert("Tanggal selesai tidak boleh lebih awal daripada tanggal mulai.");$("tanggal_selesai").value=$("tanggal_mulai").value}})
 
-async function refreshCalendar(){try{const r=await fetch("/api/bookings?_="+Date.now(),{cache:"no-store",credentials:"same-origin",headers:{Accept:"application/json"}});const d=await r.json().catch(()=>null);if(r.ok&&d?.success)calendarBookings=ensureUniqueBookingIds(d.bookings||[]);else throw new Error(d?.message||"Gagal mengambil booking.")}catch(e){console.warn("Gagal mengambil booking server",e)}renderCalendar()}
+async function refreshCalendar(){
+  // app.html berjalan tanpa Flask. Jangan mencoba endpoint Flask karena
+  // kegagalan request sebelumnya dapat membuat data lokal terasa "hilang".
+  // Jika halaman memang dijalankan melalui Flask, data server tetap dipakai.
+  const runningOnFlask=window.location.protocol!=="file:" &&
+    (window.location.pathname==="/" || window.location.pathname.includes("/peminjaman"));
+  if(runningOnFlask){
+    try{
+      const r=await fetch("/api/bookings?_="+Date.now(),{cache:"no-store",credentials:"same-origin",headers:{Accept:"application/json"}});
+      if(r.ok){
+        const d=await r.json();
+        if(d&&d.success&&Array.isArray(d.bookings)){
+          calendarBookings=ensureUniqueBookingIds(d.bookings);
+          setJSON(KEYS.bookings,calendarBookings);
+        }
+      }
+    }catch(error){console.warn("Data server tidak dapat dimuat; memakai data lokal.",error)}
+  }else{
+    calendarBookings=ensureUniqueBookingIds(getJSON(KEYS.bookings,[]));
+  }
+  renderCalendar();
+}
 function ensureUniqueBookingIds(list){
   const used=new Set();
   return (Array.isArray(list)?list:[]).map((item,index)=>{
@@ -436,7 +434,27 @@ function closeBookingModal(){
   currentBookingId="";
   window.currentBookingForDelete=null;
 }
-async function deleteCurrentBooking(){const id=String(currentBookingId||"").trim();if(!id)return;const booking=calendarBookings.find(x=>String(x.id)===id);if(!booking){closeBookingModal();return}const label=(booking.nama||"Tanpa nama")+"\n"+(booking.alat||"Alat")+"\n"+(booking.tanggal_mulai||booking.tanggal||"");if(!confirm("Hapus booking ini?\n\n"+label))return;try{const r=await fetch("/api/bookings",{method:"DELETE",headers:{"Content-Type":"application/json","Accept":"application/json"},credentials:"same-origin",body:JSON.stringify({id})});const d=await r.json().catch(()=>null);if(!r.ok||!d?.success)throw new Error(d?.message||"Gagal menghapus booking.");calendarBookings=ensureUniqueBookingIds(d.bookings||[]);closeBookingModal();renderCalendar();if(typeof renderDashboard==="function")await renderDashboard()}catch(e){alert(e.message)}}
+function deleteCurrentBooking(){
+  const id=String(currentBookingId||"").trim();
+  if(!id)return;
+  const source=Array.isArray(calendarBookings)?calendarBookings:[];
+  const index=source.findIndex(x=>String(x.id||"").trim()===id);
+  if(index<0){closeBookingModal();renderCalendar();return}
+  const booking=source[index];
+  const label=(booking.nama||"Tanpa nama")+"\n"+(booking.alat||"Alat")+"\n"+(booking.tanggal_mulai||booking.tanggal||"");
+  if(!window.confirm("Hapus booking ini?\n\n"+label))return;
+
+  // Buat array baru berdasarkan ID tepat yang diklik. Tidak memakai index
+  // tabel/kalender sehingga aman walaupun satu hari berisi banyak booking.
+  const updated=source.filter(x=>String(x.id||"").trim()!==id);
+  if(updated.length===source.length)return;
+  calendarBookings=ensureUniqueBookingIds(updated);
+  setJSON(KEYS.bookings,calendarBookings);
+
+  closeBookingModal();
+  renderCalendar();
+  if(typeof renderDashboard === "function")renderDashboard();
+}
 
 // Event delegation kalender: aman walaupun jadwal sangat banyak dan kalender dirender ulang.
 document.addEventListener("click",function(e){
@@ -456,57 +474,41 @@ document.addEventListener("keydown",function(e){
 });
 
 function renderMembers(){const body=$("membersBody");body.innerHTML="";if(!members.length){body.innerHTML='<div style="padding:10px;color:#555">Belum ada anggota.</div>';return}members.forEach((name,i)=>{const card=document.createElement("a");card.className="member-card";card.href="#";card.innerHTML='<span>'+escapeHTML(name)+'</span><span class="member-arrow">&gt;</span>';card.onclick=e=>{e.preventDefault();openMember(i)};body.appendChild(card)})}
-async function addMemberFromButton(){const input=$("memberName"),n=input.value.trim();if(!n)return;if(members.some(x=>x.toLowerCase()===n.toLowerCase())){$("memberError").textContent="Anggota sudah ada.";return}try{const r=await fetch("/api/members",{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},credentials:"same-origin",body:JSON.stringify({nama:n})});const d=await r.json().catch(()=>null);if(!r.ok||!d?.success)throw new Error(d?.message||"Gagal menyimpan anggota.");members=d.members||[];input.value="";if($("memberError"))$("memberError").textContent="";renderMembers()}catch(e){$("memberError").textContent=e.message}}
-async function deleteMember(i){const name=members[i];if(!name||!confirm("Hapus anggota ini?"))return;try{const r=await fetch("/api/members/"+encodeURIComponent(name),{method:"DELETE",credentials:"same-origin",headers:{Accept:"application/json"}});const d=await r.json().catch(()=>null);if(!r.ok||!d?.success)throw new Error(d?.message||"Gagal menghapus anggota.");members=d.members||[];if(currentMember===name)currentMember="";renderMembers()}catch(e){alert(e.message)}}
+async function addMemberFromButton(){const input=$("memberName"),n=input.value.trim();if(!n)return;if(members.some(x=>x.toLowerCase()===n.toLowerCase())){$("memberError").textContent="Anggota sudah ada.";return}try{await githubCommit("Tambah anggota "+n,state=>{if(!state.members.some(x=>String(x).toLowerCase()===n.toLowerCase()))state.members.push(n);if(!state.logbooks[n])state.logbooks[n]=[]});await githubPullData();input.value="";$('memberError').textContent=""}catch(e){$("memberError").textContent=e.message}}
+async function deleteMember(i){const name=members[i];if(!name||!confirm("Hapus anggota ini?"))return;try{await githubCommit("Hapus anggota "+name,state=>{state.members=state.members.filter(x=>String(x).toLowerCase()!==String(name).toLowerCase());delete state.logbooks[name]});if(currentMember===name)currentMember="";await githubPullData()}catch(e){alert(e.message)}}
 function openMember(i){currentMember=members[i]||"";if(!currentMember)return;showPage("dashboard")}
 function openMemberLogbook(i){currentMember=members[i]||"";if(!currentMember)return;showPage("logbook")}
 
-function canonicalStatusValueForUI(status){
-  const v=String(status??"").trim().toLowerCase().replace(/[\s_-]+/g,"");
-  if(v==="complete"||v==="completed"||v==="selesai"||v==="sudahselesai"||v==="done"||v==="finish"||v==="finished"||v==="complate"||v==="complated"||v.includes("complete")||v.includes("selesai")) return "Complete";
-  if(v==="progress"||v==="progres"||v==="inprogress"||v==="ongoing") return "Progress";
-  return "Pending";
-}
+function readLocalLogbook(){return getJSON(KEYS.logbook,[]).filter(x=>normalizeMember(x.nama||x.member)===currentMember)}
 
-function normalizeStatus(status){
-  return String(status??"").trim().toLowerCase().replace(/[\s_-]+/g,"");
-}
-function canonicalStatus(status){
-  const v=normalizeStatus(status);
-  // Status resmi aplikasi HANYA tiga: Pending, Progress, Complete.
-  // Data lama yang memakai Selesai/Done/Completed/Complate, dll.
-  // otomatis dimigrasikan menjadi Complete.
-  if(v==="complete" || v==="completed" || v==="selesai" ||
-     v==="sudahselesai" || v==="done" || v==="finish" ||
-     v==="finished" || v==="complated" || v==="complate" ||
-     v.includes("complete") || v.includes("selesai")) return "Complete";
-  if(v==="progress" || v==="progres" || v==="inprogress" || v==="ongoing") return "Progress";
-  return "Pending";
-}
+// Semua variasi status selesai dianggap COMPLETE. Data tetap berada di logbook,
+// tetapi tidak lagi dianggap sebagai deadline aktif dan tidak ditampilkan di
+// kalender anggota.
 function isCompletedStatus(status){
-  return canonicalStatus(status)==="Complete";
+  const v=String(status||"").trim().toLowerCase().replace(/[\s_-]+/g,"");
+  return ["complete","completed","selesai","sudahselesai","done","finish","finished","complated","complate"].includes(v);
 }
 function getActiveDeadlineRows(rows){
   return (Array.isArray(rows)?rows:[]).filter(r=>{
     const status=r?.status??r?.Status??"";
     const deadline=r?.deadline??r?.Deadline??"";
-    // Hanya deadline yang benar-benar aktif dan memiliki tanggal valid.
-    // Semua variasi status selesai dikeluarkan dari deadline dan kalender.
-    return Boolean(String(deadline).trim()) && !!parseDateLocal(deadline) && !isCompletedStatus(status);
+    return Boolean(String(deadline).trim()) && !isCompletedStatus(status);
   });
 }
-function activeDeadlineRows(rows){return getActiveDeadlineRows(rows);}
+
+function activeDeadlineRows(rows){
+  return getActiveDeadlineRows(rows);
+}
 
 async function loadMemberCSV(name){const candidates=["data/"+encodeURIComponent(safeFilename(name))+".csv","data/"+safeFilename(name)+".csv"];for(const url of candidates){try{const r=await fetch(url,{cache:"no-store"});if(r.ok){const text=await r.text();return parseCSV(text)}}catch{}}return []}
 function parseCSV(text){const rows=[];let row=[],cell="",quote=false;for(let i=0;i<text.length;i++){const c=text[i],n=text[i+1];if(c==='"'&&quote&&n==='"'){cell+='"';i++;continue}if(c==='"'){quote=!quote;continue}if(c===','&&!quote){row.push(cell);cell="";continue}if((c==='\n'||c==='\r')&&!quote){if(c==='\r'&&n==='\n')i++;row.push(cell);if(row.some(v=>v!==""))rows.push(row);row=[];cell="";continue}cell+=c}if(cell||row.length){row.push(cell);rows.push(row)}if(!rows.length)return[];const h=rows[0].map(x=>x.trim());return rows.slice(1).map(r=>Object.fromEntries(h.map((k,i)=>[k,r[i]??""]))).filter(x=>Object.values(x).some(Boolean))}
-async function getLogbook(){if(!currentMember)return[];try{const r=await fetch("/api/members/"+encodeURIComponent(currentMember)+"/logbook?_="+Date.now(),{cache:"no-store",credentials:"same-origin",headers:{Accept:"application/json"}});const d=await r.json().catch(()=>null);if(!r.ok||!d?.success)throw new Error(d?.message||"Gagal mengambil logbook.");return(d.rows||[]).map((r,i)=>({id:r.id||("server_"+i),nama:currentMember,No:r.No||i+1,tanggal:r.Tanggal||r.tanggal||"",keterangan:r.Keterangan||r.keterangan||"",deadline:isCompletedStatus(r.Status||r.status)?"":(r.Deadline||r.deadline||""),status:canonicalStatus(r.Status||r.status||"Pending"),file:r.File||r.file||"",...r}))}catch(e){console.error(e);return[]}}
-async function renderLogbook(){const body=$("logbookBody");$("logbookTitle").textContent="Logbook - "+currentMember;body.innerHTML='<tr><td colspan="7">Memuat...</td></tr>';const rows=await getLogbook();logbookRows=rows;body.innerHTML="";if(!rows.length){body.innerHTML='<tr><td colspan="7">Belum ada laporan.</td></tr>';return}rows.forEach((r,i)=>{const tr=document.createElement("tr");const status=canonicalStatus(r.status||r.Status||"Pending");tr.innerHTML='<td>'+escapeHTML(r.No||i+1)+'</td><td>'+escapeHTML(r.tanggal||r.Tanggal||"")+'</td><td>'+escapeHTML(r.keterangan||r.Keterangan||"")+'</td><td>'+escapeHTML(r.deadline||r.Deadline||"")+'</td><td><select class="logbook-status" data-report-index="'+i+'"><option value="Pending">Pending</option><option value="Progress">Progress</option><option value="Complete">Complete</option></select></td><td>'+renderFileValue(r.file||r.File||"")+'</td><td><button class="button small-btn red-button" onclick="deleteReport('+i+')">Hapus</button></td>';const sel=tr.querySelector("select");sel.value=status;if(sel.value!==status)sel.value=isCompletedStatus(status)?"Complete":(status||"Pending");sel.addEventListener("change",()=>updateReportStatus(i,sel.value));body.appendChild(tr)});enforceThreeStatuses()}
+async function getLogbook(){if(!currentMember)return[];const all=getJSON(KEYS.logbook,[]);const key=normalizeMember(currentMember).toLowerCase();return (Array.isArray(all)?all:[]).filter(r=>normalizeMember(r.nama||r.member).toLowerCase()===key).map((r,i)=>normalizeReport({...r,id:r.id||("local_"+i)},currentMember))}
+async function renderLogbook(){const body=$("logbookBody");$("logbookTitle").textContent="Logbook - "+currentMember;body.innerHTML='<tr><td colspan="7">Memuat...</td></tr>';const rows=await getLogbook();logbookRows=rows;body.innerHTML="";if(!rows.length){body.innerHTML='<tr><td colspan="7">Belum ada laporan.</td></tr>';return}rows.forEach((r,i)=>{const tr=document.createElement("tr");const status=canonicalStatus(r.status||r.Status||"Pending");tr.innerHTML='<td>'+escapeHTML(r.No||i+1)+'</td><td>'+escapeHTML(r.tanggal||r.Tanggal||"")+'</td><td>'+escapeHTML(r.keterangan||r.Keterangan||"")+'</td><td>'+escapeHTML(isCompletedStatus(status)?"":(r.deadline||r.Deadline||""))+'</td><td><select class="logbook-status" data-report-index="'+i+'"><option value="Pending">Pending</option><option value="Progress">Progress</option><option value="Complete">Complete</option></select></td><td>'+renderFileValue(r.file||r.File||"")+'</td><td><button class="button small-btn red-button" onclick="deleteReport('+i+')">Hapus</button></td>';const sel=tr.querySelector("select");sel.value=status;sel.addEventListener("change",()=>updateReportStatus(i,sel.value));body.appendChild(tr)})}
 
-
-async function updateReportStatus(index,status){const rows=await getLogbook();const target=rows[index];if(target)await updateDeadlineStatusById(target.id,status)}
+async function updateReportStatus(index,status){const rows=await getLogbook();const target=rows[index];if(!target)return;const newStatus=canonicalStatus(status);try{await githubCommit("Update status "+(target.keterangan||""),state=>{const name=currentMember;const list=Array.isArray(state.logbooks[name])?state.logbooks[name]:[];const pos=list.findIndex(r=>String(r.id)===String(target.id));if(pos<0)throw new Error("Laporan tidak ditemukan di members.json.");const old=canonicalStatus(list[pos].status||list[pos].Status);list[pos]={...list[pos],status:newStatus,deadline:newStatus==="Complete"?"":(list[pos].deadline||list[pos].Deadline||"")};if(newStatus==="Complete"&&old!=="Complete"&&!list[pos].completion_report_id){const cid="completion_"+Date.now()+"_"+Math.random().toString(36).slice(2,8);list[pos].completion_report_id=cid;list.push({id:cid,nama:name,No:list.length+1,tanggal:new Date().toISOString().slice(0,10),keterangan:(list[pos].keterangan||list[pos].Keterangan||"Laporan")+" — Penyelesaian",deadline:"",status:"Complete",file:"",completion_report:true,completion_of_id:list[pos].id})}state.logbooks[name]=list});await githubPullData()}catch(e){alert(e.message);await renderLogbook();await renderDashboard()}}
 
 function renderFileValue(v){if(!v)return"";return String(v).split("||").map(x=>x.trim()).filter(Boolean).map(x=>/^https?:\/\//i.test(x)?'<a href="'+escapeHTML(x)+'" target="_blank" rel="noopener noreferrer">Buka</a>':escapeHTML(x)).join(" | ")}
-async function deleteReport(i){const rows=await getLogbook();const target=rows[i];if(!target||!confirm("Hapus laporan ini?"))return;const r=await fetch("/api/members/"+encodeURIComponent(currentMember)+"/logbook/"+encodeURIComponent(target.id),{method:"DELETE",credentials:"same-origin",headers:{Accept:"application/json"}});const d=await r.json().catch(()=>null);if(!r.ok||!d?.success){alert(d?.message||"Gagal menghapus laporan.");return}await renderLogbook();await renderDashboard()}
+async function deleteReport(i){const rows=await getLogbook();const target=rows[i];if(!target||!confirm("Hapus laporan ini?"))return;try{await githubCommit("Hapus laporan "+(target.keterangan||""),state=>{const list=Array.isArray(state.logbooks[currentMember])?state.logbooks[currentMember]:[];state.logbooks[currentMember]=list.filter(r=>String(r.id)!==String(target.id))});await githubPullData();await renderLogbook();await renderDashboard()}catch(e){alert(e.message)}}
 
 function scrollDashboardTo(id){const el=$(id);if(el){el.scrollIntoView({behavior:"smooth",block:"start"})}}
 
@@ -515,65 +517,13 @@ function renderSelectedFiles(){const root=$("fileList");if(!root)return;if(!sele
 function setReportFiles(fileList){selectedReportFiles=[...fileList].filter(f=>allowedFile(f.name));renderSelectedFiles()}
 function initDropzone(){const dz=$("dropzone"),input=$("reportFiles");if(!dz||!input)return;dz.addEventListener("click",()=>input.click());dz.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();input.click()}});input.addEventListener("change",()=>setReportFiles(input.files));["dragenter","dragover"].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();dz.classList.add("dragover")}));["dragleave","drop"].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();dz.classList.remove("dragover")}));dz.addEventListener("drop",e=>{setReportFiles(e.dataTransfer.files);try{const dt=new DataTransfer();selectedReportFiles.forEach(f=>dt.items.add(f));input.files=dt.files}catch{}})}
 
-function prepareReport(){$("reportMemberLabel").textContent=currentMember;selectedReportFiles=[];renderSelectedFiles();$("reportDate").value=new Date().toISOString().slice(0,10);$("reportStatus").value="Pending";enforceThreeStatuses();$("uploadStatus").classList.add("hidden")}
+function prepareReport(){$("reportMemberLabel").textContent=currentMember;selectedReportFiles=[];renderSelectedFiles();$("reportDate").value=new Date().toISOString().slice(0,10);$("reportStatus").value="Pending";$("uploadStatus").classList.add("hidden")}
 async function uploadToGoogleDrive(file,nama,tanggal){if(!file||!allowedFile(file.name))return null;const data=await file.arrayBuffer();let binary="";const bytes=new Uint8Array(data);const chunk=0x8000;for(let i=0;i<bytes.length;i+=chunk)binary+=String.fromCharCode(...bytes.subarray(i,i+chunk));const encoded=btoa(binary);const finalFilename=safeFilename(nama)+"_"+safeFilename(tanggal)+"_"+file.name.replace(/[^a-zA-Z0-9._-]/g,"_");const payload={action:"upload",nama,tanggal,filename:finalFilename,contentType:file.type||"application/octet-stream",file:encoded};const r=await fetch(CONFIG.GOOGLE_APPS_SCRIPT_UPLOAD_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8","Accept":"application/json"},body:JSON.stringify(payload)});const text=await r.text();if(!r.ok)throw new Error("Upload HTTP "+r.status);let result;try{result=JSON.parse(text)}catch{throw new Error("Response Google bukan JSON.")}if(!result.success)throw new Error(result.message||result.error||"Upload ditolak.");return result}
-$("reportForm").addEventListener("submit",async e=>{e.preventDefault();if(!currentMember){alert("Pilih anggota terlebih dahulu.");showPage("members");return}const tanggal=$("reportDate").value,keterangan=$("reportDescription").value.trim(),deadline=$("reportDeadline").value,status=canonicalStatus($("reportStatus").value),files=selectedReportFiles.length?selectedReportFiles:[...$("reportFiles").files];let links=[];const notice=$("uploadStatus");notice.classList.remove("hidden");notice.textContent="Menyimpan laporan...";for(const f of files){try{if(!allowedFile(f.name))continue;notice.textContent="Mengupload "+f.name+"...";const r=await uploadToGoogleDrive(f,currentMember,tanggal);if(r?.fileUrl)links.push(r.fileUrl)}catch(err){console.warn(err)}}try{const r=await fetch("/api/members/"+encodeURIComponent(currentMember)+"/logbook",{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},credentials:"same-origin",body:JSON.stringify({tanggal,keterangan,deadline:status==="Complete"?"":deadline,status,file:links.join("||")})});const d=await r.json().catch(()=>null);if(!r.ok||!d?.success)throw new Error(d?.message||"Server gagal menyimpan laporan.");notice.textContent=links.length?"Laporan tersimpan dan file berhasil diunggah.":"Laporan tersimpan.";e.target.reset();setTimeout(()=>showPage("logbook"),300)}catch(err){notice.textContent="Gagal menyimpan: "+err.message}})
+$("reportForm").addEventListener("submit",async e=>{e.preventDefault();if(!currentMember){alert("Pilih anggota terlebih dahulu.");showPage("members");return}const tanggal=$("reportDate").value,keterangan=$("reportDescription").value.trim(),deadline=$("reportDeadline").value,status=canonicalStatus($("reportStatus").value),files=selectedReportFiles.length?selectedReportFiles:[...$("reportFiles").files];let links=[];const notice=$("uploadStatus");notice.classList.remove("hidden");notice.textContent="Menyimpan laporan...";for(const f of files){try{if(!allowedFile(f.name))continue;notice.textContent="Mengupload "+f.name+"...";const r=await uploadToGoogleDrive(f,currentMember,tanggal);if(r?.fileUrl)links.push(r.fileUrl)}catch(err){console.warn(err)}}const row={id:"r_"+Date.now()+"_"+Math.random().toString(36).slice(2,8),nama:currentMember,No:0,tanggal,keterangan,deadline:status==="Complete"?"":deadline,status,file:links.join("||")};try{await githubCommit("Tambah laporan "+keterangan,state=>{if(!state.logbooks[currentMember])state.logbooks[currentMember]=[];row.No=state.logbooks[currentMember].length+1;state.logbooks[currentMember].push(row);if(!state.members.some(x=>String(x).toLowerCase()===String(currentMember).toLowerCase()))state.members.push(currentMember)});notice.textContent=links.length?"Laporan tersimpan dan file berhasil diunggah.":"Laporan tersimpan.";await githubPullData();e.target.reset();setTimeout(()=>showPage("logbook"),300)}catch(err){notice.textContent="Gagal menyimpan ke GitHub: "+err.message}})
+
 
 function deadlineClass(d){const x=parseDateLocal(d);if(!x)return"";const diff=daysDiff(nowDateOnly(),new Date(x.getFullYear(),x.getMonth(),x.getDate()));if(diff<0)return"overdue";if(diff===0)return"today";if(diff<=3)return"soon";if(diff<=7)return"week";return""}
-async function renderDashboard(){
-  $("dashboardMember").textContent=currentMember;
-  const rawRows=await getLogbook();
-  // Selalu ambil ulang status terbaru dari localStorage sebelum merender.
-  // Ini mencegah item yang baru diubah menjadi Complete tetap tertinggal di UI.
-  const rows=activeDeadlineRows(rawRows);
-  const upcoming=rows
-    .filter(r=>r.deadline||r.Deadline)
-    .map(r=>({...r,_d:parseDateLocal(r.deadline||r.Deadline)}))
-    .filter(r=>r._d && !isCompletedStatus(r.status||r.Status))
-    .sort((a,b)=>a._d-b._d);
-
-  const alerts=$("deadline-alerts"),items=$("deadline-items");
-  if(!upcoming.length){
-    alerts.innerHTML='<div class="empty-alert">Tidak ada deadline yang mendekat dalam 7 hari ke depan.</div>';
-    items.innerHTML='<div class="empty-alert">Tidak ada deadline aktif.</div>';
-  }else{
-    const near=upcoming.filter(r=>daysDiff(nowDateOnly(),new Date(r._d.getFullYear(),r._d.getMonth(),r._d.getDate()))<=7);
-    const renderDeadlineCard=(r)=>{
-      const cls=deadlineClass(r._d);
-      const id=String(r.id??r.ID??"");
-      const current=isCompletedStatus(r.status||r.Status)?"Complete":(r.status||r.Status||"Pending");
-      return '<div class="announcement '+cls+'" data-deadline-report-id="'+escapeHTML(id)+'">'+
-        '<strong>'+escapeHTML(r.keterangan||r.Keterangan||"Laporan")+'</strong><br>'+
-        'Deadline: '+escapeHTML(formatDate(r._d))+'<br>'+
-        '<div class="deadline-action">'+
-        '<select class="deadline-status-select" data-report-id="'+escapeHTML(id)+'">'+
-        '<option value="Pending" '+(current==="Pending"?"selected":"")+'>Pending</option>'+
-        '<option value="Progress" '+(current==="Progress"?"selected":"")+'>Progress</option>'+
-        '<option value="Complete" '+(current==="Complete"?"selected":"")+'>Complete</option>'+
-        '</select>'+
-        '<button type="button" class="deadline-status-save" data-report-id="'+escapeHTML(id)+'">Simpan</button>'+
-        '</div></div>';
-    };
-    alerts.innerHTML=near.length?near.slice(0,10).map(renderDeadlineCard).join(""):'<div class="empty-alert">Tidak ada deadline yang mendekat dalam 7 hari ke depan.</div>';
-    items.innerHTML=upcoming.slice(0,30).map(renderDeadlineCard).join("");
-  }
-  renderDashboardCalendar(upcoming);
-}
-
-async function updateDeadlineStatusById(reportId,status){if(!currentMember||!reportId)return;const rows=await getLogbook();const target=rows.find(r=>String(r.id)===String(reportId));if(!target){alert("Laporan tidak ditemukan.");return}const r=await fetch("/api/members/"+encodeURIComponent(currentMember)+"/logbook/"+encodeURIComponent(reportId),{method:"PUT",headers:{"Content-Type":"application/json","Accept":"application/json"},credentials:"same-origin",body:JSON.stringify({status:canonicalStatus(status)})});const d=await r.json().catch(()=>null);if(!r.ok||!d?.success){alert(d?.message||"Gagal mengubah status.");return}await renderLogbook();await renderDashboard()}
-
-// Kontrol status pada Daftar Deadline/Pengumuman. Delegasi event dipakai agar
-// tetap berfungsi setelah daftar dirender ulang.
-document.addEventListener("click",function(e){
-  const btn=e.target.closest(".deadline-status-save");
-  if(!btn)return;
-  const id=btn.dataset.reportId||"";
-  const select=document.querySelector('.deadline-status-select[data-report-id="'+CSS.escape(id)+'"]');
-  if(!select)return;
-  btn.disabled=true;
-  updateDeadlineStatusById(id,select.value).finally(()=>{btn.disabled=false});
-});
-
+async function renderDashboard(){$("dashboardMember").textContent=currentMember;const rows=activeDeadlineRows(await getLogbook());const upcoming=rows.filter(r=>r.deadline||r.Deadline).map(r=>({...r,_d:parseDateLocal(r.deadline||r.Deadline)})).filter(r=>r._d).sort((a,b)=>a._d-b._d);const alerts=$("deadline-alerts"),items=$("deadline-items");if(!upcoming.length){alerts.innerHTML='<div class="empty-alert">Tidak ada deadline yang mendekat dalam 7 hari ke depan.</div>';items.innerHTML='<div class="empty-alert">Tidak ada deadline aktif.</div>'}else{const near=upcoming.filter(r=>daysDiff(nowDateOnly(),new Date(r._d.getFullYear(),r._d.getMonth(),r._d.getDate()))<=7);alerts.innerHTML=near.length?near.slice(0,10).map(r=>{const cls=deadlineClass(r._d);return '<div class="announcement '+cls+'"><strong>'+escapeHTML(r.keterangan||r.Keterangan||"Laporan")+'</strong><br>Deadline: '+escapeHTML(formatDate(r._d))+'<br><span class="status">'+escapeHTML(r.status||r.Status||"")+'</span></div>'}).join(""):'<div class="empty-alert">Tidak ada deadline yang mendekat dalam 7 hari ke depan.</div>';items.innerHTML=upcoming.slice(0,30).map(r=>{const cls=deadlineClass(r._d);return '<div class="announcement '+cls+'"><strong>'+escapeHTML(r.keterangan||r.Keterangan||"Laporan")+'</strong><br>Deadline: '+escapeHTML(formatDate(r._d))+'<br><span class="status">'+escapeHTML(r.status||r.Status||"")+'</span></div>'}).join("")}renderDashboardCalendar(upcoming)}
 function renderDashboardCalendar(rows){const root=$("dashboardCalendarBody");const y=calendarDate.getFullYear(),m=calendarDate.getMonth(),first=new Date(y,m,1),last=new Date(y,m+1,0),start=first.getDay(),total=last.getDate();let out='<div class="calendar-header"><button class="calendar-button" onclick="changeCalendarMonth(-1);renderDashboard()">‹</button><div class="calendar-title">'+escapeHTML(formatMonth(calendarDate))+'</div><button class="calendar-button" onclick="changeCalendarMonth(1);renderDashboard()">›</button></div><div class="calendar-week">'+["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"].map(x=>'<div>'+x+'</div>').join("")+'</div><div class="calendar-days">';for(let i=0;i<start;i++)out+='<div class="day other"></div>';for(let d=1;d<=total;d++){const date=new Date(y,m,d),today=sameDate(date,nowDateOnly());out+='<div class="day '+(today?"today":"")+'"><div class="day-number">'+d+'</div>';rows.filter(r=>sameDate(r._d,date)).forEach(r=>{out+='<div class="deadline '+deadlineClass(r._d)+'"><strong>'+escapeHTML(r.keterangan||r.Keterangan||"Laporan")+'</strong><br>'+escapeHTML(r.status||r.Status||"")+'</div>'});calendarBookings.filter(b=>bookingCoversDate(b,date)).forEach(b=>{out+='<div class="deadline booking '+bookingClass(b)+'" data-booking-id="'+escapeHTML(b.id)+'" role="button" tabindex="0"><div class="deadline-person">'+escapeHTML(b.nama||"Tanpa nama")+'</div><div class="deadline-detail">'+escapeHTML(b.alat||"")+'</div></div>'});out+='</div>'}out+='</div>';root.innerHTML=out}
 
 function stockStatus(q){q=Number(q)||0;return q<=0?"tidak":q<=5?"habis":"ada"}
@@ -582,6 +532,7 @@ function stockCode(x){return String(x.kode||x.code||"atk-01")}
 function renderStock(){
   const body=$("stockBody");
   if(!body)return;
+  stockRows=getJSON(KEYS.stock,[]);
   const search=($("stockSearch")?.value||"").trim().toLowerCase();
   const filtered=stockRows.map((x,i)=>({...x,_i:i,_stockKey:String(x._stockKey||("stock_"+i+"_"+String(x.nama||"").toLowerCase().replace(/[^a-z0-9]+/g,"_") ))})).filter(x=>String(x.nama||"").toLowerCase().includes(search));
   body.innerHTML="";
@@ -624,160 +575,48 @@ document.addEventListener("click",function(e){
 function renderStockBuy(){const box=$("stockBuyBody"),count=$("stockBuyCount");if(!box)return;const buys=stockRows.filter(x=>(Number(x.jumlah)||0)<=5);count.textContent=buys.length+" barang";box.innerHTML="";if(!buys.length){box.innerHTML='<div class="stock-empty">Semua barang masih tersedia.</div>';return}buys.forEach(x=>{const q=Number(x.jumlah)||0;box.innerHTML+='<div class="stock-buy-item"><div class="stock-buy-left"><div class="cart-icon">🛒</div><div><div class="stock-buy-name">'+escapeHTML(x.nama||"")+'</div><div class="stock-buy-code">'+escapeHTML(stockCode(x))+'</div></div></div><div class="stock-buy-right"><div class="stock-buy-stock">Stok: '+q+'</div><div class="stock-buy-warning">STOK '+(q===0?'TIDAK ADA':'MAU HABIS')+'</div></div></div>'})}
 function openStockAdd(){$("stockAddModal").classList.add("show");setTimeout(()=>$("stockAddName").focus(),50)}
 function closeStockAdd(){$("stockAddModal").classList.remove("show")}
-async function saveStockItem(){const n=$("stockAddName").value.trim(),code=$("stockAddCode").value.trim()||"atk-01",q=Math.max(0,Number($("stockAddQty").value)||0);if(!n){alert("Nama barang wajib diisi.");return}try{const r=await fetch("/api/stock",{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},credentials:"same-origin",body:JSON.stringify({nama:n,kode:code,jumlah:q})});const d=await r.json().catch(()=>null);if(!r.ok||!d?.success)throw new Error(d?.message||"Gagal menyimpan barang.");stockRows=d.stock||[];$("stockAddName").value="";$("stockAddCode").value="";$("stockAddQty").value="0";closeStockAdd();renderStock()}catch(e){alert(e.message)}}
-async function changeStockQty(i,delta){const x=stockRows[i];if(!x)return;try{const r=await fetch("/api/stock",{method:"PUT",headers:{"Content-Type":"application/json","Accept":"application/json"},credentials:"same-origin",body:JSON.stringify({id:x.id,nama:x.nama,kode:x.kode,jumlah:Math.max(0,(Number(x.jumlah)||0)+delta)})});const d=await r.json().catch(()=>null);if(!r.ok||!d?.success)throw new Error(d?.message||"Gagal mengubah stok.");stockRows=d.stock||[];renderStock()}catch(e){alert(e.message)}}
-async function deleteStock(i,keyOverride){const x=stockRows[i];if(!x)return;if(!confirm("Hapus "+(x.nama||"Barang")+" dari daftar stok?"))return;try{const r=await fetch("/api/stock",{method:"DELETE",headers:{"Content-Type":"application/json","Accept":"application/json"},credentials:"same-origin",body:JSON.stringify({id:x.id})});const d=await r.json().catch(()=>null);if(!r.ok||!d?.success)throw new Error(d?.message||"Gagal menghapus barang.");stockRows=d.stock||[];renderStock()}catch(e){alert(e.message)}}
+function saveStockItem(){const n=$("stockAddName").value.trim(),code=$("stockAddCode").value.trim()||"atk-01",q=Math.max(0,Number($("stockAddQty").value)||0);if(!n){alert("Nama barang wajib diisi.");return}const a=getJSON(KEYS.stock,[]),x=a.find(v=>String(v.nama||"").toLowerCase()===n.toLowerCase());if(x){x.jumlah=q;x.kode=code}else a.push({nama:n,kode:code,jumlah:q});setJSON(KEYS.stock,a);$("stockAddName").value="";$("stockAddCode").value="";$("stockAddQty").value="0";closeStockAdd();renderStock()}
+function changeStockQty(i,delta){
+  const a=getJSON(KEYS.stock,[]);
+  if(!Array.isArray(a)||!a[i])return;
+  a[i].jumlah=Math.max(0,(Number(a[i].jumlah)||0)+delta);
+  setJSON(KEYS.stock,a);
+  stockRows=a;
+  renderStock();
+}
+function deleteStock(i,keyOverride){
+  const a=getJSON(KEYS.stock,[]);
+  if(!Array.isArray(a))return;
+
+  // Index dari tabel bisa berubah karena pencarian/filter. Karena itu
+  // tombol juga membawa _stockKey dan kita cocokkan key terlebih dahulu.
+  const key=String(keyOverride||"");
+  let realIndex=Number.isInteger(i)?i:-1;
+
+  if(key){
+    const keyedIndex=a.findIndex((x,idx)=>{
+      const generated=String(x._stockKey||("stock_"+idx+"_"+String(x.nama||"").toLowerCase().replace(/[^a-z0-9]+/g,"_")));
+      return generated===key;
+    });
+    if(keyedIndex>=0)realIndex=keyedIndex;
+  }
+
+  if(realIndex<0||realIndex>=a.length||!a[realIndex])return;
+  const nama=String(a[realIndex].nama||"Barang");
+  if(!window.confirm("Hapus "+nama+" dari daftar stok?"))return;
+
+  a.splice(realIndex,1);
+  setJSON(KEYS.stock,a);
+  stockRows=a;
+  renderStock();
+}
+$("stockSearch")?.addEventListener("input",renderStock)
 
 async function downloadLogbookPDF(){if(!currentMember){alert("Pilih anggota terlebih dahulu.");return}const rows=await getLogbook();if(!rows.length){alert("Belum ada data logbook.");return}if(!window.jspdf?.jsPDF){alert("Library PDF belum termuat. Periksa koneksi internet lalu coba lagi.");return}const {jsPDF}=window.jspdf;const doc=new jsPDF({orientation:"landscape",unit:"pt",format:"a4"});doc.setFontSize(18);doc.text("LOGBOOK LAPORAN",421,35,{align:"center"});doc.setFontSize(11);doc.text("Nama Anggota: "+currentMember,40,60);const body=rows.map((r,i)=>[r.No||i+1,r.tanggal||r.Tanggal||"",r.keterangan||r.Keterangan||"",r.deadline||r.Deadline||"",r.status||r.Status||"",r.file||r.File||""]);doc.autoTable({startY:75,head:[["No","Tanggal","Keterangan","Deadline","Status","Bukti / File"]],body,styles:{fontSize:8,cellPadding:4,valign:"top"},headStyles:{fillColor:[211,211,211],textColor:[0,0,0]},columnStyles:{0:{cellWidth:35},1:{cellWidth:75},2:{cellWidth:300},3:{cellWidth:75},4:{cellWidth:75},5:{cellWidth:160}}});doc.save("Logbook_"+safeFilename(currentMember)+".pdf")}
 
 function setLogo(){const src="static/logo.png";["loginLogo","reportLogo","appHeaderLogo"].forEach(id=>{const im=$(id);if(im)im.src=src})}
-
-/* ============================================================
-   CSV PERSISTENCE LAYER
-   - localStorage tetap menjadi fallback.
-   - Jika folder data dihubungkan sekali, data bersama disimpan sebagai CSV:
-       data/members.csv
-       data/stock.csv
-       data/bookings.csv
-       data/<nama anggota>.csv
-   - File System Access API dipakai agar HTML statis dapat membaca/menulis
-     file CSV secara langsung setelah pengguna memberi izin.
-   ============================================================ */
-const CSV_STORE={dir:null,dbName:"nsg_csv_storage_v1",pollTimer:null,busy:false,queue:Promise.resolve()};
-function csvEscape(v){const s=String(v??"");return /[",\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}
-function toCSV(rows,headers){const h=headers||[];return h.join(",")+"\n"+(rows||[]).map(r=>h.map(k=>csvEscape(r?.[k]??"")).join(",")).join("\n")+"\n"}
-function openCSVDB(){return new Promise((resolve,reject)=>{const r=indexedDB.open(CSV_STORE.dbName,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains("handles"))r.result.createObjectStore("handles")};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
-async function saveCSVDirHandle(handle){try{const db=await openCSVDB();await new Promise((res,rej)=>{const tx=db.transaction("handles","readwrite");tx.objectStore("handles").put(handle,"data");tx.oncomplete=res;tx.onerror=()=>rej(tx.error)});db.close()}catch(e){console.warn("Handle folder CSV tidak tersimpan",e)}}
-async function restoreCSVDirHandle(){try{if(!window.indexedDB)return null;const db=await openCSVDB();const h=await new Promise((res,rej)=>{const tx=db.transaction("handles","readonly");const q=tx.objectStore("handles").get("data");q.onsuccess=()=>res(q.result||null);q.onerror=()=>rej(q.error)});db.close();if(!h)return null;const p=await h.queryPermission({mode:"readwrite"});if(p==="granted")return h;const r=await h.requestPermission({mode:"readwrite"});return r==="granted"?h:null}catch(e){console.warn("Folder CSV belum dapat dipulihkan",e);return null}}
-async function connectCSVFolder(){
-  if(!window.showDirectoryPicker){alert("Browser ini belum mendukung penyimpanan CSV langsung. Gunakan Google Chrome atau Microsoft Edge versi terbaru.");return}
-  try{
-    const h=await window.showDirectoryPicker({mode:"readwrite",id:"nsg-logbook-data"});
-    CSV_STORE.dir=h;await saveCSVDirHandle(h);
-    // Saat pertama kali menghubungkan folder, ekspor data lokal yang sudah ada
-    // ke CSV agar data yang telah dibuat tidak hilang/tertimpa.
-    if(!(await csvExists("members.csv")))await writeMembersCSV(members);
-    if(!(await csvExists("stock.csv")))await writeStockCSV(stockRows);
-    if(!(await csvExists("bookings.csv")))await writeBookingsCSV(calendarBookings);
-    const names=new Set(members||[]);
-    const allLocal=getJSON(KEYS.logbook,[]);
-    allLocal.forEach(r=>{const n=normalizeMember(r.nama||r.member);if(n)names.add(n)});
-    for(const n of names){if(!(await csvExists(memberCSVName(n))))await writeMemberCSV(n,allLocal.filter(r=>normalizeMember(r.nama||r.member)===normalizeMember(n)));}
-    updateCSVIndicator();
-    alert("Folder data CSV berhasil terhubung. Data sekarang disimpan per anggota ke file CSV di folder tersebut.");
-    await syncAllFromCSV();
-  }catch(e){if(e?.name!=="AbortError")alert("Folder CSV gagal dihubungkan: "+e.message)}
-}
-async function csvFile(name,create=false){if(!CSV_STORE.dir)return null;return await CSV_STORE.dir.getFileHandle(name,{create})}
-async function csvExists(name){if(!CSV_STORE.dir)return false;try{await CSV_STORE.dir.getFileHandle(name,{create:false});return true}catch{return false}}
-async function readCSVFile(name){try{const fh=await csvFile(name,false);const f=await fh.getFile();return parseCSV(await f.text())}catch{return []}}
-async function writeCSVFile(name,text){if(!CSV_STORE.dir)return false;try{const fh=await csvFile(name,true);const w=await fh.createWritable();await w.write(text);await w.close();return true}catch(e){console.warn("Gagal menulis CSV",name,e);return false}}
-function memberCSVName(name){return safeFilename(name)+".csv"}
-async function writeMembersCSV(list){return writeCSVFile("members.csv",toCSV((list||[]).map(n=>({Nama:n})),["Nama"]))}
-async function writeStockCSV(list){return writeCSVFile("stock.csv",toCSV(list||[],["id","nama","kode","jumlah"]))}
-async function writeBookingsCSV(list){return writeCSVFile("bookings.csv",toCSV((list||[]).map(normalizeBooking),["id","nama","nomor_telepon","alat","tanggal_mulai","tanggal_selesai","jam_mulai","jam_selesai","keperluan","catatan"]))}
-function logbookCSVRows(list){return (list||[]).map((r,i)=>({id:r.id??("r_"+i),No:r.No??i+1,Tanggal:r.tanggal??r.Tanggal??"",Keterangan:r.keterangan??r.Keterangan??"",Deadline:isCompletedStatus(r.status??r.Status)?"":(r.deadline??r.Deadline??""),Status:canonicalStatus(r.status??r.Status??"Pending"),File:r.file??r.File??"",nama:r.nama??r.member??currentMember}))}
-async function writeMemberCSV(name,list){return writeCSVFile(memberCSVName(name),toCSV(logbookCSVRows(list),["id","No","Tanggal","Keterangan","Deadline","Status","File","nama"]))}
-async function ensureCSVFiles(){if(!CSV_STORE.dir)return;if(!(await csvExists("members.csv")))await writeMembersCSV(members);if(!(await csvExists("stock.csv")))await writeStockCSV(stockRows);if(!(await csvExists("bookings.csv")))await writeBookingsCSV(calendarBookings)}
-async function syncAllFromCSV(){
-  if(!CSV_STORE.dir)return;
-  const mr=await readCSVFile("members.csv");if(await csvExists("members.csv")){members=mr.map(r=>String(r.Nama||r.nama||"").trim()).filter(Boolean);originalSetJSON(KEYS.members,members)}
-  const sr=await readCSVFile("stock.csv");if(await csvExists("stock.csv")){stockRows=sr.map(r=>({id:r.id||("stock_"+Math.random().toString(36).slice(2)),nama:r.nama||"",kode:r.kode||"atk-01",jumlah:Number(r.jumlah)||0}));originalSetJSON(KEYS.stock,stockRows)}
-  const br=await readCSVFile("bookings.csv");if(await csvExists("bookings.csv")){calendarBookings=ensureUniqueBookingIds(br);originalSetJSON(KEYS.bookings,calendarBookings)}
-  renderMembers();renderStock();renderCalendar();
-  if(currentMember&&currentPage==="dashboard")await renderDashboard();
-  if(currentMember&&currentPage==="logbook")await renderLogbook();
-}
-function updateCSVIndicator(){const el=$("csvStorageIndicator");if(el)el.textContent=CSV_STORE.dir?"CSV: TERHUBUNG":"CSV: belum terhubung"}
-async function persistCSVKey(key,value){if(!CSV_STORE.dir)return;
-  if(key===KEYS.members)await writeMembersCSV(value);
-  else if(key===KEYS.stock)await writeStockCSV(value);
-  else if(key===KEYS.bookings)await writeBookingsCSV(value);
-  else if(key===KEYS.logbook){const groups={};(value||[]).forEach(r=>{const n=normalizeMember(r.nama||r.member);if(n)(groups[n]??=[]).push(r)});const names=new Set([...(members||[]),...Object.keys(groups)]);for(const n of names)await writeMemberCSV(n,groups[n]||[])}
-}
-const originalSetJSON=setJSON;
-
-/* ============================================================
-   PERSISTENT LOCAL DATABASE
-   localStorage pada halaman file:// tidak selalu stabil antar-refresh
-   di semua browser. Karena itu data aplikasi sekarang dimirror ke IndexedDB.
-   IndexedDB dipakai otomatis; CSV tetap dipakai bila folder CSV dihubungkan.
-   ============================================================ */
-const PERSIST_DB={name:"nsg_persistent_data_v1",store:"records"};
-let persistReady=null;
-function openPersistDB(){return new Promise((resolve,reject)=>{
-  if(!window.indexedDB)return reject(new Error("IndexedDB tidak tersedia"));
-  const r=indexedDB.open(PERSIST_DB.name,1);
-  r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(PERSIST_DB.store))r.result.createObjectStore(PERSIST_DB.store)};
-  r.onsuccess=()=>resolve(r.result);
-  r.onerror=()=>reject(r.error||new Error("IndexedDB error"));
-})}
-async function persistRead(key){
-  try{const db=await openPersistDB();const v=await new Promise((res,rej)=>{const tx=db.transaction(PERSIST_DB.store,"readonly");const q=tx.objectStore(PERSIST_DB.store).get(key);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)});db.close();return v;}catch{return undefined}
-}
-async function persistWrite(key,value){
-  try{const db=await openPersistDB();await new Promise((res,rej)=>{const tx=db.transaction(PERSIST_DB.store,"readwrite");tx.objectStore(PERSIST_DB.store).put(value,key);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)});db.close();}catch(e){console.warn("Persistent storage error",e)}
-}
-async function hydratePersistentData(){
-  const keys=[KEYS.members,KEYS.stock,KEYS.bookings,KEYS.logbook];
-  for(const key of keys){
-    const localRaw=localStorage.getItem(key);
-    const localVal=localRaw===null?undefined:getJSON(key,undefined);
-    const saved=await persistRead(key);
-    if(saved!==undefined){
-      // IndexedDB adalah sumber lokal yang lebih tahan refresh.
-      originalSetJSON(key,saved);
-    }else if(localVal!==undefined){
-      // Migrasi otomatis data lama ke database persisten.
-      await persistWrite(key,localVal);
-    }
-  }
-}
-
-setJSON=function(key,value){
-  originalSetJSON(key,value);
-  // Tulis ke database persisten tanpa menunggu UI.
-  persistWrite(key,value);
-  // Jika CSV terhubung, tulis juga ke CSV.
-  CSV_STORE.queue=CSV_STORE.queue.then(()=>persistCSVKey(key,value)).catch(e=>console.warn("CSV sync",e));
-};
-
-async function loadInitialData(){try{const r=await fetch("/api/app-state?_="+Date.now(),{cache:"no-store",credentials:"same-origin",headers:{Accept:"application/json"}});const d=await r.json().catch(()=>null);if(!r.ok||!d?.success)throw new Error(d?.message||"Server data tidak tersedia.");members=Array.isArray(d.members)?d.members:[];stockRows=Array.isArray(d.stock)?d.stock:[];calendarBookings=ensureUniqueBookingIds(Array.isArray(d.bookings)?d.bookings:[]);renderMembers();renderStock()}catch(e){console.error("Gagal memuat data server",e);members=[];stockRows=[];calendarBookings=[];renderMembers();renderStock()}}
-// Saat pengguna menambah/menghapus anggota, setJSON di atas otomatis menulis
-// members.csv. Ini wrapper khusus untuk menghapus file CSV anggota bila API
-// tersedia; jika tidak, file tetap aman dan data anggota tidak ikut hilang.
-const _addMemberFromButton=addMemberFromButton;
-addMemberFromButton=function(){_addMemberFromButton();if(CSV_STORE.dir)updateCSVIndicator()};
-const _deleteMember=deleteMember;
-deleteMember=function(i){const name=members[i];_deleteMember(i);if(CSV_STORE.dir&&name)CSV_STORE.dir.removeEntry(memberCSVName(name)).catch(()=>{});};
-
-// UI kecil untuk memilih folder data CSV. Tidak mengubah fitur aplikasi.
-function injectCSVControl(){
-  const sec=$("page-members")?.querySelector(".section");if(!sec||$("csvStorageBox"))return;
-  const box=document.createElement("div");box.id="csvStorageBox";box.className="notice";box.style.marginTop="18px";
-  box.innerHTML='<strong>Penyimpanan Data</strong><br><span id="csvStorageIndicator">CSV: belum terhubung</span><br><button type="button" class="button green-button" style="margin-top:8px" onclick="connectCSVFolder()">Hubungkan Folder Data CSV</button><div style="margin-top:6px;font-size:12px">Setelah terhubung, setiap anggota memiliki file CSV sendiri di folder data. Data tetap ada walaupun logout atau anggota lain masuk.</div>';
-  sec.appendChild(box);updateCSVIndicator();
-}
-const _showPage=showPage;
-showPage=function(name){_showPage(name);if(name==="members")injectCSVControl();updateCSVIndicator()};
-
 function init(){setLogo();loadInitialData().then(()=>{showLogin();refreshCalendar()})}
-// Bersihkan status lama dari localStorage sekali setiap membuka aplikasi.
-(function migrateLegacyStatusesOnStartup(){
-  try{
-    const all=getJSON(KEYS.logbook,[]);
-    let changed=false;
-    const migrated=(Array.isArray(all)?all:[]).map(r=>{
-      const st=canonicalStatusValueForUI(r.status??r.Status??"Pending");
-      const deadline=(st==="Complete")?"":(r.deadline??r.Deadline??"");
-      if(r.status!==st || r.Deadline!==undefined && r.Deadline!==deadline || (st==="Complete" && r.deadline)) changed=true;
-      return {...r,status:st,deadline, ...(r.Deadline!==undefined?{Deadline:deadline}:{})};
-    });
-    if(changed)setJSON(KEYS.logbook,migrated);
-  }catch(err){console.warn("Status migration gagal",err)}
-})();
-
-document.addEventListener("DOMContentLoaded",()=>{enforceThreeStatuses();init();initDropzone();});
+document.addEventListener("DOMContentLoaded",()=>{init();initDropzone()});
 </script>
 
 <!-- ============================================================
