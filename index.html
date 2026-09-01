@@ -256,7 +256,7 @@ const CONFIG={
   GOOGLE_DRIVE_FILE_URL:"https://drive.google.com/drive/folders/1gfO_MPTcCMseNmuMUNvr8309xTin_GMc?usp=drive_link",
   ALLOWED_EXTENSIONS:["jpg","jpeg","png","pdf","doc","docx","xls","xlsx","csv","txt"]
 };
-const KEYS={members:"nsg_members_v2",bookings:"nsg_bookings_v2",logbook:"nsg_logbook_v2",stock:"nsg_stock_v2",login:"nsg_logged_in",sourceMembers:"nsg_source_members_loaded",sourceBookings:"nsg_source_bookings_loaded",sourceLogbook:"nsg_source_logbook_loaded_v1",blankInit:"nsg_blank_data_initialized_v3"};
+const KEYS={members:"nsg_members_v2",bookings:"nsg_bookings_v2",logbook:"nsg_logbook_v2",stock:"nsg_stock_v2",login:"nsg_logged_in",sourceMembers:"nsg_source_members_loaded",sourceBookings:"nsg_source_bookings_loaded",sourceLogbook:"nsg_source_logbook_loaded_v1",blankInit:"nsg_blank_data_initialized_v4"};
 let currentPage="menu",currentMember="",currentBookingId="",filesReturnPage="menu",calendarDate=new Date(),calendarBookings=[],members=[],logbookRows=[],stockRows=[];
 
 function $(id){return document.getElementById(id)}
@@ -284,13 +284,15 @@ async function loadInitialData(){
   // Versi baru dimulai dengan daftar Anggota dan Stock kosong, seperti web baru.
   // Reset satu kali untuk menghapus data contoh/seed dari versi app.html sebelumnya.
   if(localStorage.getItem(KEYS.blankInit)!=="1"){
+    // Mulai ulang data Anggota dan Stock agar versi ini benar-benar kosong.
+    // Data deadline/logbook/booking tidak disentuh.
     localStorage.removeItem(KEYS.members);
     localStorage.removeItem(KEYS.stock);
     localStorage.removeItem(KEYS.sourceMembers);
     localStorage.setItem(KEYS.blankInit,"1");
   }
 
-  members=getJSON(KEYS.members,[]).map(normalizeMember).filter(Boolean);
+  members=[];
   // Jangan mengambil members.json otomatis: halaman Anggota harus kosong pada instalasi baru.
 
   // Muat bookings.json hanya sebagai data awal. Setelah pengguna menghapus
@@ -498,8 +500,9 @@ function getActiveDeadlineRows(rows){
   return (Array.isArray(rows)?rows:[]).filter(r=>{
     const status=r?.status??r?.Status??"";
     const deadline=r?.deadline??r?.Deadline??"";
-    // COMPLETE/SELESAI tidak boleh pernah tampil di deadline maupun kalender.
-    return Boolean(String(deadline).trim()) && !isCompletedStatus(status);
+    // Hanya deadline yang benar-benar aktif dan memiliki tanggal valid.
+    // Semua variasi status selesai dikeluarkan dari deadline dan kalender.
+    return Boolean(String(deadline).trim()) && !!parseDateLocal(deadline) && !isCompletedStatus(status);
   });
 }
 function activeDeadlineRows(rows){return getActiveDeadlineRows(rows);}
@@ -509,7 +512,23 @@ function parseCSV(text){const rows=[];let row=[],cell="",quote=false;for(let i=0
 async function getLogbook(){
   const memberKey=normalizeMember(currentMember);
   let rows=readLocalLogbook();
-  if(rows.length)return rows;
+
+  // Normalisasi data lama: status selesai tidak boleh memiliki deadline aktif.
+  // Ini juga memperbaiki data lama yang sebelumnya masih tertinggal di kalender.
+  if(rows.length){
+    let changed=false;
+    const all=getJSON(KEYS.logbook,[]).map(r=>{
+      if(normalizeMember(r.nama||r.member)!==memberKey)return r;
+      const completed=isCompletedStatus(r.status??r.Status??"");
+      if(completed && String(r.deadline??r.Deadline??"").trim()){
+        changed=true;
+        return {...r,deadline:""};
+      }
+      return r;
+    });
+    if(changed)setJSON(KEYS.logbook,all);
+    return all.filter(x=>normalizeMember(x.nama||x.member)===memberKey);
+  }
 
   // CSV hanya dipakai sebagai sumber awal. Tandai bahwa CSV anggota ini
   // sudah pernah diimpor agar penghapusan/status dari aplikasi tidak hidup
@@ -529,7 +548,7 @@ async function getLogbook(){
     No:r.No||String(i+1),
     tanggal:r.Tanggal||r.tanggal||"",
     keterangan:r.Keterangan||r.keterangan||"",
-    deadline:r.Deadline||r.deadline||"",
+    deadline:isCompletedStatus(r.Status||r.status||"")?"":(r.Deadline||r.deadline||""),
     status:r.Status||r.status||"Pending",
     file:r.File||r.file||""
   }));
@@ -627,7 +646,7 @@ async function updateDeadlineStatusById(reportId,status){
   const wasComplete=isCompletedStatus(previousStatus);
   const willComplete=isCompletedStatus(newStatus);
 
-  all[idx]={...old,status:willComplete?"Complete":newStatus};
+  all[idx]={...old,status:willComplete?"Complete":newStatus,deadline:willComplete?"":(old.deadline??old.Deadline??"")};
 
   // Sekali saja buat laporan penyelesaian. Laporan penyelesaian tidak memiliki
   // deadline sehingga tidak akan muncul lagi di kalender/deadline.
@@ -645,7 +664,8 @@ async function updateDeadlineStatusById(reportId,status){
       completion_of_id:old.id,
       keterangan:(old.keterangan||old.Keterangan||"Laporan")+" — Penyelesaian",
       tanggal:new Date().toISOString().slice(0,10),
-      deadline:""
+      deadline:"",
+      Deadline:""
     });
   }
 
