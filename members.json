@@ -1,10 +1,5 @@
-{
-  "members": [
-    {
-      "nama": "Adam",
-      "logbook": []
-    }
-  ],
-  "stock": [],
-  "bookings": []
-}
+[
+  "adam",
+  "celca",
+  "rayham"
+]
