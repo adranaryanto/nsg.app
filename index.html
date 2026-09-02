@@ -199,7 +199,7 @@ body.stock-body{background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:
       <div class="stock-page">
         <a class="stock-back" onclick="showPage('menu')">←&nbsp; Kembali ke Menu Utama</a>
         <div class="stock-hero"><h1>Stok Barang</h1><p>Kelola persediaan barang dan status ketersediaannya.</p></div>
-        <div class="stock-toolbar"><input id="stockSearch" class="stock-search" placeholder="Cari nama barang…"><button class="stock-add-btn" type="button" onclick="openStockAdd()">+&nbsp; Tambah Barang</button></div>
+        <div class="stock-toolbar"><input id="stockSearch" class="stock-search" placeholder="Cari nama barang…"><button class="stock-add-btn" type="button" onclick="openStockAdd()">+&nbsp; Tambah Barang</button></div><div id="stockSyncStatus" style="display:none;margin:-8px 0 14px;padding:10px 14px;border:1px solid #f0c36d;background:#fff8e1;border-radius:9px;color:#8a6500;font-size:12px"></div>
         <div class="stock-table-card"><div style="overflow:auto"><table class="stock-table"><thead><tr><th>Barang</th><th>Jumlah</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead><tbody id="stockBody"></tbody></table></div></div>
         <div class="stock-buy-card"><div class="stock-buy-head"><div><h2>🛒 Harus Dibeli</h2><p>Barang dengan stok mau habis atau sudah habis.</p></div><span id="stockBuyCount" class="stock-count">0 barang</span></div><div id="stockBuyBody"></div></div>
       </div>
@@ -330,19 +330,86 @@ async function saveMemberCSV(name,rows,message){return githubSaveText(memberCSVP
    adalah data/stock.json di repository yang sama dengan members.json.
    localStorage hanya menjadi cache/fallback baca.
    ============================================================ */
+function readAnyLocalStockCache(){
+  const candidates=[];
+  const preferred=[KEYS.stock,"nsg_stock","stock","stockData","stocks"];
+  for(const key of preferred){
+    const value=getJSON(key,null);
+    if(Array.isArray(value)&&value.length)candidates.push(...value);
+  }
+  // Cari cache stock versi lama agar data yang sudah terlanjur dibuat di PC
+  // tidak hilang ketika pertama kali dipindahkan ke penyimpanan GitHub.
+  for(let i=0;i<localStorage.length;i++){
+    const key=localStorage.key(i)||"";
+    if(!/stock/i.test(key)||preferred.includes(key))continue;
+    const value=getJSON(key,null);
+    if(Array.isArray(value)&&value.length)candidates.push(...value);
+  }
+  return stockEnsureKeys(candidates);
+}
+
+function normalizeStockRows(rows){
+  return stockEnsureKeys(rows);
+}
+
 async function loadStockFromGitHub(){
+  // Baca dari raw GitHub terlebih dahulu: sama seperti file static lain,
+  // sehingga device lain dapat membaca stock tanpa memiliki token GitHub.
+  const c=githubConfig();
+  const rawUrl="https://raw.githubusercontent.com/"+encodeURIComponent(c.owner)+"/"+encodeURIComponent(c.repo)+"/"+encodeURIComponent(c.branch)+"/"+githubPath(CONFIG.STOCK_DATA_FILE)+"?_="+Date.now();
+  try{
+    const r=await fetch(rawUrl,{cache:"no-store"});
+    if(r.ok){
+      const text=await r.text();
+      const data=JSON.parse(text||"[]");
+      if(!Array.isArray(data))throw new Error("Format "+CONFIG.STOCK_DATA_FILE+" harus berupa array.");
+      return normalizeStockRows(data);
+    }
+    if(r.status!==404)console.warn("Raw stock GET "+r.status);
+  }catch(error){
+    console.warn("Raw GitHub stock tidak dapat dibaca:",error);
+  }
+
+  // Fallback ke GitHub Contents API untuk repository yang private atau
+  // kondisi ketika raw.githubusercontent.com tidak tersedia.
   const f=await githubGetFile(CONFIG.STOCK_DATA_FILE);
-  if(!f)return [];
+  if(!f)return null;
   const data=JSON.parse(f.text||"[]");
-  if(!Array.isArray(data))throw new Error("Format data/stock.json harus berupa array.");
-  return data.map((x,i)=>{
-    const item=(x&&typeof x==="object")?{...x}:{};
-    item.nama=String(item.nama||item.name||"").trim();
-    item.kode=String(item.kode||item.code||"atk-01").trim()||"atk-01";
-    item.jumlah=Math.max(0,Number(item.jumlah??item.qty??0)||0);
-    item._stockKey=String(item._stockKey||item.id||("stock_"+Date.now().toString(36)+"_"+i+"_"+Math.random().toString(36).slice(2,8)));
-    return item;
-  }).filter(x=>x.nama);
+  if(!Array.isArray(data))throw new Error("Format "+CONFIG.STOCK_DATA_FILE+" harus berupa array.");
+  return normalizeStockRows(data);
+}
+
+async function loadSharedStock(){
+  const remote=await loadStockFromGitHub();
+  const local=readAnyLocalStockCache();
+
+  // data/stock.json belum pernah dibuat: gunakan cache lokal lama sebagai
+  // sumber migrasi agar stock yang sudah ada di PC bisa dibagikan ke semua device.
+  if(remote===null){
+    if(local.length){
+      try{
+        const saved=await saveStockToGitHub(local,"Migrasi stock lokal ke GitHub");
+        return saved;
+      }catch(error){
+        console.warn("Migrasi stock lokal ke GitHub gagal:",error);
+        return local;
+      }
+    }
+    return [];
+  }
+
+  // Jika file remote masih kosong tetapi browser lama mempunyai data stock,
+  // migrasikan sekali. Setelah itu GitHub menjadi sumber utama lintas perangkat.
+  if(remote.length===0 && local.length>0){
+    try{
+      const merged=normalizeStockRows(local);
+      const saved=await saveStockToGitHub(merged,"Migrasi stock lama ke GitHub");
+      return saved;
+    }catch(error){
+      console.warn("Migrasi stock lama gagal:",error);
+    }
+  }
+  return remote;
 }
 function stockJSON(rows){return JSON.stringify((Array.isArray(rows)?rows:[]).map(x=>({
   _stockKey:String(x._stockKey||x.id||("stock_"+Date.now()+"_"+Math.random().toString(36).slice(2,8))),
@@ -357,15 +424,25 @@ async function saveStockToGitHub(rows,message){
     kode:String(x.kode||x.code||"atk-01").trim()||"atk-01",
     jumlah:Math.max(0,Number(x.jumlah)||0)
   })).filter(x=>x.nama);
-  await githubSaveText(CONFIG.STOCK_DATA_FILE,stockJSON(clean),message||"Update stock");
-  stockRows=clean;
-  setJSON(KEYS.stock,clean);
+  const text=stockJSON(clean);
+  await githubSaveText(CONFIG.STOCK_DATA_FILE,text,message||"Update stock");
+
+  // Verifikasi setelah PUT agar aplikasi tidak menganggap tersimpan
+  // padahal GitHub menolak/menyimpan ke branch yang berbeda.
+  const verify=await githubGetFile(CONFIG.STOCK_DATA_FILE);
+  if(!verify)throw new Error("Stock belum tersimpan di GitHub: "+CONFIG.STOCK_DATA_FILE+" tidak ditemukan.");
+  const verifyData=JSON.parse(verify.text||"[]");
+  if(!Array.isArray(verifyData))throw new Error("File stock di GitHub bukan array JSON yang valid.");
+
+  stockRows=normalizeStockRows(verifyData);
+  setJSON(KEYS.stock,stockRows);
   renderStock();
-  return clean;
+  return stockRows;
 }
 async function mutateStockOnGitHub(mutator,message){
   const latest=await loadStockFromGitHub();
-  const result=await mutator(latest);
+  const base=Array.isArray(latest)?latest:[];
+  const result=await mutator(base);
   return saveStockToGitHub(result,message);
 }
 
@@ -392,12 +469,18 @@ async function loadInitialData(){
   }
 
   try{
-    stockRows=await loadStockFromGitHub();
+    stockRows=await loadSharedStock();
+    stockRows=normalizeStockRows(stockRows);
     setJSON(KEYS.stock,stockRows);
+    const sync=$("stockSyncStatus");
+    if(sync)sync.style.display="none";
   }catch(error){
-    console.warn("Gagal memuat stock.json dari GitHub:",error);
-    stockRows=getJSON(KEYS.stock,[]);
-    if(!Array.isArray(stockRows))stockRows=[];
+    console.warn("Gagal memuat stock bersama dari GitHub:",error);
+    // Jangan pernah mengosongkan cache hanya karena GitHub sedang gagal.
+    stockRows=readAnyLocalStockCache();
+    setJSON(KEYS.stock,stockRows);
+    const sync=$("stockSyncStatus");
+    if(sync){sync.style.display="block";sync.textContent="Stock belum tersinkron ke GitHub. Data ini hanya cache perangkat ini. Saat menyimpan stock, gunakan token GitHub dengan izin Contents: Read and write agar data dapat terlihat di perangkat lain.";}
   }
   renderStock();
 }
