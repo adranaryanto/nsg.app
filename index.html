@@ -729,7 +729,36 @@ document.addEventListener("click",function(e){
   updateDeadlineStatusById(id,select.value).finally(()=>{btn.disabled=false});
 });
 
-function renderDashboardCalendar(rows){const root=$("dashboardCalendarBody");const y=calendarDate.getFullYear(),m=calendarDate.getMonth(),first=new Date(y,m,1),last=new Date(y,m+1,0),start=first.getDay(),total=last.getDate();let out='<div class="calendar-header"><button class="calendar-button" onclick="changeCalendarMonth(-1);renderDashboard()">‹</button><div class="calendar-title">'+escapeHTML(formatMonth(calendarDate))+'</div><button class="calendar-button" onclick="changeCalendarMonth(1);renderDashboard()">›</button></div><div class="calendar-week">'+["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"].map(x=>'<div>'+x+'</div>').join("")+'</div><div class="calendar-days">';for(let i=0;i<start;i++)out+='<div class="day other"></div>';for(let d=1;d<=total;d++){const date=new Date(y,m,d),today=sameDate(date,nowDateOnly());out+='<div class="day '+(today?"today":"")+'"><div class="day-number">'+d+'</div>';rows.filter(r=>sameDate(r._d,date)).forEach(r=>{out+='<div class="deadline '+deadlineClass(r._d)+'"><strong>'+escapeHTML(r.keterangan||r.Keterangan||"Laporan")+'</strong><br>'+escapeHTML(r.status||r.Status||"")+'</div>'});calendarBookings.filter(b=>bookingCoversDate(b,date)).forEach(b=>{out+='<div class="deadline booking '+bookingClass(b)+'" data-booking-id="'+escapeHTML(b.id)+'" role="button" tabindex="0"><div class="deadline-person">'+escapeHTML(b.nama||"Tanpa nama")+'</div><div class="deadline-detail">'+escapeHTML(b.alat||"")+'</div></div>'});out+='</div>'}out+='</div>';root.innerHTML=out}
+function renderDashboardCalendar(rows){
+  const root=$("dashboardCalendarBody");
+  if(!root)return;
+
+  // Kalender di Dashboard Anggota hanya menampilkan booking milik anggota yang sedang dibuka.
+  // Booking dengan nama yang tidak terdaftar sebagai anggota tidak akan muncul di Dashboard siapa pun.
+  const memberName=String(currentMember||"").trim();
+  const memberKey=memberName.toLocaleLowerCase();
+  const isRegisteredMember=memberKey&&members.some(m=>String(m||"").trim().toLocaleLowerCase()===memberKey);
+  const dashboardBookings=isRegisteredMember
+    ? calendarBookings.filter(b=>String(b?.nama||"").trim().toLocaleLowerCase()===memberKey)
+    : [];
+
+  const y=calendarDate.getFullYear(),m=calendarDate.getMonth(),first=new Date(y,m,1),last=new Date(y,m+1,0),start=first.getDay(),total=last.getDate();
+  let out='<div class="calendar-header"><button class="calendar-button" onclick="changeCalendarMonth(-1);renderDashboard()">‹</button><div class="calendar-title">'+escapeHTML(formatMonth(calendarDate))+'</div><button class="calendar-button" onclick="changeCalendarMonth(1);renderDashboard()">›</button></div><div class="calendar-week">'+["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"].map(x=>'<div>'+x+'</div>').join("")+'</div><div class="calendar-days">';
+  for(let i=0;i<start;i++)out+='<div class="day other"></div>';
+  for(let d=1;d<=total;d++){
+    const date=new Date(y,m,d),today=sameDate(date,nowDateOnly());
+    out+='<div class="day '+(today?"today":"")+'"><div class="day-number">'+d+'</div>';
+    rows.filter(r=>sameDate(r._d,date)).forEach(r=>{
+      out+='<div class="deadline '+deadlineClass(r._d)+'"><strong>'+escapeHTML(r.keterangan||r.Keterangan||"Laporan")+'</strong><br>'+escapeHTML(r.status||r.Status||"")+'</div>';
+    });
+    dashboardBookings.filter(b=>bookingCoversDate(b,date)).forEach(b=>{
+      out+='<div class="deadline booking '+bookingClass(b)+'" data-booking-id="'+escapeHTML(b.id)+'" role="button" tabindex="0"><div class="deadline-person">'+escapeHTML(b.nama||"Tanpa nama")+'</div><div class="deadline-detail">'+escapeHTML(b.alat||"")+'</div></div>';
+    });
+    out+='</div>';
+  }
+  out+='</div>';
+  root.innerHTML=out;
+}
 
 function stockStatus(q){q=Number(q)||0;return q<=0?"tidak":q<=5?"habis":"ada"}
 function stockStatusLabel(q){const s=stockStatus(q);return s==="ada"?"Ada":s==="habis"?"Mau Habis":"Tidak Ada"}
