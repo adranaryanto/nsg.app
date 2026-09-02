@@ -297,7 +297,39 @@ function githubBase64Encode(text){const bytes=new TextEncoder().encode(String(te
 function githubBase64Decode(base64){const clean=String(base64||"").replace(/\s/g,"");const binary=atob(clean);const bytes=new Uint8Array(binary.length);for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);return new TextDecoder("utf-8").decode(bytes)}
 function askGitHubToken(){const current=localStorage.getItem(KEYS.githubToken)||"";const token=prompt("Masukkan GitHub Fine-grained Personal Access Token.\n\nRepository: "+CONFIG.GITHUB_OWNER+"/"+CONFIG.GITHUB_REPO+"\nPermission wajib: Contents = Read and write.\n\nToken hanya disimpan di browser ini.",current);if(token===null)return false;const clean=token.trim();if(!clean){localStorage.removeItem(KEYS.githubToken);return false}localStorage.setItem(KEYS.githubToken,clean);return true}
 async function githubGetFile(path,retry=true){let r=await fetch(githubApiUrl(path),{headers:githubHeaders(false),cache:"no-store"});if((r.status===401||r.status===403)&&retry){localStorage.removeItem(KEYS.githubToken);if(askGitHubToken())return githubGetFile(path,false)}if(r.status===404)return null;const text=await r.text();if(!r.ok)throw new Error("GitHub GET "+r.status+": "+text);const data=JSON.parse(text);return {path:data.path,sha:data.sha,text:data.content?githubBase64Decode(data.content):"",download_url:data.download_url||""}}
-async function githubPutFile(path,text,message,retry=true){if(!String(localStorage.getItem(KEYS.githubToken)||"").trim()){if(!askGitHubToken())throw new Error("GitHub token diperlukan untuk menyimpan perubahan.")}const existing=await githubGetFile(path,false);const body={message,content:githubBase64Encode(text),branch:githubConfig().branch};if(existing?.sha)body.sha=existing.sha;let r=await fetch("https://api.github.com/repos/"+encodeURIComponent(githubConfig().owner)+"/"+encodeURIComponent(githubConfig().repo)+"/contents/"+githubPath(path),{method:"PUT",headers:githubHeaders(true),body:JSON.stringify(body)});if((r.status===401||r.status===403)&&retry){localStorage.removeItem(KEYS.githubToken);if(askGitHubToken())return githubPutFile(path,text,message,false)}const response=await r.text();if(!r.ok)throw new Error("GitHub PUT "+r.status+": "+response);return JSON.parse(response)}
+async function githubPutFile(path,text,message,retry=true){
+  if(!String(localStorage.getItem(KEYS.githubToken)||"").trim()){
+    if(!askGitHubToken())throw new Error("GitHub token diperlukan untuk menyimpan perubahan.")
+  }
+  const c=githubConfig();
+  const url="https://api.github.com/repos/"+encodeURIComponent(c.owner)+"/"+encodeURIComponent(c.repo)+"/contents/"+githubPath(path);
+
+  // GitHub Contents API requires the CURRENT blob SHA when updating a file.
+  // A 409 means another device/process changed the file after our GET. Refresh
+  // the SHA and retry once instead of leaving the user with a stale-SHA error.
+  const put=async()=>{
+    const existing=await githubGetFile(path,false);
+    const body={message,content:githubBase64Encode(text),branch:c.branch};
+    if(existing?.sha)body.sha=existing.sha;
+    const r=await fetch(url,{method:"PUT",headers:githubHeaders(true),body:JSON.stringify(body),cache:"no-store"});
+    const response=await r.text();
+    return {r,response};
+  };
+
+  let attempt=await put();
+  if((attempt.r.status===401||attempt.r.status===403)&&retry){
+    localStorage.removeItem(KEYS.githubToken);
+    if(askGitHubToken())return githubPutFile(path,text,message,false);
+  }
+  if(attempt.r.status===409&&retry){
+    // Re-read the file to obtain the newest SHA, then PUT the same desired
+    // content against that SHA. This fixes the common multi-device race.
+    await new Promise(resolve=>setTimeout(resolve,350));
+    attempt=await put();
+  }
+  if(!attempt.r.ok)throw new Error("GitHub PUT "+attempt.r.status+": "+attempt.response);
+  return JSON.parse(attempt.response);
+}
 async function githubDeleteFile(path,sha,message,retry=true){if(!String(localStorage.getItem(KEYS.githubToken)||"").trim()){if(!askGitHubToken())throw new Error("GitHub token diperlukan untuk menghapus file.")}let r=await fetch("https://api.github.com/repos/"+encodeURIComponent(githubConfig().owner)+"/"+encodeURIComponent(githubConfig().repo)+"/contents/"+githubPath(path),{method:"DELETE",headers:githubHeaders(true),body:JSON.stringify({message,sha,branch:githubConfig().branch})});if((r.status===401||r.status===403)&&retry){localStorage.removeItem(KEYS.githubToken);if(askGitHubToken())return githubDeleteFile(path,sha,message,false)}const response=await r.text();if(!r.ok)throw new Error("GitHub DELETE "+r.status+": "+response);return JSON.parse(response)}
 async function githubSaveText(path,text,message){return githubPutFile(path,text,message)}
 async function loadMembersFromGitHub(){const f=await githubGetFile(CONFIG.MEMBER_FILE);if(!f)throw new Error("members.json tidak ditemukan di repository.");const data=JSON.parse(f.text||"[]");if(!Array.isArray(data))throw new Error("Format members.json harus berupa array.");return data.map(normalizeMember).filter(Boolean).sort((a,b)=>a.localeCompare(b,"id"))}
