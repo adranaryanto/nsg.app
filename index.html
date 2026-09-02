@@ -302,7 +302,23 @@ async function githubSaveText(path,text,message){return githubPutFile(path,text,
 async function loadMembersFromGitHub(){const f=await githubGetFile(CONFIG.MEMBER_FILE);if(!f)throw new Error("members.json tidak ditemukan di repository.");const data=JSON.parse(f.text||"[]");if(!Array.isArray(data))throw new Error("Format members.json harus berupa array.");return data.map(normalizeMember).filter(Boolean).sort((a,b)=>a.localeCompare(b,"id"))}
 function memberCSVPath(name){return "data/"+safeFilename(name)+".csv"}
 function csvEscape(v){const s=String(v??"");return /[",\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}
-function rowsToCSV(rows){const header=["No","Tanggal","Keterangan","Deadline","Status","File"];const out=[header.join(",")];(Array.isArray(rows)?rows:[]).forEach((r,i)=>out.push([r.No||i+1,r.tanggal??r.Tanggal??"",r.keterangan??r.Keterangan??"",r.deadline??r.Deadline??"",isCompletedStatus(r.status??r.Status??"")?"Complete":(r.status??r.Status??"Pending"),r.file??r.File??""].map(csvEscape).join(",")));return out.join("\n")+"\n"}
+function rowsToCSV(rows){
+  const header=["No","Tanggal","Keterangan","Deadline","Status","File","CompletionReportId","CompletedAt"];
+  const out=[header.join(",")];
+  (Array.isArray(rows)?rows:[]).forEach((r,i)=>{
+    out.push([
+      r.No||i+1,
+      r.tanggal??r.Tanggal??"",
+      r.keterangan??r.Keterangan??"",
+      r.deadline??r.Deadline??"",
+      isCompletedStatus(r.status??r.Status??"")?"Complete":(r.status??r.Status??"Pending"),
+      r.file??r.File??"",
+      r.completion_report_id??r.CompletionReportId??"",
+      r.completed_at??r.CompletedAt??""
+    ].map(csvEscape).join(","));
+  });
+  return out.join("\n")+"\n";
+}
 async function loadMemberCSVFromGitHub(name){const f=await githubGetFile(memberCSVPath(name));if(!f)return {rows:[],sha:null};return {rows:parseCSV(f.text||"") ,sha:f.sha}}
 async function saveMemberCSV(name,rows,message){return githubSaveText(memberCSVPath(name),rowsToCSV(rows),message||("Update "+safeFilename(name)+".csv"))}
 
@@ -535,7 +551,9 @@ async function getLogbook(){
       keterangan:r.Keterangan||r.keterangan||"",
       deadline:isCompletedStatus(r.Status||r.status||"")?"":(r.Deadline||r.deadline||""),
       status:isCompletedStatus(r.Status||r.status||"")?"Complete":(r.Status||r.status||"Pending"),
-      file:r.File||r.file||""
+      file:r.File||r.file||"",
+      completion_report_id:r.CompletionReportId||r.completion_report_id||"",
+      completed_at:r.CompletedAt||r.completed_at||""
     }));
   }catch(error){
     console.warn("Gagal membaca CSV "+memberKey+" dari GitHub:",error);
@@ -596,7 +614,7 @@ $("reportForm").addEventListener("submit",async e=>{
   }
   try{
     const rows=await getLogbook();
-    rows.push({No:rows.length+1,tanggal,keterangan,deadline:isCompletedStatus(status)?"":deadline,status:isCompletedStatus(status)?"Complete":status,file:links.join("||")});
+    rows.push({No:rows.length+1,tanggal,keterangan,deadline:isCompletedStatus(status)?"":deadline,status:isCompletedStatus(status)?"Complete":status,file:links.join("||"),completion_report_id:"",completed_at:""});
     await saveMemberCSV(currentMember,rows,"Tambah laporan untuk "+currentMember);
     setJSON(KEYS.logbook,rows);
     notice.textContent=links.length?"Laporan tersimpan dan file berhasil diunggah ke Google Drive.":"Laporan berhasil tersimpan ke CSV GitHub.";
@@ -656,11 +674,33 @@ async function updateDeadlineStatusById(reportId,status){
   const previousStatus=String(old.status||"").trim();
   const newStatus=String(status||"").trim();
   const willComplete=isCompletedStatus(newStatus);
-  rows[index]={...old,status:willComplete?"Complete":newStatus,deadline:willComplete?"":(old.deadline||"")};
-  if(willComplete&&!isCompletedStatus(previousStatus)&&!old.completion_report_id){
-    rows[index].completion_report_id="completion_"+Date.now()+"_"+Math.random().toString(36).slice(2,9);
-    rows[index].completed_at=new Date().toISOString();
+
+  // Jika Pending/Progress -> Complete:
+  // 1) deadline laporan asli dikosongkan sehingga hilang dari deadline & kalender;
+  // 2) laporan asli tetap tersimpan sebagai riwayat Complete;
+  // 3) dibuat SATU laporan penyelesaian baru di logbook.
+  if(willComplete&&!isCompletedStatus(previousStatus)){
+    const completionId=old.completion_report_id||("completion_"+Date.now()+"_"+Math.random().toString(36).slice(2,9));
+    const completedAt=old.completed_at||new Date().toISOString();
+    rows[index]={...old,status:"Complete",deadline:"",completion_report_id:completionId,completed_at:completedAt};
+
+    if(!old.completion_report_id){
+      const completionDate=completedAt.slice(0,10);
+      rows.push({
+        No:rows.length+1,
+        tanggal:completionDate,
+        keterangan:"Penyelesaian: "+String(old.keterangan||old.Keterangan||"Laporan").trim(),
+        deadline:"",
+        status:"Complete",
+        file:old.file||old.File||"",
+        completion_report_id:completionId,
+        completed_at:completedAt
+      });
+    }
+  }else{
+    rows[index]={...old,status:willComplete?"Complete":newStatus,deadline:willComplete?"":(old.deadline||"")};
   }
+
   rows.forEach((r,j)=>{r.No=j+1});
   try{
     await saveMemberCSV(currentMember,rows,"Update status laporan "+currentMember);
