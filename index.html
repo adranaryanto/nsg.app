@@ -729,18 +729,31 @@ document.addEventListener("click",function(e){
   updateDeadlineStatusById(id,select.value).finally(()=>{btn.disabled=false});
 });
 
+function getDashboardBookingsForCurrentMember(){
+  // PENTING: kalender Dashboard Anggota bersifat PERSONAL.
+  // Booking hanya boleh tampil jika:
+  // 1) currentMember adalah anggota yang benar-benar terdaftar, DAN
+  // 2) nama peminjam booking sama persis dengan currentMember (abaikan kapital/spasi luar).
+  // Jangan pernah memakai seluruh calendarBookings langsung di Dashboard.
+  const memberKey=String(currentMember||"").trim().toLocaleLowerCase();
+  if(!memberKey)return [];
+
+  const registered=Array.isArray(members) && members.some(m=>
+    String(m||"").trim().toLocaleLowerCase()===memberKey
+  );
+  if(!registered)return [];
+
+  return (Array.isArray(calendarBookings)?calendarBookings:[]).filter(b=>
+    String(b?.nama||"").trim().toLocaleLowerCase()===memberKey
+  );
+}
+
 function renderDashboardCalendar(rows){
   const root=$("dashboardCalendarBody");
   if(!root)return;
 
-  // Kalender di Dashboard Anggota hanya menampilkan booking milik anggota yang sedang dibuka.
-  // Booking dengan nama yang tidak terdaftar sebagai anggota tidak akan muncul di Dashboard siapa pun.
-  const memberName=String(currentMember||"").trim();
-  const memberKey=memberName.toLocaleLowerCase();
-  const isRegisteredMember=memberKey&&members.some(m=>String(m||"").trim().toLocaleLowerCase()===memberKey);
-  const dashboardBookings=isRegisteredMember
-    ? calendarBookings.filter(b=>String(b?.nama||"").trim().toLocaleLowerCase()===memberKey)
-    : [];
+  // Hanya booking milik anggota yang sedang dibuka.
+  const dashboardBookings=getDashboardBookingsForCurrentMember();
 
   const y=calendarDate.getFullYear(),m=calendarDate.getMonth(),first=new Date(y,m,1),last=new Date(y,m+1,0),start=first.getDay(),total=last.getDate();
   let out='<div class="calendar-header"><button class="calendar-button" onclick="changeCalendarMonth(-1);renderDashboard()">‹</button><div class="calendar-title">'+escapeHTML(formatMonth(calendarDate))+'</div><button class="calendar-button" onclick="changeCalendarMonth(1);renderDashboard()">›</button></div><div class="calendar-week">'+["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"].map(x=>'<div>'+x+'</div>').join("")+'</div><div class="calendar-days">';
