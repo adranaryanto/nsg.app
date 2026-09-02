@@ -250,6 +250,7 @@ const CONFIG={
   GOOGLE_DRIVE_URL:"https://drive.google.com/drive/folders/1gfO_MPTcCMseNmuMUNvr8309xTin_GMc?usp=drive_link",
   GOOGLE_BOOKING_SPREADSHEET_URL:"https://docs.google.com/spreadsheets/d/1FkxTNoUveHNvWseFoFZJA-xxNS3PgX1dSv7LjLx1UvU/edit?usp=sharing",
   GOOGLE_BOOKING_SPREADSHEET_ID:"1FkxTNoUveHNvWseFoFZJA-xxNS3PgX1dSv7LjLx1UvU",
+  GOOGLE_BOOKING_SHEET_GID:"0",
   USERNAME:"admin",
   PASSWORD:"1234",
   MEMBER_FILE:"members.json",
@@ -270,7 +271,19 @@ function getJSON(key,fallback){try{const raw=localStorage.getItem(key);return ra
 function setJSON(key,value){localStorage.setItem(key,JSON.stringify(value))}
 function safeFilename(name){return String(name??"").replace(/[<>:"/\\|?*]/g,"_").trim()}
 function dateKey(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
-function parseDateLocal(v){if(!v)return null;const m=String(v).trim().match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);return m?new Date(+m[1],+m[2]-1,+m[3]):null}
+function parseDateLocal(v){
+  if(!v)return null;
+  if(v instanceof Date&&!isNaN(v.getTime()))return new Date(v.getFullYear(),v.getMonth(),v.getDate());
+  const s=String(v).trim();
+  let m=s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+  if(m)return new Date(+m[1],+m[2]-1,+m[3]);
+  m=s.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})/);
+  if(m)return new Date(+m[3],+m[2]-1,+m[1]);
+  m=s.match(/^Date\((\d{4}),(\d{1,2}),(\d{1,2})\)/);
+  if(m)return new Date(+m[1],+m[2],+m[3]);
+  const d=new Date(s);
+  return isNaN(d.getTime())?null:new Date(d.getFullYear(),d.getMonth(),d.getDate());
+}
 function sameDate(a,b){return !!(a&&b&&a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate())}
 function formatDate(v){const d=v instanceof Date?v:parseDateLocal(v);return d?d.toLocaleDateString("id-ID"):String(v||"")}
 function formatMonth(d){return d.toLocaleDateString("id-ID",{month:"long",year:"numeric"})}
@@ -487,17 +500,13 @@ async function loadInitialData(){
     members=getJSON(KEYS.members,[]);
   }
 
-  const storedBookings=localStorage.getItem(KEYS.bookings);
-  if(storedBookings!==null){
-    calendarBookings=ensureUniqueBookingIds(getJSON(KEYS.bookings,[]));
+  calendarBookings=ensureUniqueBookingIds(getJSON(KEYS.bookings,[]));
+  try{
+    const sheetBookings=await loadBookingsFromGoogleSheet();
+    calendarBookings=mergeBookings(sheetBookings,calendarBookings);
     setJSON(KEYS.bookings,calendarBookings);
-  }else{
-    calendarBookings=[];
-    try{
-      const r=await fetch(CONFIG.BOOKING_DATA_FILE+"?_="+Date.now(),{cache:"no-store"});
-      if(r.ok){const d=await r.json();if(Array.isArray(d))calendarBookings=ensureUniqueBookingIds(d)}
-    }catch{}
-    setJSON(KEYS.bookings,calendarBookings);
+  }catch(error){
+    console.warn("Gagal memuat booking dari Google Sheets:",error);
   }
 
   try{
@@ -564,26 +573,69 @@ $("bookingForm").addEventListener("submit",async e=>{
 $("tanggal_mulai").addEventListener("change",()=>{$("tanggal_selesai").min=$("tanggal_mulai").value||"";if(!$("tanggal_selesai").value)$("tanggal_selesai").value=$("tanggal_mulai").value})
 $("tanggal_selesai").addEventListener("change",()=>{if($("tanggal_mulai").value&&$("tanggal_selesai").value<$("tanggal_mulai").value){alert("Tanggal selesai tidak boleh lebih awal daripada tanggal mulai.");$("tanggal_selesai").value=$("tanggal_mulai").value}})
 
+async function loadBookingsFromGoogleSheet(){
+  const id=String(CONFIG.GOOGLE_BOOKING_SPREADSHEET_ID||"").trim();
+  if(!id)return [];
+  const gid=encodeURIComponent(String(CONFIG.GOOGLE_BOOKING_SHEET_GID??"0"));
+  const url="https://docs.google.com/spreadsheets/d/"+encodeURIComponent(id)+"/gviz/tq?tqx=out:json&gid="+gid+"&_"+Date.now();
+  const r=await fetch(url,{cache:"no-store"});
+  if(!r.ok)throw new Error("Google Sheets HTTP "+r.status);
+  const text=await r.text();
+  const a=text.indexOf("{"),z=text.lastIndexOf("}");
+  if(a<0||z<a)throw new Error("Format respons Google Sheets tidak dikenali.");
+  const data=JSON.parse(text.slice(a,z+1));
+  const table=data?.table;
+  if(!table||!Array.isArray(table.cols)||!Array.isArray(table.rows))return [];
+  const headers=table.cols.map((c,i)=>normalizeSheetHeader(c?.label||c?.id||"kolom"+i));
+  const pick=(obj,names)=>{for(const n of names){if(obj[n]!=null&&String(obj[n]).trim()!=="")return obj[n]}return ""};
+  return table.rows.map((row,idx)=>{
+    const obj={};
+    headers.forEach((h,i)=>{const c=row?.c?.[i];obj[h]=c?.f??c?.v??""});
+    const nama=pick(obj,["nama","namapeminjam","peminjam","name"]);
+    const alat=pick(obj,["alat","namabarang","barang","equipment"]);
+    const tanggal_mulai=pick(obj,["tanggalmulai","tanggal","startdate","start"]);
+    const tanggal_selesai=pick(obj,["tanggalselesai","tanggalselesai","enddate","end"]);
+    if(!String(nama).trim()||!String(tanggal_mulai).trim())return null;
+    return normalizeBooking({
+      id:pick(obj,["id","bookingid"])||"sheet_"+idx,
+      nama,alat,
+      nomor_telepon:pick(obj,["nomortelepon","notelp","telepon","phone"]),
+      tanggal_mulai,tanggal_selesai: tanggal_selesai||tanggal_mulai,
+      tanggal:tanggal_mulai,
+      jam_mulai:pick(obj,["jammulai","starttime"]),
+      jam_selesai:pick(obj,["jamselesai","endtime"]),
+      keperluan:pick(obj,["keperluan","purpose"]),
+      catatan:pick(obj,["catatan","keterangan","note"])
+    });
+  }).filter(Boolean);
+}
+function normalizeSheetHeader(v){return String(v||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"").trim()}
+function bookingFingerprint(b){return [b?.nama,b?.alat,b?.tanggal_mulai||b?.tanggal,b?.tanggal_selesai||b?.tanggal_mulai||b?.tanggal,b?.jam_mulai,b?.jam_selesai,b?.nomor_telepon].map(v=>String(v||"").trim().toLocaleLowerCase()).join("|")}
+function mergeBookings(remote,local){
+  const map=new Map();
+  [...(Array.isArray(remote)?remote:[]),...(Array.isArray(local)?local:[])].forEach(item=>{
+    const b=normalizeBooking(item);if(!b)return;
+    const key=bookingFingerprint(b);
+    if(!map.has(key)||String(b.id||"").startsWith("bk_"))map.set(key,b);
+  });
+  return ensureUniqueBookingIds([...map.values()]);
+}
 async function refreshCalendar(){
-  // app.html berjalan tanpa Flask. Jangan mencoba endpoint Flask karena
-  // kegagalan request sebelumnya dapat membuat data lokal terasa "hilang".
-  // Jika halaman memang dijalankan melalui Flask, data server tetap dipakai.
-  const runningOnFlask=window.location.protocol!=="file:" &&
-    (window.location.pathname==="/" || window.location.pathname.includes("/peminjaman"));
+  const local=ensureUniqueBookingIds(getJSON(KEYS.bookings,[]));
+  let remote=[];
+  const runningOnFlask=window.location.protocol!=="file:" && (window.location.pathname==="/" || window.location.pathname.includes("/peminjaman"));
   if(runningOnFlask){
     try{
       const r=await fetch("/api/bookings?_="+Date.now(),{cache:"no-store",credentials:"same-origin",headers:{Accept:"application/json"}});
-      if(r.ok){
-        const d=await r.json();
-        if(d&&d.success&&Array.isArray(d.bookings)){
-          calendarBookings=ensureUniqueBookingIds(d.bookings);
-          setJSON(KEYS.bookings,calendarBookings);
-        }
-      }
-    }catch(error){console.warn("Data server tidak dapat dimuat; memakai data lokal.",error)}
-  }else{
-    calendarBookings=ensureUniqueBookingIds(getJSON(KEYS.bookings,[]));
+      if(r.ok){const d=await r.json();if(d&&d.success&&Array.isArray(d.bookings))remote=d.bookings;}
+    }catch(error){console.warn("Data server tidak dapat dimuat:",error)}
   }
+  try{
+    const sheetBookings=await loadBookingsFromGoogleSheet();
+    remote=mergeBookings(remote,sheetBookings);
+  }catch(error){console.warn("Booking Google Sheets tidak dapat dimuat. Pastikan spreadsheet dapat diakses oleh pengguna yang membuka aplikasi.",error)}
+  calendarBookings=mergeBookings(remote,local);
+  setJSON(KEYS.bookings,calendarBookings);
   renderCalendar();
 }
 function ensureUniqueBookingIds(list){
