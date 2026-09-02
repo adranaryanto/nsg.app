@@ -6,7 +6,7 @@
 <meta name="description" content="NSG App - Logbook dan Peminjaman Alat">
 <title>NSG App - Logbook & Peminjaman</title>
 <style>
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;padding:20px;background:#b3b3b3;font-family:"Times New Roman",serif;color:#111}.hidden{display:none!important}.container{width:1100px;max-width:100%;margin:auto;background:#fff;border:1px solid #555}.header{background:#2f7d20;color:#fff;padding:15px 20px;display:flex;justify-content:space-between;align-items:center}.header-right{display:flex;align-items:center;gap:12px}.header-logo{width:72px;height:45px;object-fit:contain}.title{font-size:26px;font-weight:bold}.member-name{font-size:18px;font-weight:bold}.content{padding:20px}.section{border:1px solid #777;padding:15px;margin-bottom:20px;background:#fafafa;scroll-margin-top:15px}.section-title{font-size:21px;font-weight:bold;margin-bottom:12px}.menu-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:15px;margin-bottom:25px}.main-menu-grid{display:grid;grid-template-columns:1fr;gap:12px;margin:25px}.member-list{display:flex;flex-direction:column;gap:12px}.member-card{display:flex;align-items:center;justify-content:space-between;border:1px solid #777;background:#ddd;padding:16px 18px;font-size:18px;cursor:pointer;text-decoration:none;color:#111}.member-card:hover{background:#d2d2d2}.member-arrow{font-size:22px}.dropzone{border:2px dashed #777;background:#f2f2f2;padding:28px 18px;text-align:center;cursor:pointer;margin-bottom:15px}.dropzone.dragover{background:#e9f5e5;border-color:#2f7d20}.dropzone-title{font-size:18px;font-weight:bold;margin-bottom:8px}.dropzone-subtitle{font-size:14px;color:#666}.file-list{margin-top:10px;text-align:left;font-size:14px}.file-list div{padding:4px 0;border-bottom:1px solid #ddd}.menu{display:block;padding:20px;text-align:center;border:1px solid #555;background:#eee;color:#000;text-decoration:none;font-size:20px;font-weight:bold;cursor:pointer}.menu:hover{background:#d7d7d7}.menu.gdrive{background:#eef6ff}.announcement{border-left:6px solid #2f7d20;padding:12px;margin-bottom:8px;background:#fff}.announcement.today{border-left-color:#d00000;background:#fff0f0}.announcement.soon{border-left-color:#e67e00;background:#fff7ed}.announcement.week{border-left-color:#d6a600;background:#fffbea}.announcement.overdue{border-left-color:#8b0000;background:#ffe5e5}.empty-alert{color:#555;padding:5px 0}.calendar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.calendar-title{font-size:22px;font-weight:bold}.calendar-button,.button{border:1px solid #555;background:#eee;padding:7px 14px;cursor:pointer;font-family:"Times New Roman",serif;font-size:16px;text-decoration:none;color:#000}.calendar-button:hover,.button:hover{background:#ddd}.calendar-week,.calendar-days{display:grid;grid-template-columns:repeat(7,1fr)}.calendar-week{text-align:center;font-weight:bold;background:#ddd}.calendar-week div{padding:8px;border:1px solid #aaa}.day{min-height:100px;border:1px solid #aaa;padding:5px;position:relative;background:#fff}.day.other{background:#eee;color:#999}.day.today{background:#e9f5e5}.day-number{font-weight:bold;font-size:15px}.deadline{margin-top:5px;padding:4px;font-size:12px;border-radius:3px;background:#ffd966;overflow-wrap:anywhere;cursor:pointer}.deadline.today-deadline{background:#ff6666;color:#fff}.deadline.soon-deadline{background:#f6b26b}.deadline.week-deadline{background:#ffe599}.deadline.overdue-deadline{background:#d9a0a0;color:#4a0000}.deadline.booking{background:#ddf0d8;border-left:3px solid #2f7d20}.deadline.booking.today-deadline{background:#ff9999;border-left-color:#990000}.deadline.booking.soon-deadline{background:#ffe0a3;border-left-color:#d68a00}.deadline.booking.overdue-deadline{background:#ffdddd;border-left-color:#cc0000}.deadline-person{font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.deadline-detail{font-size:10px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.status{display:inline-block;margin-top:5px;padding:3px 8px;border:1px solid #999;background:#eee;font-size:13px}.deadline-action{margin-top:12px;padding-top:10px;border-top:1px solid #ccc}.deadline-action select{padding:7px;font-family:"Times New Roman",serif;border:1px solid #888;background:#fff}.deadline-action button{padding:7px 12px;margin-left:5px;border:1px solid #245d19;background:#2f7d20;color:#fff;cursor:pointer;font-family:"Times New Roman",serif}.deadline-action button:disabled{background:#888;border-color:#777;cursor:wait}.footer{margin-top:20px;padding-top:15px;border-top:1px solid #777;display:flex;justify-content:space-between}.logout{color:#a00000!important}.panel{width:650px;min-height:650px;margin:0 auto;background:#fff;border:1px solid #000}.login-panel{width:420px;min-height:auto}.login-content{padding:25px}.form-group{margin-bottom:18px}.form-group label{display:block;font-size:17px;font-weight:bold;margin-bottom:6px}.form-group input,.form-group textarea,.form-group select{width:100%;border:1px solid #555;background:#eee;padding:8px;font-family:"Times New Roman",serif;font-size:16px}.form-group input{height:36px}.form-group textarea{height:110px;resize:vertical}.form-group select{height:36px}.row{display:grid;grid-template-columns:1fr 1fr;gap:15px}.buttons{margin-top:25px;display:flex;justify-content:space-between;gap:10px}.green-button{background:#2f7d20;color:#fff;border-color:#245d19}.green-button:hover{background:#256619}.red-button{background:#c62828!important;color:#fff!important;border-color:#a51f1f!important}.blue-button{background:#eef6ff}.notice{background:#f0f4f8;border:1px solid #ccd3d8;padding:10px;margin-bottom:15px;font-size:13px;color:#555}.error{color:#a00000;margin:8px 0;font-weight:bold}.table-wrap{overflow:auto}.data-table{width:100%;border-collapse:collapse;background:#fff}.data-table th,.data-table td{border:1px solid #777;padding:8px;text-align:left;vertical-align:top}.data-table th{background:#ddd}.small-btn{padding:6px 10px;font-size:14px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}.file-menu-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}.file-menu{border:1px solid #555;border-radius:8px;background:#fafafa;text-decoration:none;color:#222;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 24px;min-height:220px}.file-menu:hover{background:#f3f3f3;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.12)}.file-icon{font-size:52px;margin-bottom:14px}.file-title{font-size:22px;font-weight:bold;margin-bottom:8px}.file-desc{font-size:15px;color:#666;line-height:1.45}.booking-box{width:750px;max-width:100%;margin:auto;background:#fff;padding:30px;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,.1)}.calendar-box{margin-top:30px;background:#fff;border:1px solid #555;padding:20px}.calendar-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}.calendar-toolbar button{width:auto;min-width:42px;padding:8px 14px;background:#2f7d20;color:#fff;border:1px solid #245d19;border-radius:0;cursor:pointer;font-size:18px}.calendar-toolbar button:hover{background:#256619}.calendar-table{width:100%;border-collapse:collapse;table-layout:fixed}.calendar-table th{background:#ddd;border:1px solid #555;padding:10px 5px;text-align:center;font-weight:bold}.calendar-table td{height:110px;border:1px solid #777;vertical-align:top;padding:6px;background:#fff;overflow:hidden}.calendar-table td.other-month{background:#eee;color:#999}.calendar-table td.today-cell{background:#fffdf0}.calendar-date{font-weight:bold;margin-bottom:5px;font-size:14px}.booking-deadline{background:#ddf0d8;border-left:3px solid #2f7d20;padding:3px 4px;margin-top:3px;font-size:10px;line-height:1.15;cursor:pointer;overflow:hidden;overflow-wrap:anywhere;border-radius:3px}.booking-deadline.today{background:#ff9999;border-left-color:#990000}.booking-deadline.soon{background:#ffe0a3;border-left-color:#d68a00}.booking-deadline.past{background:#ffdddd;border-left-color:#cc0000}.booking-person{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.booking-detail{font-size:9px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.booking-status{font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.calendar-empty{text-align:center;padding:20px;color:#777}.calendar-legend{margin-top:12px;font-size:12px;color:#555}.modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.45);align-items:center;justify-content:center;padding:20px}.modal.show{display:flex}.modal-card{width:min(600px,100%);background:#fff;border-radius:12px;padding:20px;box-shadow:0 15px 50px rgba(0,0,0,.25)}.modal-card h2{margin-top:0}.modal-content{background:#f5f5f5;border-radius:8px;padding:12px;white-space:pre-wrap;word-break:break-word;line-height:1.45}.logo{width:70px;height:45px;object-fit:contain}.file-note{margin-top:12px;text-align:right;font-size:13px;color:#555;font-style:italic}.source-info{font-size:12px;color:#666;margin-top:15px}.source-code{display:none}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;padding:20px;background:#b3b3b3;font-family:"Times New Roman",serif;color:#111}.hidden{display:none!important}.container{width:1100px;max-width:100%;margin:auto;background:#fff;border:1px solid #555}.header{background:#2f7d20;color:#fff;padding:15px 20px;display:flex;justify-content:space-between;align-items:center}.header-right{display:flex;align-items:center;gap:12px}.header-logo{width:72px;height:45px;object-fit:contain}.title{font-size:26px;font-weight:bold}.member-name{font-size:18px;font-weight:bold}.content{padding:20px}.section{border:1px solid #777;padding:15px;margin-bottom:20px;background:#fafafa;scroll-margin-top:15px}.section-title{font-size:21px;font-weight:bold;margin-bottom:12px}.menu-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:15px;margin-bottom:25px}.main-menu-grid{display:grid;grid-template-columns:1fr;gap:12px;margin:25px}.member-list{display:flex;flex-direction:column;gap:12px}.member-card{display:flex;align-items:center;justify-content:space-between;border:1px solid #777;background:#ddd;padding:16px 18px;font-size:18px;cursor:pointer;text-decoration:none;color:#111}.member-card:hover{background:#d2d2d2}.member-arrow{font-size:22px}.dropzone{border:2px dashed #777;background:#f2f2f2;padding:28px 18px;text-align:center;cursor:pointer;margin-bottom:15px}.dropzone.dragover{background:#e9f5e5;border-color:#2f7d20}.dropzone-title{font-size:18px;font-weight:bold;margin-bottom:8px}.dropzone-subtitle{font-size:14px;color:#666}.file-list{margin-top:10px;text-align:left;font-size:14px}.file-list div{padding:4px 0;border-bottom:1px solid #ddd}.menu{display:block;padding:20px;text-align:center;border:1px solid #555;background:#eee;color:#000;text-decoration:none;font-size:20px;font-weight:bold;cursor:pointer}.menu:hover{background:#d7d7d7}.menu.gdrive{background:#eef6ff}.announcement{border-left:6px solid #2f7d20;padding:12px;margin-bottom:8px;background:#fff}.announcement.today{border-left-color:#d00000;background:#fff0f0}.announcement.soon{border-left-color:#e67e00;background:#fff7ed}.announcement.week{border-left-color:#d6a600;background:#fffbea}.announcement.overdue{border-left-color:#8b0000;background:#ffe5e5}.empty-alert{color:#555;padding:5px 0}.calendar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.calendar-title{font-size:22px;font-weight:bold}.calendar-button,.button{border:1px solid #555;background:#eee;padding:7px 14px;cursor:pointer;font-family:"Times New Roman",serif;font-size:16px;text-decoration:none;color:#000}.calendar-button:hover,.button:hover{background:#ddd}.calendar-week,.calendar-days{display:grid;grid-template-columns:repeat(7,1fr)}.calendar-week{text-align:center;font-weight:bold;background:#ddd}.calendar-week div{padding:8px;border:1px solid #aaa}.day{min-height:100px;border:1px solid #aaa;padding:5px;position:relative;background:#fff}.day.other{background:#eee;color:#999}.day.today{background:#e9f5e5}.day-number{font-weight:bold;font-size:15px}.deadline{margin-top:5px;padding:4px;font-size:12px;border-radius:3px;background:#ffd966;overflow-wrap:anywhere;cursor:pointer}.deadline.today-deadline{background:#ff6666;color:#fff}.deadline.soon-deadline{background:#f6b26b}.deadline.week-deadline{background:#ffe599}.deadline.overdue-deadline{background:#d9a0a0;color:#4a0000}.deadline.booking{background:#ddf0d8;border-left:3px solid #2f7d20}.deadline.booking.today-deadline{background:#ff9999;border-left-color:#990000}.deadline.booking.soon-deadline{background:#ffe0a3;border-left-color:#d68a00}.deadline.booking.overdue-deadline{background:#ffdddd;border-left-color:#cc0000}.deadline-person{font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.deadline-detail{font-size:10px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.status{display:inline-block;margin-top:5px;padding:3px 8px;border:1px solid #999;background:#eee;font-size:13px}.deadline-action{margin-top:12px;padding-top:10px;border-top:1px solid #ccc}.deadline-action select{padding:7px;font-family:"Times New Roman",serif;border:1px solid #888;background:#fff}.deadline-action button{padding:7px 12px;margin-left:5px;border:1px solid #245d19;background:#2f7d20;color:#fff;cursor:pointer;font-family:"Times New Roman",serif}.deadline-action button:disabled{background:#888;border-color:#777;cursor:wait}.footer{margin-top:20px;padding-top:15px;border-top:1px solid #777;display:flex;justify-content:space-between}.logout{color:#a00000!important}.panel{width:650px;min-height:650px;margin:0 auto;background:#fff;border:1px solid #000}.login-panel{width:420px;min-height:auto}.login-content{padding:25px}.form-group{margin-bottom:18px}.form-group label{display:block;font-size:17px;font-weight:bold;margin-bottom:6px}.form-group input,.form-group textarea,.form-group select{width:100%;border:1px solid #555;background:#eee;padding:8px;font-family:"Times New Roman",serif;font-size:16px}.form-group input{height:36px}.form-group textarea{height:110px;resize:vertical}.form-group select{height:36px}.row{display:grid;grid-template-columns:1fr 1fr;gap:15px}.buttons{margin-top:25px;display:flex;justify-content:space-between;gap:10px}.green-button{background:#2f7d20;color:#fff;border-color:#245d19}.green-button:hover{background:#256619}.red-button{background:#c62828!important;color:#fff!important;border-color:#a51f1f!important}.blue-button{background:#eef6ff}.notice{background:#f0f4f8;border:1px solid #ccd3d8;padding:10px;margin-bottom:15px;font-size:13px;color:#555}.error{color:#a00000;margin:8px 0;font-weight:bold}.table-wrap{overflow:auto}.data-table{width:100%;border-collapse:collapse;background:#fff}.data-table th,.data-table td{border:1px solid #777;padding:8px;text-align:left;vertical-align:top}.data-table th{background:#ddd}.small-btn{padding:6px 10px;font-size:14px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}.file-menu-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}.file-menu{border:1px solid #555;border-radius:8px;background:#fafafa;text-decoration:none;color:#222;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 24px;min-height:220px}.file-menu:hover{background:#f3f3f3;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.12)}.file-icon{font-size:52px;margin-bottom:14px}.file-title{font-size:22px;font-weight:bold;margin-bottom:8px}.file-desc{font-size:15px;color:#666;line-height:1.45}.booking-box{width:750px;max-width:100%;margin:auto;background:#fff;padding:30px;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,.1)}.calendar-box{margin-top:30px;background:#fff;border:1px solid #555;padding:20px}.sync-status{font-size:12px;color:#666;margin:-5px 0 12px;padding:6px 8px;background:#f7f7f7;border-left:3px solid #2f7d20}.calendar-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}.calendar-toolbar button{width:auto;min-width:42px;padding:8px 14px;background:#2f7d20;color:#fff;border:1px solid #245d19;border-radius:0;cursor:pointer;font-size:18px}.calendar-toolbar button:hover{background:#256619}.calendar-table{width:100%;border-collapse:collapse;table-layout:fixed}.calendar-table th{background:#ddd;border:1px solid #555;padding:10px 5px;text-align:center;font-weight:bold}.calendar-table td{height:110px;border:1px solid #777;vertical-align:top;padding:6px;background:#fff;overflow:hidden}.calendar-table td.other-month{background:#eee;color:#999}.calendar-table td.today-cell{background:#fffdf0}.calendar-date{font-weight:bold;margin-bottom:5px;font-size:14px}.booking-deadline{background:#ddf0d8;border-left:3px solid #2f7d20;padding:3px 4px;margin-top:3px;font-size:10px;line-height:1.15;cursor:pointer;overflow:hidden;overflow-wrap:anywhere;border-radius:3px}.booking-deadline.today{background:#ff9999;border-left-color:#990000}.booking-deadline.soon{background:#ffe0a3;border-left-color:#d68a00}.booking-deadline.past{background:#ffdddd;border-left-color:#cc0000}.booking-person{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.booking-detail{font-size:9px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.booking-status{font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.calendar-empty{text-align:center;padding:20px;color:#777}.calendar-legend{margin-top:12px;font-size:12px;color:#555}.modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.45);align-items:center;justify-content:center;padding:20px}.modal.show{display:flex}.modal-card{width:min(600px,100%);background:#fff;border-radius:12px;padding:20px;box-shadow:0 15px 50px rgba(0,0,0,.25)}.modal-card h2{margin-top:0}.modal-content{background:#f5f5f5;border-radius:8px;padding:12px;white-space:pre-wrap;word-break:break-word;line-height:1.45}.logo{width:70px;height:45px;object-fit:contain}.file-note{margin-top:12px;text-align:right;font-size:13px;color:#555;font-style:italic}.source-info{font-size:12px;color:#666;margin-top:15px}.source-code{display:none}
 @media(max-width:700px){body{padding:8px}.header{flex-direction:column;align-items:flex-start;gap:5px}.menu-grid,.main-menu-grid{grid-template-columns:1fr}.row{grid-template-columns:1fr}.file-menu-grid{grid-template-columns:1fr}.day{min-height:70px;padding:3px}.deadline{font-size:10px}.booking-box{padding:18px}.calendar-box{padding:10px}.calendar-table th{font-size:11px;padding:7px 2px}.calendar-table td{height:90px;padding:4px}.booking-deadline{font-size:9px;padding:2px 3px}.calendar-date{font-size:12px}.panel{width:100%}.buttons{justify-content:stretch}.buttons>*{flex:1}.content{padding:12px}.title{font-size:22px}}
 
 /* ===== FINAL BUG FIXES: DASHBOARD / BACKGROUND / DELETE ===== */
@@ -125,7 +125,7 @@ body.stock-body{background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:
           <div id="bookingError" class="error"></div>
         </form>
         <div class="calendar-box">
-          <div class="calendar-toolbar"><button onclick="changeCalendarMonth(-1)">‹</button><div id="calendarTitle" class="calendar-title">Kalender Peminjaman</div><button onclick="changeCalendarMonth(1)">›</button><button class="calendar-refresh" onclick="refreshCalendar()">↻</button></div>
+          <div class="calendar-toolbar"><button onclick="changeCalendarMonth(-1)">‹</button><div id="calendarTitle" class="calendar-title">Kalender Peminjaman</div><button onclick="changeCalendarMonth(1)">›</button><button class="calendar-refresh" onclick="refreshCalendar()">↻</button></div><div id="bookingSyncStatus" class="sync-status" aria-live="polite">Memuat data bersama...</div>
           <table class="calendar-table"><thead><tr><th>Minggu</th><th>Senin</th><th>Selasa</th><th>Rabu</th><th>Kamis</th><th>Jumat</th><th>Sabtu</th></tr></thead><tbody id="calendarBody"><tr><td colspan="7" class="calendar-empty">Memuat jadwal...</td></tr></tbody></table>
           <div class="calendar-legend">Hijau = jadwal normal | Kuning = 3 hari lagi | Merah = hari mulai / sudah lewat | Biru = peminjaman sedang berlangsung. Klik jadwal untuk melihat detail.</div>
         </div>
@@ -255,6 +255,7 @@ const CONFIG={
   PASSWORD:"1234",
   MEMBER_FILE:"members.json",
   BOOKING_DATA_FILE:"data/bookings.json",
+  BOOKING_TOMBSTONE_FILE:"data/booking_deleted.json",
   STOCK_DATA_FILE:"data/stock.json",
   GOOGLE_DRIVE_FILE_URL:"https://drive.google.com/drive/folders/1gfO_MPTcCMseNmuMUNvr8309xTin_GMc?usp=sharing",
   GITHUB_OWNER:"adranaryanto",
@@ -263,7 +264,7 @@ const CONFIG={
   ALLOWED_EXTENSIONS:["jpg","jpeg","png","pdf","doc","docx","xls","xlsx","csv","txt"]
 };
 const KEYS={members:"nsg_members_cache_v3",bookings:"nsg_bookings_v2",logbook:"nsg_logbook_cache_v3",stock:"nsg_stock_v2",login:"nsg_logged_in",githubToken:"nsg_github_token_v1"};
-let currentPage="menu",currentMember="",currentBookingId="",filesReturnPage="menu",calendarDate=new Date(),calendarBookings=[],members=[],logbookRows=[],stockRows=[];
+let currentPage="menu",currentMember="",currentBookingId="",filesReturnPage="menu",calendarDate=new Date(),calendarBookings=[],members=[],logbookRows=[],stockRows=[],deletedBookingTombstones=[];
 
 function $(id){return document.getElementById(id)}
 function escapeHTML(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/'/g,"&#039;")}
@@ -501,13 +502,7 @@ async function loadInitialData(){
   }
 
   calendarBookings=ensureUniqueBookingIds(getJSON(KEYS.bookings,[]));
-  try{
-    const sheetBookings=await loadBookingsFromGoogleSheet();
-    calendarBookings=mergeBookings(sheetBookings,calendarBookings);
-    setJSON(KEYS.bookings,calendarBookings);
-  }catch(error){
-    console.warn("Gagal memuat booking dari Google Sheets:",error);
-  }
+  await refreshCalendar();
 
   try{
     stockRows=await loadSharedStock();
@@ -538,7 +533,7 @@ function showPage(name){
   if(name==="menu")setHeader("Menu Utama","");
   if(name==="booking"){setHeader("Peminjaman Alat","");refreshCalendar()}
   if(name==="members"){setHeader("Daftar Anggota","");renderMembers()}
-  if(name==="dashboard"){setHeader("Dashboard Anggota",currentMember);renderDashboard()}
+  if(name==="dashboard"){setHeader("Dashboard Anggota",currentMember);renderDashboard();refreshCalendar()}
   if(name==="logbook"){setHeader("Logbook",currentMember);renderLogbook()}
   if(name==="report"){setHeader("Form Laporan",currentMember);prepareReport()}
   if(name==="stock"){setHeader("Stock","");renderStock()}
@@ -558,85 +553,128 @@ function goBackFromFiles(){showPage(filesReturnPage||"menu")}
 $("bookingForm").addEventListener("submit",async e=>{
   e.preventDefault();const err=$("bookingError");err.textContent="";
   const nama=$("bookingNama").value.trim(),nomor_telepon=$("bookingPhone").value.trim(),alat=$("bookingAlat").value.trim();let tanggal_mulai=$("tanggal_mulai").value.trim(),tanggal_selesai=$("tanggal_selesai").value.trim();const jam_mulai=$("jam_mulai").value.trim(),jam_selesai=$("jam_selesai").value.trim(),keperluan=$("bookingKeperluan").value.trim(),catatan=$("bookingCatatan").value.trim();
-  if(!nama){err.textContent="Nama peminjam wajib dipilih.";return}if(!alat){err.textContent="Nama alat wajib diisi.";return}if(!tanggal_mulai) {err.textContent="Tanggal mulai wajib diisi.";return}if(!tanggal_selesai)tanggal_selesai=tanggal_mulai;const s=parseDateLocal(tanggal_mulai),z=parseDateLocal(tanggal_selesai);if(!s||!z){err.textContent="Format tanggal peminjaman tidak valid.";return}if(z<s){err.textContent="Tanggal selesai tidak boleh lebih awal daripada tanggal mulai.";return}if(!jam_mulai||!jam_selesai){err.textContent="Jam mulai dan jam selesai wajib diisi.";return}if(tanggal_mulai===tanggal_selesai&&jam_selesai<=jam_mulai){err.textContent="Untuk peminjaman 1 hari, jam selesai harus setelah jam mulai.";return}
-  const payload={action:"booking",type:"booking",spreadsheetId:CONFIG.GOOGLE_BOOKING_SPREADSHEET_ID,spreadsheetUrl:CONFIG.GOOGLE_BOOKING_SPREADSHEET_URL,nama,nomor_telepon,alat,tanggal:tanggal_mulai,tanggal_mulai,tanggal_selesai,jam_mulai,jam_selesai,keperluan,catatan};
-  const local=normalizeBooking({...payload,id:"bk_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,8)});calendarBookings.push(local);setJSON(KEYS.bookings,calendarBookings);renderCalendar();
+  if(!nama){err.textContent="Nama peminjam wajib dipilih.";return}if(!alat){err.textContent="Nama alat wajib diisi.";return}if(!tanggal_mulai){err.textContent="Tanggal mulai wajib diisi.";return}if(!tanggal_selesai)tanggal_selesai=tanggal_mulai;const s=parseDateLocal(tanggal_mulai),z=parseDateLocal(tanggal_selesai);if(!s||!z){err.textContent="Format tanggal peminjaman tidak valid.";return}if(z<s){err.textContent="Tanggal selesai tidak boleh lebih awal daripada tanggal mulai.";return}if(!jam_mulai||!jam_selesai){err.textContent="Jam mulai dan jam selesai wajib diisi.";return}if(tanggal_mulai===tanggal_selesai&&jam_selesai<=jam_mulai){err.textContent="Untuk peminjaman 1 hari, jam selesai harus setelah jam mulai.";return}
+  const clientId="bk_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,8);
+  const payload={action:"booking",type:"booking",id:clientId,bookingId:clientId,spreadsheetId:CONFIG.GOOGLE_BOOKING_SPREADSHEET_ID,spreadsheetUrl:CONFIG.GOOGLE_BOOKING_SPREADSHEET_URL,nama,nomor_telepon,alat,tanggal:tanggal_mulai,tanggal_mulai,tanggal_selesai,jam_mulai,jam_selesai,keperluan,catatan};
+  const local=normalizeBooking({...payload,id:clientId,syncState:"pending",pendingAt:Date.now()});calendarBookings=mergeBookings(calendarBookings,[local]);setJSON(KEYS.bookings,calendarBookings);renderCalendar();
   try{
-    const r=await fetch(CONFIG.GOOGLE_APPS_SCRIPT_BOOKING_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8","Accept":"application/json"},body:JSON.stringify(payload)});
-    const text=(await r.text()).trim();let result=null;try{result=JSON.parse(text)}catch{}
+    const r=await fetch(CONFIG.GOOGLE_APPS_SCRIPT_BOOKING_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8","Accept":"application/json"},body:JSON.stringify(payload)});const text=(await r.text()).trim();let result=null;try{result=JSON.parse(text)}catch{}
     if(!r.ok)throw new Error("Google Apps Script HTTP "+r.status+"\n"+text);
     if(result&&String(result.success).toLowerCase()!=="true"&&result.success!==true&&!(text.toLowerCase().includes("success")&&text.toLowerCase().includes("true")))throw new Error(result?.message||result?.error||text||"Google Apps Script menolak data booking.");
-    alert("Booking berhasil dikirim dan disimpan di kalender.");
-  }catch(ex){alert("Booking disimpan di browser, tetapi pengiriman ke Google Apps Script gagal.\n\n"+ex.message)}
-  e.target.reset();$("tanggal_selesai").min="";refreshCalendar();
+    alert("Booking berhasil disimpan ke sumber bersama.");await refreshCalendar();setTimeout(()=>refreshCalendar(),1800);setTimeout(()=>refreshCalendar(),4500);
+  }catch(ex){alert("Booking belum tersinkron ke sumber bersama.\n\n"+ex.message+"\n\nBooking tetap ditahan sebagai Pending di perangkat ini dan akan dicoba lagi saat sinkronisasi berikutnya.")}
+  e.target.reset();$("tanggal_selesai").min="";
 });
 $("tanggal_mulai").addEventListener("change",()=>{$("tanggal_selesai").min=$("tanggal_mulai").value||"";if(!$("tanggal_selesai").value)$("tanggal_selesai").value=$("tanggal_mulai").value})
 $("tanggal_selesai").addEventListener("change",()=>{if($("tanggal_mulai").value&&$("tanggal_selesai").value<$("tanggal_mulai").value){alert("Tanggal selesai tidak boleh lebih awal daripada tanggal mulai.");$("tanggal_selesai").value=$("tanggal_mulai").value}})
 
+async function readBookingsResponse(url){
+  const r=await fetch(url,{cache:"no-store",headers:{Accept:"application/json,text/plain,*/*"}});
+  if(!r.ok)throw new Error("Booking API HTTP "+r.status);
+  const text=(await r.text()).trim(); if(!text)throw new Error("Booking API mengembalikan respons kosong.");
+  let data; try{data=JSON.parse(text)}catch{const a=text.indexOf("{"),z=text.lastIndexOf("}");if(a>=0&&z>a){try{data=JSON.parse(text.slice(a,z+1))}catch{}}}
+  if(!data)throw new Error("Respons Booking API bukan JSON yang valid.");
+  if(data.success===false)throw new Error(data.message||data.error||"Booking API menolak permintaan.");
+  const rows=Array.isArray(data)?data:(Array.isArray(data.bookings)?data.bookings:Array.isArray(data.data)?data.data:Array.isArray(data.rows)?data.rows:null);
+  if(!rows)throw new Error("Booking API tidak mengembalikan array bookings.");
+  return rows.map((x,i)=>normalizeBooking({...x,id:x?.id||x?.bookingId||x?.booking_id||("api_"+i)})).filter(Boolean);
+}
+async function loadBookingsFromSharedAPI(){
+  const base=String(CONFIG.GOOGLE_APPS_SCRIPT_BOOKING_URL||"").trim();if(!base)throw new Error("URL Google Apps Script Booking belum diatur.");
+  const params=new URLSearchParams({action:"getBookings",type:"getBookings",spreadsheetId:CONFIG.GOOGLE_BOOKING_SPREADSHEET_ID||"",_:String(Date.now())});
+  return await readBookingsResponse(base+(base.includes("?")?"&":"?")+params.toString());
+}
 async function loadBookingsFromGoogleSheet(){
-  const id=String(CONFIG.GOOGLE_BOOKING_SPREADSHEET_ID||"").trim();
-  if(!id)return [];
+  const id=String(CONFIG.GOOGLE_BOOKING_SPREADSHEET_ID||"").trim();if(!id)return [];
   const gid=encodeURIComponent(String(CONFIG.GOOGLE_BOOKING_SHEET_GID??"0"));
-  const url="https://docs.google.com/spreadsheets/d/"+encodeURIComponent(id)+"/gviz/tq?tqx=out:json&gid="+gid+"&_"+Date.now();
-  const r=await fetch(url,{cache:"no-store"});
-  if(!r.ok)throw new Error("Google Sheets HTTP "+r.status);
-  const text=await r.text();
-  const a=text.indexOf("{"),z=text.lastIndexOf("}");
-  if(a<0||z<a)throw new Error("Format respons Google Sheets tidak dikenali.");
-  const data=JSON.parse(text.slice(a,z+1));
-  const table=data?.table;
-  if(!table||!Array.isArray(table.cols)||!Array.isArray(table.rows))return [];
+  const url="https://docs.google.com/spreadsheets/d/"+encodeURIComponent(id)+"/gviz/tq?tqx=out:json&headers=1&gid="+gid+"&tq="+encodeURIComponent("select *")+"&_="+Date.now();
+  const r=await fetch(url,{cache:"no-store"});if(!r.ok)throw new Error("Google Sheets HTTP "+r.status);
+  const text=await r.text(),a=text.indexOf("{"),z=text.lastIndexOf("}");if(a<0||z<a)throw new Error("Format respons Google Sheets tidak dikenali.");
+  const data=JSON.parse(text.slice(a,z+1)),table=data?.table;if(!table||!Array.isArray(table.cols)||!Array.isArray(table.rows))return [];
   const headers=table.cols.map((c,i)=>normalizeSheetHeader(c?.label||c?.id||"kolom"+i));
   const pick=(obj,names)=>{for(const n of names){if(obj[n]!=null&&String(obj[n]).trim()!=="")return obj[n]}return ""};
-  return table.rows.map((row,idx)=>{
-    const obj={};
-    headers.forEach((h,i)=>{const c=row?.c?.[i];obj[h]=c?.f??c?.v??""});
-    const nama=pick(obj,["nama","namapeminjam","peminjam","name"]);
-    const alat=pick(obj,["alat","namabarang","barang","equipment"]);
-    const tanggal_mulai=pick(obj,["tanggalmulai","tanggal","startdate","start"]);
-    const tanggal_selesai=pick(obj,["tanggalselesai","tanggalselesai","enddate","end"]);
+  return table.rows.map((row,idx)=>{const obj={};headers.forEach((h,i)=>{const c=row?.c?.[i];obj[h]=c?.f??c?.v??""});
+    const nama=pick(obj,["nama","namapeminjam","peminjam","name"]),alat=pick(obj,["alat","namabarang","barang","equipment"]),tanggal_mulai=pick(obj,["tanggalmulai","tanggal","startdate","start"]),tanggal_selesai=pick(obj,["tanggalselesai","enddate","end"]);
     if(!String(nama).trim()||!String(tanggal_mulai).trim())return null;
-    return normalizeBooking({
-      id:pick(obj,["id","bookingid"])||"sheet_"+idx,
-      nama,alat,
-      nomor_telepon:pick(obj,["nomortelepon","notelp","telepon","phone"]),
-      tanggal_mulai,tanggal_selesai: tanggal_selesai||tanggal_mulai,
-      tanggal:tanggal_mulai,
-      jam_mulai:pick(obj,["jammulai","starttime"]),
-      jam_selesai:pick(obj,["jamselesai","endtime"]),
-      keperluan:pick(obj,["keperluan","purpose"]),
-      catatan:pick(obj,["catatan","keterangan","note"])
-    });
+    return normalizeBooking({id:pick(obj,["id","bookingid","booking_id"])||"sheet_"+idx,nama,alat,nomor_telepon:pick(obj,["nomortelepon","notelp","telepon","phone"]),tanggal_mulai,tanggal_selesai:tanggal_selesai||tanggal_mulai,tanggal:tanggal_mulai,jam_mulai:pick(obj,["jammulai","starttime"]),jam_selesai:pick(obj,["jamselesai","endtime"]),keperluan:pick(obj,["keperluan","purpose"]),catatan:pick(obj,["catatan","keterangan","note"])});
   }).filter(Boolean);
 }
 function normalizeSheetHeader(v){return String(v||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"").trim()}
 function bookingFingerprint(b){return [b?.nama,b?.alat,b?.tanggal_mulai||b?.tanggal,b?.tanggal_selesai||b?.tanggal_mulai||b?.tanggal,b?.jam_mulai,b?.jam_selesai,b?.nomor_telepon].map(v=>String(v||"").trim().toLocaleLowerCase()).join("|")}
+function bookingTombstoneKey(b){return bookingFingerprint(b)}
+function isBookingDeleted(b){
+  const id=String(b?.id||"").trim();
+  const fp=bookingTombstoneKey(b);
+  return deletedBookingTombstones.some(x=>{
+    if(typeof x==="string")return x===fp||x===id;
+    return String(x?.id||"").trim()===id || String(x?.fingerprint||x?.key||"").trim()===fp;
+  });
+}
+function filterDeletedBookings(list){return (Array.isArray(list)?list:[]).filter(b=>!isBookingDeleted(b))}
+async function loadDeletedBookingsFromGitHub(){
+  const c=githubConfig();
+  if(!c.owner||!c.repo)return [];
+  const rawUrl="https://raw.githubusercontent.com/"+encodeURIComponent(c.owner)+"/"+encodeURIComponent(c.repo)+"/"+encodeURIComponent(c.branch)+"/"+githubPath(CONFIG.BOOKING_TOMBSTONE_FILE)+"?_="+Date.now();
+  try{
+    const r=await fetch(rawUrl,{cache:"no-store"});
+    if(r.ok){
+      const text=await r.text();
+      const data=JSON.parse(text||"[]");
+      return Array.isArray(data)?data:[];
+    }
+    if(r.status!==404)console.warn("Raw booking tombstone GET "+r.status);
+  }catch(error){console.warn("Tombstone booking GitHub tidak dapat dibaca:",error)}
+  try{
+    const f=await githubGetFile(CONFIG.BOOKING_TOMBSTONE_FILE);
+    if(!f)return [];
+    const data=JSON.parse(f.text||"[]");
+    return Array.isArray(data)?data:[];
+  }catch(error){console.warn("File tombstone booking tidak dapat dibaca:",error);return []}
+}
+async function saveDeletedBookingsToGitHub(rows){
+  const clean=(Array.isArray(rows)?rows:[]).map(x=>({
+    id:String(x?.id||"").trim(),
+    fingerprint:String(x?.fingerprint||x?.key||"").trim(),
+    deletedAt:String(x?.deletedAt||new Date().toISOString())
+  })).filter(x=>x.id||x.fingerprint);
+  await githubSaveText(CONFIG.BOOKING_TOMBSTONE_FILE,JSON.stringify(clean,null,2),"Update deleted bookings");
+  deletedBookingTombstones=clean;
+  return clean;
+}
+async function markBookingDeleted(b){
+  const tombstone={id:String(b?.id||"").trim(),fingerprint:bookingTombstoneKey(b),deletedAt:new Date().toISOString()};
+  const latest=await loadDeletedBookingsFromGitHub();
+  const merged=[...latest.filter(x=>{const xid=String(x?.id||"").trim(),xfp=String(x?.fingerprint||x?.key||"").trim();return !(tombstone.id&&xid===tombstone.id)&&!(tombstone.fingerprint&&xfp===tombstone.fingerprint)}),tombstone];
+  deletedBookingTombstones=merged;
+  await saveDeletedBookingsToGitHub(merged);
+}
 function mergeBookings(remote,local){
   const map=new Map();
   [...(Array.isArray(remote)?remote:[]),...(Array.isArray(local)?local:[])].forEach(item=>{
-    const b=normalizeBooking(item);if(!b)return;
-    const key=bookingFingerprint(b);
-    if(!map.has(key)||String(b.id||"").startsWith("bk_"))map.set(key,b);
+    const b=normalizeBooking(item);if(!b||isBookingDeleted(b))return;const key=bookingFingerprint(b);
+    if(!map.has(key))map.set(key,b); // remote/shared selalu menang atas cache lokal
   });
   return ensureUniqueBookingIds([...map.values()]);
 }
 async function refreshCalendar(){
-  const local=ensureUniqueBookingIds(getJSON(KEYS.bookings,[]));
-  let remote=[];
-  const runningOnFlask=window.location.protocol!=="file:" && (window.location.pathname==="/" || window.location.pathname.includes("/peminjaman"));
-  if(runningOnFlask){
-    try{
-      const r=await fetch("/api/bookings?_="+Date.now(),{cache:"no-store",credentials:"same-origin",headers:{Accept:"application/json"}});
-      if(r.ok){const d=await r.json();if(d&&d.success&&Array.isArray(d.bookings))remote=d.bookings;}
-    }catch(error){console.warn("Data server tidak dapat dimuat:",error)}
+  const status=$("bookingSyncStatus");if(status){status.textContent="⟳ Menyinkronkan jadwal bersama...";status.style.color="#666"}
+  try{deletedBookingTombstones=await loadDeletedBookingsFromGitHub()}catch(error){console.warn("Gagal memuat daftar booking yang sudah dihapus:",error);deletedBookingTombstones=[]}
+  const local=filterDeletedBookings(ensureUniqueBookingIds(getJSON(KEYS.bookings,[])));
+  const pendingLocal=local.filter(b=>String(b?.syncState||"").toLowerCase()==="pending");
+  let remote=[],sharedOK=false,source="";
+  try{remote=await loadBookingsFromSharedAPI();sharedOK=true;source="Google Apps Script"}catch(error){console.warn("Booking API bersama tidak tersedia, mencoba Google Sheets:",error)}
+  if(!sharedOK){try{remote=await loadBookingsFromGoogleSheet();sharedOK=true;source="Google Sheets"}catch(error){console.warn("Booking Google Sheets tidak dapat dimuat:",error)}}
+  if(!sharedOK){
+    const runningOnFlask=window.location.protocol!=="file:"&&(window.location.pathname==="/"||window.location.pathname.includes("/peminjaman"));
+    if(runningOnFlask){try{const r=await fetch("/api/bookings?_="+Date.now(),{cache:"no-store",credentials:"same-origin",headers:{Accept:"application/json"}});if(r.ok){const d=await r.json();if(d&&d.success&&Array.isArray(d.bookings)){remote=d.bookings;sharedOK=true;source="Server Flask"}}}catch(error){console.warn("Data server Flask tidak dapat dimuat:",error)}}
   }
-  try{
-    const sheetBookings=await loadBookingsFromGoogleSheet();
-    remote=mergeBookings(remote,sheetBookings);
-  }catch(error){console.warn("Booking Google Sheets tidak dapat dimuat. Pastikan spreadsheet dapat diakses oleh pengguna yang membuka aplikasi.",error)}
-  calendarBookings=mergeBookings(remote,local);
-  setJSON(KEYS.bookings,calendarBookings);
-  renderCalendar();
+  if(sharedOK){
+    calendarBookings=mergeBookings(remote,pendingLocal);
+    const remoteKeys=new Set(remote.map(bookingFingerprint));
+    calendarBookings=calendarBookings.map(b=>{if(remoteKeys.has(bookingFingerprint(b))){const copy={...b};delete copy.syncState;delete copy.pendingAt;return copy}return b});
+    if(status){status.textContent="✓ Tersinkron dari "+source+" • "+calendarBookings.length+" booking";status.style.color="#2f7d20"}
+  }else{calendarBookings=local;if(status){status.textContent="⚠ Sumber bersama tidak dapat diakses. Menampilkan cache perangkat.";status.style.color="#a15c00"}}
+  calendarBookings=filterDeletedBookings(ensureUniqueBookingIds(calendarBookings));setJSON(KEYS.bookings,calendarBookings);renderCalendar();
 }
 function ensureUniqueBookingIds(list){
   const used=new Set();
@@ -682,7 +720,7 @@ function closeBookingModal(){
   currentBookingId="";
   window.currentBookingForDelete=null;
 }
-function deleteCurrentBooking(){
+async function deleteCurrentBooking(){
   const id=String(currentBookingId||"").trim();
   if(!id)return;
   const source=Array.isArray(calendarBookings)?calendarBookings:[];
@@ -696,7 +734,20 @@ function deleteCurrentBooking(){
   // tabel/kalender sehingga aman walaupun satu hari berisi banyak booking.
   const updated=source.filter(x=>String(x.id||"").trim()!==id);
   if(updated.length===source.length)return;
-  calendarBookings=ensureUniqueBookingIds(updated);
+
+  try{
+    // Hapus secara TERBAGI lintas-device. Karena static HTML tidak punya
+    // endpoint Flask untuk menghapus baris Google Sheets, kita simpan
+    // tombstone di GitHub. Semua device membaca tombstone ini sehingga
+    // booking yang sudah dihapus tidak muncul lagi walaupun baris lama
+    // masih ada di Google Sheets.
+    await markBookingDeleted(booking);
+  }catch(error){
+    alert("Booking gagal dihapus secara bersama.\n\n"+error.message+"\n\nData belum dihapus agar tidak terjadi perbedaan antar-device.");
+    return;
+  }
+
+  calendarBookings=ensureUniqueBookingIds(filterDeletedBookings(updated));
   setJSON(KEYS.bookings,calendarBookings);
 
   closeBookingModal();
@@ -1054,7 +1105,9 @@ $("stockSearch")?.addEventListener("input",renderStock)
 async function downloadLogbookPDF(){if(!currentMember){alert("Pilih anggota terlebih dahulu.");return}const rows=await getLogbook();if(!rows.length){alert("Belum ada data logbook.");return}if(!window.jspdf?.jsPDF){alert("Library PDF belum termuat. Periksa koneksi internet lalu coba lagi.");return}const {jsPDF}=window.jspdf;const doc=new jsPDF({orientation:"landscape",unit:"pt",format:"a4"});doc.setFontSize(18);doc.text("LOGBOOK LAPORAN",421,35,{align:"center"});doc.setFontSize(11);doc.text("Nama Anggota: "+currentMember,40,60);const body=rows.map((r,i)=>[r.No||i+1,r.tanggal||r.Tanggal||"",r.keterangan||r.Keterangan||"",r.deadline||r.Deadline||"",r.status||r.Status||"",r.file||r.File||""]);doc.autoTable({startY:75,head:[["No","Tanggal","Keterangan","Deadline","Status","Bukti / File"]],body,styles:{fontSize:8,cellPadding:4,valign:"top"},headStyles:{fillColor:[211,211,211],textColor:[0,0,0]},columnStyles:{0:{cellWidth:35},1:{cellWidth:75},2:{cellWidth:300},3:{cellWidth:75},4:{cellWidth:75},5:{cellWidth:160}}});doc.save("Logbook_"+safeFilename(currentMember)+".pdf")}
 
 function setLogo(){const src="static/logo.png";["loginLogo","reportLogo","appHeaderLogo"].forEach(id=>{const im=$(id);if(im)im.src=src})}
-function init(){setLogo();loadInitialData().then(()=>{showLogin();refreshCalendar()})}
+let bookingSyncTimer=null;
+function startBookingAutoSync(){if(bookingSyncTimer)clearInterval(bookingSyncTimer);bookingSyncTimer=setInterval(()=>{if(isLoggedIn()&&(currentPage==="booking"||currentPage==="dashboard"))refreshCalendar()},15000)}
+function init(){setLogo();loadInitialData().then(()=>{showLogin();refreshCalendar();startBookingAutoSync()})}
 document.addEventListener("DOMContentLoaded",()=>{init();initDropzone()});
 </script>
 </body>
