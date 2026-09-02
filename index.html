@@ -246,8 +246,8 @@ body.stock-body{background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:
 
 const CONFIG={
   GOOGLE_APPS_SCRIPT_BOOKING_URL:"https://script.google.com/macros/s/AKfycbxakOtSCMq6fAstFRgUHWmse8Fu3qJjo9o4A-XpsusuzoV_BCz25-660j0DYEH7SboF/exec",
-  GOOGLE_APPS_SCRIPT_UPLOAD_URL:"https://script.google.com/macros/s/AKfycbzRBth_7N9cv5x0MG6K5DR7IYpFvBlczXGHhNTOSKyXb48jWKUrbu3vJZsEoxikeHEe/exec",
-  GOOGLE_DRIVE_URL:"https://drive.google.com/drive/folders/1KySCCNFRx-9dn6cetV-gxhKfiuf8Cz-4?usp=drive_link",
+  GOOGLE_APPS_SCRIPT_UPLOAD_URL:"https://script.google.com/macros/s/AKfycbxpUX3nhT-c-SwYY7TvWev_9ej81E4jXgiZb75A0Iz8Agvc_llkyZfYfJgCzgt_pmXb/exec",
+  GOOGLE_DRIVE_URL:"https://drive.google.com/drive/folders/1gfO_MPTcCMseNmuMUNvr8309xTin_GMc?usp=drive_link",
   GOOGLE_BOOKING_SPREADSHEET_URL:"https://docs.google.com/spreadsheets/d/1FkxTNoUveHNvWseFoFZJA-xxNS3PgX1dSv7LjLx1UvU/edit?usp=sharing",
   GOOGLE_BOOKING_SPREADSHEET_ID:"1FkxTNoUveHNvWseFoFZJA-xxNS3PgX1dSv7LjLx1UvU",
   USERNAME:"admin",
@@ -530,7 +530,8 @@ function getActiveDeadlineRows(rows){
     const deadline=r?.deadline??r?.Deadline??"";
     // Hanya deadline yang benar-benar aktif dan memiliki tanggal valid.
     // Semua variasi status selesai dikeluarkan dari deadline dan kalender.
-    return Boolean(String(deadline).trim()) && !!parseDateLocal(deadline) && !isCompletedStatus(status);
+    const alreadyCompleted=Boolean(String(r?.completion_report_id??r?.CompletionReportId??"").trim());
+    return Boolean(String(deadline).trim()) && !!parseDateLocal(deadline) && !isCompletedStatus(status) && !alreadyCompleted;
   });
 }
 function activeDeadlineRows(rows){return getActiveDeadlineRows(rows);}
@@ -549,7 +550,7 @@ async function getLogbook(){
       No:r.No||String(i+1),
       tanggal:r.Tanggal||r.tanggal||"",
       keterangan:r.Keterangan||r.keterangan||"",
-      deadline:isCompletedStatus(r.Status||r.status||"")?"":(r.Deadline||r.deadline||""),
+      deadline:(isCompletedStatus(r.Status||r.status||"")||r.CompletionReportId||r.completion_report_id)?"":(r.Deadline||r.deadline||""),
       status:isCompletedStatus(r.Status||r.status||"")?"Complete":(r.Status||r.status||"Pending"),
       file:r.File||r.file||"",
       completion_report_id:r.CompletionReportId||r.completion_report_id||"",
@@ -675,16 +676,21 @@ async function updateDeadlineStatusById(reportId,status){
   const newStatus=String(status||"").trim();
   const willComplete=isCompletedStatus(newStatus);
 
-  // Jika Pending/Progress -> Complete:
-  // 1) deadline laporan asli dikosongkan sehingga hilang dari deadline & kalender;
-  // 2) laporan asli tetap tersimpan sebagai riwayat Complete;
-  // 3) dibuat SATU laporan penyelesaian baru di logbook.
+  // Pending/Progress -> Complete diperlakukan sebagai LAPORAN BARU.
+  // Data laporan asli tidak ditimpa (tanggal, keterangan, deadline, status, file tetap).
+  // Laporan asli hanya diberi CompletionReportId sebagai penanda internal agar
+  // tidak lagi muncul di Deadline/Kalender. Kemudian dibuat satu baris laporan
+  // penyelesaian terpisah dengan status Complete.
   if(willComplete&&!isCompletedStatus(previousStatus)){
     const completionId=old.completion_report_id||("completion_"+Date.now()+"_"+Math.random().toString(36).slice(2,9));
     const completedAt=old.completed_at||new Date().toISOString();
-    rows[index]={...old,status:"Complete",deadline:"",completion_report_id:completionId,completed_at:completedAt};
 
-    if(!old.completion_report_id){
+    // Pertahankan seluruh isi laporan asli; hanya tambahkan metadata internal.
+    rows[index]={...old,completion_report_id:completionId,completed_at:completedAt};
+
+    // Hindari membuat laporan penyelesaian ganda jika proses ini pernah dijalankan.
+    const alreadyExists=rows.some((r,j)=>j!==index&&String(r.completion_report_id||"")===String(completionId));
+    if(!alreadyExists){
       const completionDate=completedAt.slice(0,10);
       rows.push({
         No:rows.length+1,
@@ -698,6 +704,7 @@ async function updateDeadlineStatusById(reportId,status){
       });
     }
   }else{
+    // Perubahan status biasa. Laporan Complete tidak dibuat menjadi laporan lain.
     rows[index]={...old,status:willComplete?"Complete":newStatus,deadline:willComplete?"":(old.deadline||"")};
   }
 
