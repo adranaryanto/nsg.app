@@ -4,5 +4,11 @@
     "nama": "filter",
     "kode": "Atk-001",
     "jumlah": 6
+  },
+  {
+    "_stockKey": "stock_mtk4vhu7_0sa8rf",
+    "nama": "HCl 37%",
+    "kode": "HCl",
+    "jumlah": 1
   }
 ]
