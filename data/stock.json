@@ -1,8 +1,14 @@
 [
   {
+    "_stockKey": "stock_mtk4gvy9_ne0v3p",
+    "nama": "filter",
+    "kode": "Atk-001",
+    "jumlah": 5
+  },
+  {
     "_stockKey": "stock_mtk4vhu7_0sa8rf",
     "nama": "HCl 37%",
     "kode": "HCl",
-    "jumlah": 1
+    "jumlah": 2
   }
 ]
