@@ -263,7 +263,7 @@ const CONFIG={
   GITHUB_BRANCH:"main",
   ALLOWED_EXTENSIONS:["jpg","jpeg","png","pdf","doc","docx","xls","xlsx","csv","txt"]
 };
-const KEYS={members:"nsg_members_cache_v3",bookings:"nsg_bookings_v2",logbook:"nsg_logbook_cache_v3",stock:"nsg_stock_v2",login:"nsg_logged_in",githubToken:"nsg_github_token_v1"};
+const KEYS={members:"nsg_members_cache_v3",bookings:"nsg_bookings_v2",bookingDeleted:"nsg_booking_deleted_v3",logbook:"nsg_logbook_cache_v3",stock:"nsg_stock_v2",login:"nsg_logged_in",githubToken:"nsg_github_token_v1"};
 let currentPage="menu",currentMember="",currentBookingId="",filesReturnPage="menu",calendarDate=new Date(),calendarBookings=[],members=[],logbookRows=[],stockRows=[],deletedBookingTombstones=[];
 
 function $(id){return document.getElementById(id)}
@@ -666,15 +666,31 @@ function bookingSeriesKey(b){
 }
 function bookingFingerprint(b){return [b?.nama,b?.alat,b?.tanggal_mulai||b?.tanggal,b?.tanggal_selesai||b?.tanggal_mulai||b?.tanggal,b?.jam_mulai,b?.jam_selesai,b?.nomor_telepon].map(v=>String(v||"").trim().toLocaleLowerCase()).join("|")}
 function bookingTombstoneKey(b){return bookingSeriesKey(b)}
+function loadLocalDeletedBookings(){
+  const rows=getJSON(KEYS.bookingDeleted,[]);
+  return Array.isArray(rows)?rows:[];
+}
+function saveLocalDeletedBookings(rows){
+  const clean=(Array.isArray(rows)?rows:[]).map(x=>({
+    id:String(x?.id||"").trim(),
+    fingerprint:String(x?.fingerprint||x?.key||"").trim(),
+    seriesKey:String(x?.seriesKey||x?.fingerprint||x?.key||"").trim(),
+    deletedAt:String(x?.deletedAt||new Date().toISOString())
+  })).filter(x=>x.id||x.fingerprint||x.seriesKey);
+  setJSON(KEYS.bookingDeleted,clean);
+  return clean;
+}
 function isBookingDeleted(b){
   const id=String(b?.id||"").trim();
   const fp=bookingSeriesKey(b);
   const fullFp=bookingFingerprint(b);
-  return deletedBookingTombstones.some(x=>{
+  const all=[...(Array.isArray(deletedBookingTombstones)?deletedBookingTombstones:[]),...loadLocalDeletedBookings()];
+  return all.some(x=>{
     if(typeof x==="string")return x===fp||x===fullFp||x===id;
     const xid=String(x?.id||"").trim();
-    const xfp=String(x?.fingerprint||x?.key||x?.seriesKey||"").trim();
-    return (id&&xid===id) || (fp&&xfp===fp) || (fullFp&&xfp===fullFp);
+    const xfp=String(x?.fingerprint||x?.key||"").trim();
+    const xseries=String(x?.seriesKey||"").trim();
+    return (id&&xid===id) || (fp&&(xfp===fp||xseries===fp)) || (fullFp&&(xfp===fullFp||xseries===fullFp));
   });
 }
 function filterDeletedBookings(list){return (Array.isArray(list)?list:[]).filter(b=>!isBookingDeleted(b))}
@@ -771,8 +787,13 @@ async function markBookingDeleted(b){
     seriesKey:bookingSeriesKey(b),
     deletedAt:new Date().toISOString()
   };
-  const latest=await loadDeletedBookingsFromGitHub();
-  const merged=[...latest.filter(x=>{
+
+  // Tandai di browser TERLEBIH DAHULU. Ini membuat tombol Hapus selalu
+  // efektif walaupun GitHub sedang offline, token tidak ada, atau API sedang
+  // mengalami conflict. Tombstone lokal juga mencegah data hidup kembali
+  // ketika refreshCalendar() membaca Google Sheets/archive.
+  const local=loadLocalDeletedBookings();
+  const localMerged=[...local.filter(x=>{
     const xid=String(x?.id||"").trim();
     const xfp=String(x?.fingerprint||x?.key||"").trim();
     const xseries=String(x?.seriesKey||"").trim();
@@ -780,8 +801,29 @@ async function markBookingDeleted(b){
            !(tombstone.seriesKey&&xseries===tombstone.seriesKey) &&
            !(tombstone.fingerprint&&xfp===tombstone.fingerprint);
   }),tombstone];
-  deletedBookingTombstones=merged;
-  await saveDeletedBookingsToGitHub(merged);
+  saveLocalDeletedBookings(localMerged);
+  deletedBookingTombstones=[...(Array.isArray(deletedBookingTombstones)?deletedBookingTombstones:[]),tombstone];
+
+  // Sinkronisasi lintas-device bersifat best effort. Jangan membatalkan
+  // penghapusan lokal hanya karena GitHub gagal.
+  try{
+    const latest=await loadDeletedBookingsFromGitHub();
+    const merged=[...latest.filter(x=>{
+      const xid=String(x?.id||"").trim();
+      const xfp=String(x?.fingerprint||x?.key||"").trim();
+      const xseries=String(x?.seriesKey||"").trim();
+      return !(tombstone.id&&xid===tombstone.id) &&
+             !(tombstone.seriesKey&&xseries===tombstone.seriesKey) &&
+             !(tombstone.fingerprint&&xfp===tombstone.fingerprint);
+    }),tombstone];
+    deletedBookingTombstones=merged;
+    if(String(localStorage.getItem(KEYS.githubToken)||"").trim()){
+      await saveDeletedBookingsToGitHub(merged);
+    }
+  }catch(error){
+    console.warn("Tombstone GitHub gagal disinkronkan; delete lokal tetap berlaku:",error);
+  }
+  return tombstone;
 }
 function mergeBookings(remote,local){
   // SATU booking harus tetap menjadi SATU object walaupun sumber bersama
@@ -842,7 +884,12 @@ function mergeBookings(remote,local){
 
 async function refreshCalendar(){
   const status=$("bookingSyncStatus");if(status){status.textContent="⟳ Menyinkronkan jadwal bersama...";status.style.color="#666"}
-  try{deletedBookingTombstones=await loadDeletedBookingsFromGitHub()}catch(error){console.warn("Gagal memuat daftar booking yang sudah dihapus:",error);deletedBookingTombstones=[]}
+  // Gabungkan tombstone remote + lokal. Tombstone lokal wajib dipertahankan
+  // agar booking yang dihapus tidak muncul lagi saat refresh ketika GitHub
+  // belum berhasil menerima perubahan.
+  let remoteDeleted=[];
+  try{remoteDeleted=await loadDeletedBookingsFromGitHub()}catch(error){console.warn("Gagal memuat daftar booking yang sudah dihapus:",error)}
+  deletedBookingTombstones=[...remoteDeleted,...loadLocalDeletedBookings()];
   // Cache lokal FULL selalu ikut merge. Jangan hanya membawa status Pending,
   // karena sumber remote bisa kehilangan tanggal_selesai setelah refresh.
   const local=filterDeletedBookings(ensureUniqueBookingIds(getJSON(KEYS.bookings,[])));
@@ -926,25 +973,25 @@ async function deleteCurrentBooking(){
   const updated=source.filter(x=>String(x.id||"").trim()!==id);
   if(updated.length===source.length)return;
 
-  try{
-    // Hapus secara TERBAGI lintas-device. Karena static HTML tidak punya
-    // endpoint Flask untuk menghapus baris Google Sheets, kita simpan
-    // tombstone di GitHub. Semua device membaca tombstone ini sehingga
-    // booking yang sudah dihapus tidak muncul lagi walaupun baris lama
-    // masih ada di Google Sheets.
-    await markBookingDeleted(booking);
-    await removeBookingFromArchive(booking);
-  }catch(error){
-    alert("Booking gagal dihapus secara bersama.\n\n"+error.message+"\n\nData belum dihapus agar tidak terjadi perbedaan antar-device.");
-    return;
-  }
-
+  // Hapus dari UI/cache perangkat SEGERA. Jangan menunggu GitHub.
+  // Ini adalah sumber utama masalah sebelumnya: kegagalan sinkronisasi
+  // membuat delete dibatalkan seluruhnya.
   calendarBookings=ensureUniqueBookingIds(filterDeletedBookings(updated));
   setJSON(KEYS.bookings,calendarBookings);
-
   closeBookingModal();
   renderCalendar();
   if(typeof renderDashboard === "function")renderDashboard();
+
+  // Setelah UI sudah aman, simpan tombstone. Kegagalan GitHub tidak boleh
+  // mengembalikan booking yang baru saja dihapus.
+  await markBookingDeleted(booking);
+
+  // Archive hanya dibersihkan jika GitHub memang tersedia. Jika gagal,
+  // tombstone tetap memblokir record tersebut pada perangkat ini.
+  if(String(localStorage.getItem(KEYS.githubToken)||"").trim()){
+    try{await removeBookingFromArchive(booking)}
+    catch(error){console.warn("Archive booking gagal dibersihkan setelah delete:",error)}
+  }
 }
 
 // Event delegation kalender: aman walaupun jadwal sangat banyak dan kalender dirender ulang.
