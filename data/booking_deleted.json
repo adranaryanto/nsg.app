@@ -2,26 +2,37 @@
   {
     "id": "bk_mucaj8hh_aa40d1",
     "fingerprint": "muhammad rayhan aulia akbar|furnace|2026-09-24|2026-09-24|08:30|17:30|083112779229",
+    "seriesKey": "muhammad rayhan aulia akbar|furnace|2026-09-24|2026-09-24|08:30|17:30|083112779229",
     "deletedAt": "2026-09-22T06:26:48.504Z"
   },
   {
     "id": "api_15",
     "fingerprint": "alfiani|potensiostat|wed sep 30 2026 00:00:00 gmt+0700 (western indonesia time)|wed sep 30 2026 00:00:00 gmt+0700 (western indonesia time)|sat dec 30 1899 09:30:00 gmt+0707 (western indonesia time)|sat dec 30 1899 12:00:00 gmt+0707 (western indonesia time)|85723648909",
+    "seriesKey": "alfiani|potensiostat|wed sep 30 2026 00:00:00 gmt+0700 (western indonesia time)|wed sep 30 2026 00:00:00 gmt+0700 (western indonesia time)|sat dec 30 1899 09:30:00 gmt+0707 (western indonesia time)|sat dec 30 1899 12:00:00 gmt+0707 (western indonesia time)|85723648909",
     "deletedAt": "2026-09-30T04:41:10.345Z"
   },
   {
     "id": "api_31",
     "fingerprint": "celca|pyrolysis|fri oct 23 2026 00:00:00 gmt+0700 (western indonesia time)|fri oct 23 2026 00:00:00 gmt+0700 (western indonesia time)|sat dec 30 1899 08:00:00 gmt+0707 (western indonesia time)|sat dec 30 1899 17:00:00 gmt+0707 (western indonesia time)|83829554595",
+    "seriesKey": "celca|pyrolysis|fri oct 23 2026 00:00:00 gmt+0700 (western indonesia time)|fri oct 23 2026 00:00:00 gmt+0700 (western indonesia time)|sat dec 30 1899 08:00:00 gmt+0707 (western indonesia time)|sat dec 30 1899 17:00:00 gmt+0707 (western indonesia time)|83829554595",
     "deletedAt": "2026-10-03T05:09:41.680Z"
   },
   {
     "id": "api_33",
     "fingerprint": "celca|pyrolysis|mon oct 26 2026 00:00:00 gmt+0700 (western indonesia time)|mon oct 26 2026 00:00:00 gmt+0700 (western indonesia time)|sat dec 30 1899 08:00:00 gmt+0707 (western indonesia time)|sat dec 30 1899 17:00:00 gmt+0707 (western indonesia time)|83829554595",
+    "seriesKey": "celca|pyrolysis|mon oct 26 2026 00:00:00 gmt+0700 (western indonesia time)|mon oct 26 2026 00:00:00 gmt+0700 (western indonesia time)|sat dec 30 1899 08:00:00 gmt+0707 (western indonesia time)|sat dec 30 1899 17:00:00 gmt+0707 (western indonesia time)|83829554595",
     "deletedAt": "2026-10-05T03:19:13.435Z"
   },
   {
     "id": "api_30",
     "fingerprint": "celca|pyrolysis|mon oct 19 2026 00:00:00 gmt+0700 (waktu indonesia barat)|mon oct 19 2026 00:00:00 gmt+0700 (waktu indonesia barat)|sat dec 30 1899 09:00:00 gmt+0707 (waktu indonesia barat)|sat dec 30 1899 17:00:00 gmt+0707 (waktu indonesia barat)|83829554595",
+    "seriesKey": "celca|pyrolysis|mon oct 19 2026 00:00:00 gmt+0700 (waktu indonesia barat)|mon oct 19 2026 00:00:00 gmt+0700 (waktu indonesia barat)|sat dec 30 1899 09:00:00 gmt+0707 (waktu indonesia barat)|sat dec 30 1899 17:00:00 gmt+0707 (waktu indonesia barat)|83829554595",
     "deletedAt": "2026-10-05T03:26:51.251Z"
+  },
+  {
+    "id": "bk_mumaicn0_kihepi",
+    "fingerprint": "adam rusli aryanto|pyrolisis|2026-10-05|2026-10-09|08:00|16:00|083841476421",
+    "seriesKey": "adam rusli aryanto|pyrolisis|08:00|16:00|083841476421|pyrolisis|-",
+    "deletedAt": "2026-10-05T04:17:02.283Z"
   }
 ]
