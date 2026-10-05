@@ -650,14 +650,24 @@ async function loadBookingsFromGoogleSheet(){
   }).filter(Boolean);
 }
 function normalizeSheetHeader(v){return String(v||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"").trim()}
+function bookingSeriesKey(b){
+  // Identitas logis booking TIDAK boleh bergantung pada tanggal.
+  // Ini penting bila Google Apps Script/Sheets menyimpan satu booking
+  // multi-hari sebagai beberapa baris harian.
+  return [b?.nama,b?.alat,b?.jam_mulai,b?.jam_selesai,b?.nomor_telepon,b?.keperluan,b?.catatan]
+    .map(v=>String(v||"").trim().toLocaleLowerCase()).join("|");
+}
 function bookingFingerprint(b){return [b?.nama,b?.alat,b?.tanggal_mulai||b?.tanggal,b?.tanggal_selesai||b?.tanggal_mulai||b?.tanggal,b?.jam_mulai,b?.jam_selesai,b?.nomor_telepon].map(v=>String(v||"").trim().toLocaleLowerCase()).join("|")}
-function bookingTombstoneKey(b){return bookingFingerprint(b)}
+function bookingTombstoneKey(b){return bookingSeriesKey(b)}
 function isBookingDeleted(b){
   const id=String(b?.id||"").trim();
-  const fp=bookingTombstoneKey(b);
+  const fp=bookingSeriesKey(b);
+  const fullFp=bookingFingerprint(b);
   return deletedBookingTombstones.some(x=>{
-    if(typeof x==="string")return x===fp||x===id;
-    return String(x?.id||"").trim()===id || String(x?.fingerprint||x?.key||"").trim()===fp;
+    if(typeof x==="string")return x===fp||x===fullFp||x===id;
+    const xid=String(x?.id||"").trim();
+    const xfp=String(x?.fingerprint||x?.key||x?.seriesKey||"").trim();
+    return (id&&xid===id) || (fp&&xfp===fp) || (fullFp&&xfp===fullFp);
   });
 }
 function filterDeletedBookings(list){return (Array.isArray(list)?list:[]).filter(b=>!isBookingDeleted(b))}
@@ -685,27 +695,63 @@ async function saveDeletedBookingsToGitHub(rows){
   const clean=(Array.isArray(rows)?rows:[]).map(x=>({
     id:String(x?.id||"").trim(),
     fingerprint:String(x?.fingerprint||x?.key||"").trim(),
+    seriesKey:String(x?.seriesKey||x?.fingerprint||x?.key||"").trim(),
     deletedAt:String(x?.deletedAt||new Date().toISOString())
-  })).filter(x=>x.id||x.fingerprint);
+  })).filter(x=>x.id||x.fingerprint||x.seriesKey);
   await githubSaveText(CONFIG.BOOKING_TOMBSTONE_FILE,JSON.stringify(clean,null,2),"Update deleted bookings");
   deletedBookingTombstones=clean;
   return clean;
 }
 async function markBookingDeleted(b){
-  const tombstone={id:String(b?.id||"").trim(),fingerprint:bookingTombstoneKey(b),deletedAt:new Date().toISOString()};
+  const tombstone={
+    id:String(b?.id||"").trim(),
+    fingerprint:bookingFingerprint(b),
+    seriesKey:bookingSeriesKey(b),
+    deletedAt:new Date().toISOString()
+  };
   const latest=await loadDeletedBookingsFromGitHub();
-  const merged=[...latest.filter(x=>{const xid=String(x?.id||"").trim(),xfp=String(x?.fingerprint||x?.key||"").trim();return !(tombstone.id&&xid===tombstone.id)&&!(tombstone.fingerprint&&xfp===tombstone.fingerprint)}),tombstone];
+  const merged=[...latest.filter(x=>{
+    const xid=String(x?.id||"").trim();
+    const xfp=String(x?.fingerprint||x?.key||"").trim();
+    const xseries=String(x?.seriesKey||"").trim();
+    return !(tombstone.id&&xid===tombstone.id) &&
+           !(tombstone.seriesKey&&xseries===tombstone.seriesKey) &&
+           !(tombstone.fingerprint&&xfp===tombstone.fingerprint);
+  }),tombstone];
   deletedBookingTombstones=merged;
   await saveDeletedBookingsToGitHub(merged);
 }
 function mergeBookings(remote,local){
   const map=new Map();
-  [...(Array.isArray(remote)?remote:[]),...(Array.isArray(local)?local:[])].forEach(item=>{
-    const b=normalizeBooking(item);if(!b||isBookingDeleted(b))return;const key=bookingFingerprint(b);
-    if(!map.has(key))map.set(key,b); // remote/shared selalu menang atas cache lokal
-  });
+  const add=(item)=>{
+    const b=normalizeBooking(item);
+    if(!b||isBookingDeleted(b))return;
+
+    // Prefer an explicit booking ID. Otherwise use a logical series key.
+    // Rows produced by a multi-day backend are therefore folded back into
+    // ONE booking before rendering/saving the local cache.
+    const explicitId=String(b.id||"").trim();
+    const key=explicitId ? "id:"+explicitId : "series:"+bookingSeriesKey(b);
+    const previous=map.get(key);
+    if(!previous){map.set(key,b);return}
+
+    const ps=bookingStart(previous), pe=bookingEnd(previous), bs=bookingStart(b), be=bookingEnd(b);
+    const merged={...previous};
+    if(bs&&(!ps||bs<ps)){merged.tanggal_mulai=b.tanggal_mulai||b.tanggal;merged.tanggal=merged.tanggal_mulai}
+    if(be&&(!pe||be>pe))merged.tanggal_selesai=b.tanggal_selesai||b.tanggal;
+    // Fill missing metadata from either row.
+    ["nama","nomor_telepon","alat","jam_mulai","jam_selesai","keperluan","catatan"].forEach(k=>{
+      if(!String(merged[k]||"").trim()&&String(b[k]||"").trim())merged[k]=b[k];
+    });
+    map.set(key,normalizeBooking(merged));
+  };
+  // Remote first: authoritative shared data. Pending local rows are then
+  // merged in only when they are not already represented remotely.
+  (Array.isArray(remote)?remote:[]).forEach(add);
+  (Array.isArray(local)?local:[]).forEach(add);
   return ensureUniqueBookingIds([...map.values()]);
 }
+
 async function refreshCalendar(){
   const status=$("bookingSyncStatus");if(status){status.textContent="⟳ Menyinkronkan jadwal bersama...";status.style.color="#666"}
   try{deletedBookingTombstones=await loadDeletedBookingsFromGitHub()}catch(error){console.warn("Gagal memuat daftar booking yang sudah dihapus:",error);deletedBookingTombstones=[]}
