@@ -42,9 +42,9 @@
     "deletedAt": "2026-10-05T06:07:28.542Z"
   },
   {
-    "id": "bk_muoy5gzj_jee2hm",
-    "fingerprint": "yayan|pyrolisis|2026-10-13|2026-10-13|08:00|16:00|082282915088",
-    "seriesKey": "yayan|pyrolisis|08:00|16:00|082282915088|carbon|-",
-    "deletedAt": "2026-10-05T06:11:29.108Z"
+    "id": "api_24",
+    "fingerprint": "yayan|pyrolisis|tue oct 13 2026 00:00:00 gmt+0700 (waktu indonesia barat)|tue oct 13 2026 00:00:00 gmt+0700 (waktu indonesia barat)|sat dec 30 1899 08:00:00 gmt+0707 (waktu indonesia barat)|sat dec 30 1899 16:00:00 gmt+0707 (waktu indonesia barat)|82282915088",
+    "seriesKey": "yayan|pyrolisis|sat dec 30 1899 08:00:00 gmt+0707 (waktu indonesia barat)|sat dec 30 1899 16:00:00 gmt+0707 (waktu indonesia barat)|82282915088|carbon|-",
+    "deletedAt": "2026-10-05T06:11:40.832Z"
   }
 ]
