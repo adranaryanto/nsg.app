@@ -273,18 +273,22 @@ function setJSON(key,value){localStorage.setItem(key,JSON.stringify(value))}
 function safeFilename(name){return String(name??"").replace(/[<>:"/\\|?*]/g,"_").trim()}
 function dateKey(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function parseDateLocal(v){
-  if(!v)return null;
+  if(v===null||v===undefined||v==="")return null;
   if(v instanceof Date&&!isNaN(v.getTime()))return new Date(v.getFullYear(),v.getMonth(),v.getDate());
   const s=String(v).trim();
-  let m=s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
-  if(m)return new Date(+m[1],+m[2]-1,+m[3]);
-  m=s.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})/);
-  if(m)return new Date(+m[3],+m[2]-1,+m[1]);
-  m=s.match(/^Date\((\d{4}),(\d{1,2}),(\d{1,2})\)/);
-  if(m)return new Date(+m[1],+m[2],+m[3]);
+  // Google Sheets GViz returns Date(YYYY,MM-1,DD); its month is zero-based.
+  let m=s.match(/^Date\((\d{4}),(\d{1,2}),(\d{1,2})(?:,[^)]*)?\)/);
+  if(m)return validLocalDate(+m[1],+m[2]+1,+m[3]);
+  // ISO dates must be parsed locally, not through UTC.
+  m=s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:$|[T\s])/);
+  if(m)return validLocalDate(+m[1],+m[2],+m[3]);
+  // Explicitly handle common Indonesian and US formatted dates.
+  m=s.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+  if(m){const a=+m[1],b=+m[2],y=+m[3];if(a>12)return validLocalDate(y,b,a);if(b>12)return validLocalDate(y,a,b);return validLocalDate(y,b,a)}
   const d=new Date(s);
   return isNaN(d.getTime())?null:new Date(d.getFullYear(),d.getMonth(),d.getDate());
 }
+function validLocalDate(y,m,d){const x=new Date(y,m-1,d);return x.getFullYear()===y&&x.getMonth()===m-1&&x.getDate()===d?x:null}
 function sameDate(a,b){return !!(a&&b&&a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate())}
 function formatDate(v){const d=v instanceof Date?v:parseDateLocal(v);return d?d.toLocaleDateString("id-ID"):String(v||"")}
 function formatMonth(d){return d.toLocaleDateString("id-ID",{month:"long",year:"numeric"})}
@@ -601,26 +605,48 @@ function openBookingSpreadsheet(){window.open(CONFIG.GOOGLE_BOOKING_SPREADSHEET_
 function goBackFromFiles(){showPage(filesReturnPage||"menu")}
 
 $("bookingForm").addEventListener("submit",async e=>{
-  e.preventDefault();const err=$("bookingError");err.textContent="";
-  const nama=$("bookingNama").value.trim(),nomor_telepon=$("bookingPhone").value.trim(),alat=$("bookingAlat").value.trim();let tanggal_mulai=$("tanggal_mulai").value.trim(),tanggal_selesai=$("tanggal_selesai").value.trim();const jam_mulai=$("jam_mulai").value.trim(),jam_selesai=$("jam_selesai").value.trim(),keperluan=$("bookingKeperluan").value.trim(),catatan=$("bookingCatatan").value.trim();
-  if(!nama){err.textContent="Nama peminjam wajib dipilih.";return}if(!alat){err.textContent="Nama alat wajib diisi.";return}if(!tanggal_mulai){err.textContent="Tanggal mulai wajib diisi.";return}if(!tanggal_selesai)tanggal_selesai=tanggal_mulai;const s=parseDateLocal(tanggal_mulai),z=parseDateLocal(tanggal_selesai);if(!s||!z){err.textContent="Format tanggal peminjaman tidak valid.";return}if(z<s){err.textContent="Tanggal selesai tidak boleh lebih awal daripada tanggal mulai.";return}if(!jam_mulai||!jam_selesai){err.textContent="Jam mulai dan jam selesai wajib diisi.";return}if(tanggal_mulai===tanggal_selesai&&jam_selesai<=jam_mulai){err.textContent="Untuk peminjaman 1 hari, jam selesai harus setelah jam mulai.";return}
+  e.preventDefault();
+  const err=$("bookingError");err.textContent="";
+  const form=e.currentTarget,submitButton=form.querySelector('button[type="submit"]');
+  const nama=$("bookingNama").value.trim(),nomor_telepon=$("bookingPhone").value.trim(),alat=$("bookingAlat").value.trim();
+  let tanggal_mulai=$("tanggal_mulai").value.trim(),tanggal_selesai=$("tanggal_selesai").value.trim();
+  const jam_mulai=$("jam_mulai").value.trim(),jam_selesai=$("jam_selesai").value.trim(),keperluan=$("bookingKeperluan").value.trim(),catatan=$("bookingCatatan").value.trim();
+  if(!nama){err.textContent="Nama peminjam wajib diisi.";return}
+  if(!alat){err.textContent="Nama alat wajib diisi.";return}
+  if(!tanggal_mulai){err.textContent="Tanggal mulai wajib diisi.";return}
+  if(!tanggal_selesai)tanggal_selesai=tanggal_mulai;
+  const s=parseDateLocal(tanggal_mulai),z=parseDateLocal(tanggal_selesai);
+  if(!s||!z){err.textContent="Format tanggal peminjaman tidak valid.";return}
+  if(z<s){err.textContent="Tanggal selesai tidak boleh lebih awal daripada tanggal mulai.";return}
+  if(!jam_mulai||!jam_selesai){err.textContent="Jam mulai dan jam selesai wajib diisi.";return}
+  if(tanggal_mulai===tanggal_selesai&&jam_selesai<=jam_mulai){err.textContent="Untuk peminjaman 1 hari, jam selesai harus setelah jam mulai.";return}
   const clientId="bk_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,8);
   const payload={action:"booking",type:"booking",id:clientId,bookingId:clientId,spreadsheetId:CONFIG.GOOGLE_BOOKING_SPREADSHEET_ID,spreadsheetUrl:CONFIG.GOOGLE_BOOKING_SPREADSHEET_URL,nama,nomor_telepon,alat,tanggal:tanggal_mulai,tanggal_mulai,tanggal_selesai,jam_mulai,jam_selesai,keperluan,catatan};
   const local=normalizeBooking({...payload,id:clientId,syncState:"pending",pendingAt:Date.now()});
-  calendarBookings=mergeBookings(calendarBookings,[local]);
-  setJSON(KEYS.bookings,calendarBookings);
-  renderCalendar();
-  // Simpan salinan lengkap (termasuk tanggal_selesai) sebelum refresh.
-  // Ini menjadi sumber pemulihan jika Google Sheets/API hanya mengembalikan
-  // tanggal mulai atau memecah booking multi-hari menjadi beberapa row.
-  await upsertBookingArchive(local);
+  if(submitButton){submitButton.disabled=true;submitButton.textContent="MENYIMPAN..."}
+  err.textContent="Mengirim booking ke Google Sheets...";
   try{
-    const r=await fetch(CONFIG.GOOGLE_APPS_SCRIPT_BOOKING_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8","Accept":"application/json"},body:JSON.stringify(payload)});const text=(await r.text()).trim();let result=null;try{result=JSON.parse(text)}catch{}
-    if(!r.ok)throw new Error("Google Apps Script HTTP "+r.status+"\n"+text);
-    if(result&&String(result.success).toLowerCase()!=="true"&&result.success!==true&&!(text.toLowerCase().includes("success")&&text.toLowerCase().includes("true")))throw new Error(result?.message||result?.error||text||"Google Apps Script menolak data booking.");
-    alert("Booking berhasil disimpan ke sumber bersama.");await refreshCalendar();setTimeout(()=>refreshCalendar(),1800);setTimeout(()=>refreshCalendar(),4500);
-  }catch(ex){alert("Booking belum tersinkron ke sumber bersama.\n\n"+ex.message+"\n\nBooking tetap ditahan sebagai Pending di perangkat ini dan akan dicoba lagi saat sinkronisasi berikutnya.")}
-  e.target.reset();$("tanggal_selesai").min="";
+    const response=await fetch(CONFIG.GOOGLE_APPS_SCRIPT_BOOKING_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8","Accept":"application/json"},body:JSON.stringify(payload),cache:"no-store",redirect:"follow"});
+    const responseText=(await response.text()).trim();let result=null;
+    try{result=JSON.parse(responseText)}catch{}
+    if(!response.ok)throw new Error("Google Apps Script HTTP "+response.status+". "+responseText);
+    if(!result||!(result.success===true||String(result.success).toLowerCase()==="true"))throw new Error(result?.message||result?.error||"Server tidak mengonfirmasi penyimpanan. Respons: "+(responseText||"kosong"));
+    // Server confirmed. Only now add the booking to the calendar/cache.
+    calendarBookings=mergeBookings(calendarBookings,[local]);
+    setJSON(KEYS.bookings,calendarBookings);renderCalendar();
+    err.textContent="Booking tersimpan. Memuat ulang jadwal bersama...";
+    try{await upsertBookingArchive(local)}catch(archiveError){console.warn("Archive booking gagal disimpan:",archiveError)}
+    await refreshCalendar();
+    alert("Booking berhasil disimpan dan kalender diperbarui.");
+    form.reset();$("tanggal_selesai").min="";
+  }catch(ex){
+    console.error("Booking gagal disimpan:",ex);
+    // Do not pretend that an unconfirmed request was saved. Preserve it locally
+    // as a pending draft so the user can retry without retyping everything.
+    calendarBookings=mergeBookings(calendarBookings,[local]);setJSON(KEYS.bookings,calendarBookings);renderCalendar();
+    err.textContent="Gagal mengonfirmasi booking ke Google Sheets: "+ex.message+". Data ditampilkan sebagai Pending lokal; periksa koneksi/Apps Script lalu klik KIRIM BOOKING lagi.";
+    alert(err.textContent);
+  }finally{if(submitButton){submitButton.disabled=false;submitButton.textContent="KIRIM BOOKING"}}
 });
 $("tanggal_mulai").addEventListener("change",()=>{$("tanggal_selesai").min=$("tanggal_mulai").value||"";if(!$("tanggal_selesai").value)$("tanggal_selesai").value=$("tanggal_mulai").value})
 $("tanggal_selesai").addEventListener("change",()=>{if($("tanggal_mulai").value&&$("tanggal_selesai").value<$("tanggal_mulai").value){alert("Tanggal selesai tidak boleh lebih awal daripada tanggal mulai.");$("tanggal_selesai").value=$("tanggal_mulai").value}})
@@ -634,7 +660,11 @@ async function readBookingsResponse(url){
   if(data.success===false)throw new Error(data.message||data.error||"Booking API menolak permintaan.");
   const rows=Array.isArray(data)?data:(Array.isArray(data.bookings)?data.bookings:Array.isArray(data.data)?data.data:Array.isArray(data.rows)?data.rows:null);
   if(!rows)throw new Error("Booking API tidak mengembalikan array bookings.");
-  return rows.map((x,i)=>normalizeBooking({...x,id:x?.id||x?.bookingId||x?.booking_id||("api_"+i)})).filter(Boolean);
+  return rows.map((x,i)=>{
+    const rawStart=x?.tanggal_mulai??x?.tanggal??x?.tanggalMulai??x?.startDate??"";
+    const rawEnd=x?.tanggal_selesai??x?.tanggalSelesai??x?.endDate??rawStart;
+    return normalizeBooking({...x,tanggal_mulai:sheetDateToISO(rawStart),tanggal_selesai:sheetDateToISO(rawEnd),tanggal:sheetDateToISO(rawStart),id:x?.id||x?.bookingId||x?.booking_id||("api_"+i)});
+  }).filter(Boolean);
 }
 async function loadBookingsFromSharedAPI(){
   const base=String(CONFIG.GOOGLE_APPS_SCRIPT_BOOKING_URL||"").trim();if(!base)throw new Error("URL Google Apps Script Booking belum diatur.");
@@ -650,13 +680,18 @@ async function loadBookingsFromGoogleSheet(){
   const data=JSON.parse(text.slice(a,z+1)),table=data?.table;if(!table||!Array.isArray(table.cols)||!Array.isArray(table.rows))return [];
   const headers=table.cols.map((c,i)=>normalizeSheetHeader(c?.label||c?.id||"kolom"+i));
   const pick=(obj,names)=>{for(const n of names){if(obj[n]!=null&&String(obj[n]).trim()!=="")return obj[n]}return ""};
-  return table.rows.map((row,idx)=>{const obj={};headers.forEach((h,i)=>{const c=row?.c?.[i];obj[h]=c?.f??c?.v??""});
-    const nama=pick(obj,["nama","namapeminjam","peminjam","name"]),alat=pick(obj,["alat","namabarang","barang","equipment"]),tanggal_mulai=pick(obj,["tanggalmulai","tanggal","startdate","start"]),tanggal_selesai=pick(obj,["tanggalselesai","enddate","end"]);
+  return table.rows.map((row,idx)=>{const obj={};headers.forEach((h,i)=>{const c=row?.c?.[i];obj[h]=c?.v??c?.f??""});
+    const nama=pick(obj,["nama","namapeminjam","peminjam","name"]),alat=pick(obj,["alat","namabarang","barang","equipment"]),tanggal_mulai=sheetDateToISO(pick(obj,["tanggalmulai","tanggal","startdate","start"])),tanggal_selesai=sheetDateToISO(pick(obj,["tanggalselesai","enddate","end"]));
     if(!String(nama).trim()||!String(tanggal_mulai).trim())return null;
     return normalizeBooking({id:pick(obj,["id","bookingid","booking_id"])||"sheet_"+idx,nama,alat,nomor_telepon:pick(obj,["nomortelepon","notelp","telepon","phone"]),tanggal_mulai,tanggal_selesai:tanggal_selesai||tanggal_mulai,tanggal:tanggal_mulai,jam_mulai:pick(obj,["jammulai","starttime"]),jam_selesai:pick(obj,["jamselesai","endtime"]),keperluan:pick(obj,["keperluan","purpose"]),catatan:pick(obj,["catatan","keterangan","note"])});
   }).filter(Boolean);
 }
 function normalizeSheetHeader(v){return String(v||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"").trim()}
+function sheetDateToISO(value){
+  if(value===null||value===undefined||value==="")return "";
+  const d=parseDateLocal(value);
+  return d?dateKey(d):String(value).trim();
+}
 function bookingSeriesKey(b){
   // Identitas logis booking tidak memakai tanggal, keperluan, atau catatan.
   // Beberapa backend hanya mengembalikan sebagian kolom; identitas harus
@@ -682,15 +717,15 @@ function saveLocalDeletedBookings(rows){
 }
 function isBookingDeleted(b){
   const id=String(b?.id||"").trim();
-  const fp=bookingSeriesKey(b);
   const fullFp=bookingFingerprint(b);
   const all=[...(Array.isArray(deletedBookingTombstones)?deletedBookingTombstones:[]),...loadLocalDeletedBookings()];
   return all.some(x=>{
-    if(typeof x==="string")return x===fp||x===fullFp||x===id;
+    if(typeof x==="string")return (id&&x===id)||x===fullFp;
     const xid=String(x?.id||"").trim();
     const xfp=String(x?.fingerprint||x?.key||"").trim();
-    const xseries=String(x?.seriesKey||"").trim();
-    return (id&&xid===id) || (fp&&(xfp===fp||xseries===fp)) || (fullFp&&(xfp===fullFp||xseries===fullFp));
+    // seriesKey is intentionally NOT a deletion key: it omits dates and
+    // would hide future bookings made by the same person for the same tool.
+    return (id&&xid===id)||(fullFp&&xfp===fullFp);
   });
 }
 function filterDeletedBookings(list){return (Array.isArray(list)?list:[]).filter(b=>!isBookingDeleted(b))}
@@ -784,7 +819,7 @@ async function markBookingDeleted(b){
   const tombstone={
     id:String(b?.id||"").trim(),
     fingerprint:bookingFingerprint(b),
-    seriesKey:bookingSeriesKey(b),
+    seriesKey:"",
     deletedAt:new Date().toISOString()
   };
 
@@ -826,15 +861,13 @@ async function markBookingDeleted(b){
   return tombstone;
 }
 function mergeBookings(remote,local){
-  // SATU booking harus tetap menjadi SATU object walaupun sumber bersama
-  // mengembalikannya sebagai beberapa row/hari atau memberikan ID berbeda.
-  // Kita sengaja menggunakan seriesKey sebagai identitas utama, sedangkan
-  // ID hanya dipertahankan sebagai metadata stabil bila tersedia.
+  // Deduplicate only records with the same full booking fingerprint. A series
+  // key without dates would incorrectly merge distinct future bookings.
   const map=new Map();
   const mergeOne=(item,source)=>{
     const b=normalizeBooking(item);
     if(!b||isBookingDeleted(b))return;
-    const key="series:"+bookingSeriesKey(b);
+    const key="booking:"+bookingFingerprint(b);
     const previous=map.get(key);
     if(!previous){
       map.set(key,{...b,__source:source});
@@ -913,6 +946,7 @@ async function refreshCalendar(){
     if(status){status.textContent="⚠ Sumber bersama tidak dapat diakses. Menampilkan cache/archive perangkat.";status.style.color="#a15c00"}
   }
   calendarBookings=filterDeletedBookings(ensureUniqueBookingIds(calendarBookings));setJSON(KEYS.bookings,calendarBookings);renderCalendar();
+  if(currentPage==="dashboard"&&typeof renderDashboard==="function")renderDashboard();
 }
 function ensureUniqueBookingIds(list){
   const used=new Set();
