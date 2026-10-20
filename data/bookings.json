@@ -34,5 +34,23 @@
     "jam_selesai": "08:45",
     "keperluan": "",
     "catatan": ""
+  },
+  {
+    "action": "booking",
+    "type": "booking",
+    "id": "bk_mvgkinlx_bbwsed",
+    "bookingId": "bk_mvgkinlx_bbwsed",
+    "spreadsheetId": "1FkxTNoUveHNvWseFoFZJA-xxNS3PgX1dSv7LjLx1UvU",
+    "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1FkxTNoUveHNvWseFoFZJA-xxNS3PgX1dSv7LjLx1UvU/edit?usp=sharing",
+    "nama": "Rayhan",
+    "nomor_telepon": "083112779229",
+    "alat": "Potentiostat",
+    "tanggal": "2026-10-21",
+    "tanggal_mulai": "2026-10-21",
+    "tanggal_selesai": "2026-10-23",
+    "jam_mulai": "08:00",
+    "jam_selesai": "17:00",
+    "keperluan": "",
+    "catatan": ""
   }
 ]
