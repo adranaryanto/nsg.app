@@ -70,5 +70,23 @@
     "jam_selesai": "09:00",
     "keperluan": "Pengukuran super kapasitor Bu lathifah",
     "catatan": ""
+  },
+  {
+    "action": "booking",
+    "type": "booking",
+    "id": "bk_mvpqsi6v_iuov8r",
+    "bookingId": "bk_mvpqsi6v_iuov8r",
+    "spreadsheetId": "1FkxTNoUveHNvWseFoFZJA-xxNS3PgX1dSv7LjLx1UvU",
+    "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1FkxTNoUveHNvWseFoFZJA-xxNS3PgX1dSv7LjLx1UvU/edit?usp=sharing",
+    "nama": "Celca",
+    "nomor_telepon": "083829554595",
+    "alat": "Pyrolysis",
+    "tanggal": "2026-11-06",
+    "tanggal_mulai": "2026-11-06",
+    "tanggal_selesai": "2026-11-06",
+    "jam_mulai": "08:00",
+    "jam_selesai": "16:00",
+    "keperluan": "",
+    "catatan": ""
   }
 ]
