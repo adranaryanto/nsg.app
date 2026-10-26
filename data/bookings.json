@@ -52,5 +52,23 @@
     "jam_selesai": "17:00",
     "keperluan": "",
     "catatan": ""
+  },
+  {
+    "action": "booking",
+    "type": "booking",
+    "id": "bk_mvoohhur_unkui8",
+    "bookingId": "bk_mvoohhur_unkui8",
+    "spreadsheetId": "1FkxTNoUveHNvWseFoFZJA-xxNS3PgX1dSv7LjLx1UvU",
+    "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1FkxTNoUveHNvWseFoFZJA-xxNS3PgX1dSv7LjLx1UvU/edit?usp=sharing",
+    "nama": "Rayhan",
+    "nomor_telepon": "083112779229",
+    "alat": "Potentiostat",
+    "tanggal": "2026-10-27",
+    "tanggal_mulai": "2026-10-27",
+    "tanggal_selesai": "2026-11-01",
+    "jam_mulai": "08:00",
+    "jam_selesai": "09:00",
+    "keperluan": "Pengukuran super kapasitor Bu lathifah",
+    "catatan": ""
   }
 ]
