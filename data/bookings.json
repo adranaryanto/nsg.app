@@ -196,5 +196,23 @@
     "jam_selesai": "15:00",
     "keperluan": "Pengujian CV dan EIS untuk data tugas akhir",
     "catatan": "-"
+  },
+  {
+    "action": "booking",
+    "type": "booking",
+    "id": "bk_mwagp9eg_nsknjs",
+    "bookingId": "bk_mwagp9eg_nsknjs",
+    "spreadsheetId": "1FkxTNoUveHNvWseFoFZJA-xxNS3PgX1dSv7LjLx1UvU",
+    "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1FkxTNoUveHNvWseFoFZJA-xxNS3PgX1dSv7LjLx1UvU/edit?usp=sharing",
+    "nama": "fitri",
+    "nomor_telepon": "082130698441",
+    "alat": "pyrolysis",
+    "tanggal": "2026-11-11",
+    "tanggal_mulai": "2026-11-11",
+    "tanggal_selesai": "2026-11-11",
+    "jam_mulai": "11:00",
+    "jam_selesai": "17:00",
+    "keperluan": "Pirolisis",
+    "catatan": ""
   }
 ]
