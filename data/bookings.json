@@ -178,5 +178,23 @@
     "jam_selesai": "05:00",
     "keperluan": "Uji superkapasitor & co2rr",
     "catatan": ""
+  },
+  {
+    "action": "booking",
+    "type": "booking",
+    "id": "bk_mwaev3hq_lxomlf",
+    "bookingId": "bk_mwaev3hq_lxomlf",
+    "spreadsheetId": "1FkxTNoUveHNvWseFoFZJA-xxNS3PgX1dSv7LjLx1UvU",
+    "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1FkxTNoUveHNvWseFoFZJA-xxNS3PgX1dSv7LjLx1UvU/edit?usp=sharing",
+    "nama": "Alfiani",
+    "nomor_telepon": "085723648909",
+    "alat": "Potensiostat",
+    "tanggal": "2026-11-13",
+    "tanggal_mulai": "2026-11-13",
+    "tanggal_selesai": "2026-11-13",
+    "jam_mulai": "13:30",
+    "jam_selesai": "15:00",
+    "keperluan": "Pengujian CV dan EIS untuk data tugas akhir",
+    "catatan": "-"
   }
 ]
