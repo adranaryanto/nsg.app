@@ -214,5 +214,23 @@
     "jam_selesai": "17:00",
     "keperluan": "Pirolisis",
     "catatan": ""
+  },
+  {
+    "action": "booking",
+    "type": "booking",
+    "id": "bk_mwiekb8n_oyi7pp",
+    "bookingId": "bk_mwiekb8n_oyi7pp",
+    "spreadsheetId": "1FkxTNoUveHNvWseFoFZJA-xxNS3PgX1dSv7LjLx1UvU",
+    "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1FkxTNoUveHNvWseFoFZJA-xxNS3PgX1dSv7LjLx1UvU/edit?usp=sharing",
+    "nama": "Rayhan",
+    "nomor_telepon": "083112779229",
+    "alat": "Potensiostat",
+    "tanggal": "2026-11-16",
+    "tanggal_mulai": "2026-11-16",
+    "tanggal_selesai": "2026-11-18",
+    "jam_mulai": "08:00",
+    "jam_selesai": "17:00",
+    "keperluan": "",
+    "catatan": ""
   }
 ]
