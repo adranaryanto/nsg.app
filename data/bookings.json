@@ -232,5 +232,23 @@
     "jam_selesai": "17:00",
     "keperluan": "",
     "catatan": ""
+  },
+  {
+    "action": "booking",
+    "type": "booking",
+    "id": "bk_mwivo5c1_5gt5vx",
+    "bookingId": "bk_mwivo5c1_5gt5vx",
+    "spreadsheetId": "1FkxTNoUveHNvWseFoFZJA-xxNS3PgX1dSv7LjLx1UvU",
+    "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1FkxTNoUveHNvWseFoFZJA-xxNS3PgX1dSv7LjLx1UvU/edit?usp=sharing",
+    "nama": "David",
+    "nomor_telepon": "085215644178",
+    "alat": "Potensiostat",
+    "tanggal": "2026-11-19",
+    "tanggal_mulai": "2026-11-19",
+    "tanggal_selesai": "2026-11-21",
+    "jam_mulai": "10:23",
+    "jam_selesai": "20:00",
+    "keperluan": "Uji photoelectrochemical",
+    "catatan": "Semoga bisa"
   }
 ]
